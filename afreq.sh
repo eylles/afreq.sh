@@ -73,7 +73,12 @@ tick() {
     gamemodeactive=""
   fi
 
-  get_ac_state
+  if [ -z "$DESKTOP" ]; then
+    get_ac_state
+  else
+    acstate=1
+  fi
+
   [ "$DBGOUT" = 1 ] && printf '%s\n' "AC state: $acstate"
   if [ "$acstate" = 1 ]; then
     GovnorPerf="$ONACGOV_PERF"
@@ -137,6 +142,11 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 [ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}"
+
+if [ ! -f /sys/class/power_supply/AC/online ]; then
+  DESKTOP=1
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}: running on desktop mode"
+fi
 
 # do we run as a one shot?
 if [ "$ONESHOT" = 1 ]; then
