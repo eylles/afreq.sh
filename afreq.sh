@@ -103,7 +103,7 @@ while [ "$#" -gt 0 ]; do
     esac
     shift
 done
-[ "$DBGOUT" = 1 ] && echo "${0##*/}"
+[ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}"
 
 # do we run as a one shot?
 if [ "$ONESHOT" = 1 ]; then
