@@ -4,6 +4,14 @@ BoostPath=/sys/devices/system/cpu/cpufreq/boost
 
 DutyCycle=5
 
+ONBATGOV_PERF=40
+ONBATGOV_SCHED=70
+ONBATBOOST=35
+
+ONACGOV_PERF=10
+ONACGOV_SCHED=60
+ONACBOOST=25
+
 [ -f "$BoostPath" ] && CanBoost=1
 
 read_file() {
@@ -20,7 +28,7 @@ set_governor() {
       [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$i"
       [ "$DBGOUT" = 1 ] && printf 'setting governor %s on cpu %s\n' "$1" "$i"
     else
-      [ "$DBGOUT" = 1 ] && printf 'nothing to change on cpu %s\n' "$i"
+      [ "$DBGOUT" = 1 ] && printf '%s governor already: %s\n' "$i" "$1"
     fi
   done
 }
@@ -32,7 +40,7 @@ set_boost() {
       [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$BoostPath"
       [ "$DBGOUT" = 1 ] && printf 'setting %s to %s\n' "$1" "$BoostPath"
     else
-      [ "$DBGOUT" = 1 ] && printf 'nothing to change on %s\n' "$BoostPath"
+      [ "$DBGOUT" = 1 ] && printf '%s already: %s\n' "$BoostPath" "$1"
     fi
   fi
 }
@@ -43,9 +51,16 @@ get_cpu_usage() {
   cpupercentage=$((100-$(vmstat 1 2 | tail -1 | awk '{printf "%d\n", $15}')))
 }
 
+acstate=""
+
+get_ac_state() {
+  acstate=$(read_file /sys/class/power_supply/AC/online)
+}
+
 tick() {
 
   get_cpu_usage
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "cpu percentage: ${cpupercentage}%"
 
   # it could be installed or uninstalled during service runtime
   if command -v gamemoded >/dev/null; then
@@ -58,23 +73,41 @@ tick() {
     gamemodeactive=""
   fi
 
+  get_ac_state
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "AC state: $acstate"
+  if [ "$acstate" = 1 ]; then
+    GovnorPerf="$ONACGOV_PERF"
+    GovnorScd="$ONACGOV_SCHED"
+    BoostActiv="$ONACBOOST"
+  else
+    GovnorPerf="$ONBATGOV_PERF"
+    GovnorScd="$ONBATGOV_SCHED"
+    BoostActiv="$ONBATBOOST"
+  fi
+
   # set governor if gamemoded is not active
   if [ -z "$gamemodeactive" ]; then
-    case "${cpupercentage}" in 
-      [1-9]|1[0-9]|20) governor="powersave" ;;
-      2[1-9]|[3-5][0-9]|60) governor="performance" ;;
-      6[1-9]|[7-9][0-9]|100) governor="schedutil" ;;
-    esac
+    if [ "$cpupercentage" -lt "$GovnorPerf" ]; then
+      governor="powersave"
+    fi
+    if [ "$cpupercentage" -ge "$GovnorPerf" ] && [ "$cpupercentage" -lt "$GovnorScd" ]; then
+      governor="performance"
+    fi
+    if [ "$cpupercentage" -ge "$GovnorScd" ]; then
+      governor="schedutil"
+    fi
 
     set_governor "$governor"
   else
     [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
   fi
 
-  case "${cpupercentage}" in
-    [1-9]|[1-2][0-9]|30)   boostsetting=0 ;;
-    3[1-9]|[4-9][0-9]|100) boostsetting=1 ;;
-  esac
+  if [ "$cpupercentage" -lt "$BoostActiv" ]; then
+    boostsetting="0"
+  fi
+  if [ "$cpupercentage" -ge "$BoostActiv" ]; then
+    boostsetting="1"
+  fi
 
   set_boost "$boostsetting"
 }
