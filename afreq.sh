@@ -65,7 +65,7 @@ tick() {
 
   # it could be installed or uninstalled during service runtime
   if command -v gamemoded >/dev/null; then
-    if LANG=C gamemoded -s | grep -q " active"; then
+    if pgrep -f gamemoderun >/dev/null; then
       gamemodeactive=1
     else
       gamemodeactive=""
