@@ -14,6 +14,10 @@ install:
 	cp afreq.sh $(PREFIX)/sbin/afreq
 	chmod 755 $(PREFIX)/sbin/afreq
 	echo afreq installed in $(PREFIX)/sbin
+	mkdir -p $(PREFIX)/bin
+	cp perfmod.sh $(PREFIX)/bin/perfmod
+	chmod 755 $(PREFIX)/bin/perfmod
+	echo perfmod installed in $(PREFIX)/bin
 
 install-sysv: sysvserv
 	mkdir -p $(SERVICE_LOCATION_SYSV)

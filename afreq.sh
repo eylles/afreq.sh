@@ -93,16 +93,22 @@ tick() {
 
   # set governor if gamemoded is not active
   if [ -z "$gamemodeactive" ]; then
-    if [ "$cpupercentage" -lt "$GovnorPerf" ]; then
-      governor="powersave"
-    fi
-    if [ "$cpupercentage" -ge "$GovnorPerf" ] && [ "$cpupercentage" -lt "$GovnorScd" ]; then
+    if pgrep -a perfmod >/dev/null; then
+      [ "$DBGOUT" = 1 ] && printf 'perfmod running, setting performance governor\n'
       governor="performance"
+    else
+      [ "$DBGOUT" = 1 ] && printf '%s\n' "neither gamemode nor perfmod"
+      if [ "$cpupercentage" -lt "$GovnorPerf" ]; then
+        governor="powersave"
+      fi
+      if [ "$cpupercentage" -ge "$GovnorPerf" ] && [ "$cpupercentage" -lt "$GovnorScd" ]; then
+        governor="performance"
+      fi
+      if [ "$cpupercentage" -ge "$GovnorScd" ]; then
+        governor="schedutil"
+      fi
     fi
-    if [ "$cpupercentage" -ge "$GovnorScd" ]; then
-      governor="schedutil"
-    fi
-
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "$governor"
     set_governor "$governor"
   else
     [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
