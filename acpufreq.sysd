@@ -1,0 +1,13 @@
+[Unit]
+Description=acpufreq - Auto CPU Frequency Daemon
+ConditionVirtualization=no
+
+[Service]
+Type=simple
+User=root
+ExecStart=placeholder/afreq
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+

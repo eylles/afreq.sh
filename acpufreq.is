@@ -11,7 +11,7 @@ fi
 # Default-Stop:   0 1 6
 # Description:    Auto cpu frequency daemon
 ### END INIT INFO
-DAEMON=/usr/local/sbin/afreq
+DAEMON=placeholder/afreq
 # no args, the -b and --daemon flags of sacf fork to background
 # and that is NOT what we want for process supervision
 DAEMON_ARGS=""
