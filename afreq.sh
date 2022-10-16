@@ -24,9 +24,10 @@ read_file() {
 set_governor() {
   for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do 
     currentSetting=$(read_file "$i")
+      [ "$DBGOUT" = 1 ] && printf '%s current governor: %s\n' "$i" "$currentSetting"
     if [ "$currentSetting" != "$1" ]; then
       [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$i"
-      [ "$DBGOUT" = 1 ] && printf 'setting governor %s on cpu %s\n' "$1" "$i"
+      [ "$DBGOUT" = 1 ] && printf '%s setting governor: %s\n' "$i" "$1"
     else
       [ "$DBGOUT" = 1 ] && printf '%s governor already: %s\n' "$i" "$1"
     fi
