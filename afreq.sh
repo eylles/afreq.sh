@@ -4,6 +4,7 @@ BoostPath=/sys/devices/system/cpu/cpufreq/boost
 
 DutyCycle=5
 WorkCycle=$(( DutyCycle * 2 ))
+__AFREQ_NO_CONTINUE=""
 
 ONBATGOV_PERF=40
 ONBATGOV_SCHED=70
@@ -126,8 +127,8 @@ tick() {
 }
 
 outHandler () {
-    NO_CONTINUE=1
     [ "$DBGOUT" = 1 ] && printf '\n%s\n' "exiting on signal: $1"
+    __AFREQ_NO_CONTINUE=1
 }
 
 # handle unexpected exits and termination
@@ -161,7 +162,10 @@ if [ "$ONESHOT" = 1 ]; then
 else
   count=0
   tick
-  while [ -z "$NO_CONTINUE" ]; do
+  while [ -z "$__AFREQ_NO_CONTINUE" ]; do
+    if [ -n "$__AFREQ_NO_CONTINUE" ]; then
+      exit 0
+    fi
     if [ "$count" -eq "$WorkCycle" ]; then
       tick
       count=0
@@ -170,4 +174,5 @@ else
     fi
     sleep 0.5
   done
+  exit 0
 fi
