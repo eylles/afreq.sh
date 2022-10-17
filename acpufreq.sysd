@@ -5,7 +5,7 @@ ConditionVirtualization=no
 [Service]
 Type=simple
 User=root
-ExecStart=placeholder/afreq
+ExecStart=placeholder/sbin/afreq
 Restart=on-failure
 
 [Install]

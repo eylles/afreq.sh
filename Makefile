@@ -4,10 +4,10 @@ SERVICE_LOCATION_SYSD = /etc/systemd/system
 PREFIX = /usr/local
 
 sysvserv:
-	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)sbin|" acpufreq.is > $(NAME)
+	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" acpufreq.is > $(NAME)
 
 sysdserv:
-	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)sbin|" acpufreq.sysd > $(NAME).service
+	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" acpufreq.sysd > $(NAME).service
 
 install:
 	mkdir -p $(PREFIX)/sbin
@@ -24,17 +24,21 @@ install-sysv: sysvserv
 	cp $(NAME) $(SERVICE_LOCATION_SYSV)/
 	chmod 755 $(SERVICE_LOCATION_SYSV)/$(NAME)
 	echo sysvinit service: $(NAME) installed in $(SERVICE_LOCATION_SYSV)
+	rm $(NAME)
 
 install-sysd: sysdserv
 	mkdir -p $(SERVICE_LOCATION_SYSD)
 	cp $(NAME).service $(SERVICE_LOCATION_SYSD)/
 	echo systemd unit $(NAME).service installed in $(SERVICE_LOCATION_SYSD)
+	rm $(NAME).service
 
 install-all: install install-sysv install-sysd
 
 uninstall:
 	rm $(PREFIX)/sbin/afreq
 	echo afreq uninstalled from $(PREFIX)sbin
+	rm $(PREFIX)/bin/perfmod
+	echo perfmod uninstalled from $(PREFIX)/bin
 	rm -v $(SERVICE_LOCATION_SYSV)/$(NAME)
 	echo $(NAME) uninstalled from $(SERVICE_LOCATION_SYSV)
 	rm -v $(SERVICE_LOCATION_SYSD)/$(NAME).service

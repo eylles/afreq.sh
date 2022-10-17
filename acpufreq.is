@@ -1,8 +1,4 @@
 #!/bin/sh
-# kFreeBSD do not accept scripts as interpreters, using #!/bin/sh and sourcing.
-if [ true != "$INIT_D_SCRIPT_SOURCED" ] ; then
-    set "$0" "$@"; INIT_D_SCRIPT_SOURCED=true . /lib/init/init-d-script
-fi
 ### BEGIN INIT INFO
 # Provides:       auto cpu frequency
 # Required-Start: $remote_fs
@@ -11,9 +7,96 @@ fi
 # Default-Stop:   0 1 6
 # Description:    Auto cpu frequency daemon
 ### END INIT INFO
-DAEMON=placeholder/afreq
-# no args, the -b and --daemon flags of sacf fork to background
-# and that is NOT what we want for process supervision
+DAEMON=placeholder/sbin/afreq
 DAEMON_ARGS=""
+RUN_AS_USER=root
+NAME=${DAEMON##*/}
 PIDFILE=/var/run/acpufreq.pid
-START_ARGS="--background --make-pidfile"
+RELOAD_SIGNAL="HUP"
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+# PATH should only include /usr/* if it runs after the mountnfs.sh
+# script.  Scripts running before mountnfs.sh should remove the /usr/*
+# entries.
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
+# If the daemon is not there, then exit.
+if ! [ -x ${DAEMON} ] ; then
+    log_failure_msg "Cannot find an executable at ${DAEMON}"
+    exit 1
+fi
+
+case $1 in
+    start)
+        # Check if pidfile exists
+        if [ -e ${PIDFILE} ]; then
+            # Check the actual status of process
+            status_of_proc -p ${PIDFILE} ${DAEMON} ${NAME} && status="0" || status="$?"
+            # If the status is successfull, no need to start again.
+            [ ${status} = "0" ] && exit 0
+        fi
+        # Start the daemon.
+        log_daemon_msg "Starting ${NAME}" 
+        # Start the daemon with the help of start-stop-daemon
+        start-stop-daemon -S --quiet --oknodo --pidfile ${PIDFILE} --make-pidfile --background \
+            --chuid ${RUN_AS_USER} --startas ${DAEMON} -- ${DAEMON_ARGS}
+        if [ "$?" = "0" ]; then
+            log_end_msg 0
+        else
+            log_end_msg 1
+        fi
+        ;;
+    stop)
+        if [ -e ${PIDFILE} ]; then
+            status_of_proc -p ${PIDFILE} ${DAEMON} ${NAME} && status="0" || status="$?"
+            if [ "$status" = "0" ]; then
+                log_daemon_msg "Stopping ${NAME}" 
+                start-stop-daemon -K --signal TERM --quiet --oknodo --pidfile ${PIDFILE}
+                if [ "$?" = "0" ]; then
+                    log_end_msg 0
+                    rm -rf ${PIDFILE}
+                else
+                    log_end_msg 1
+                fi
+            fi
+        else
+            log_daemon_msg "${NAME} is not running"
+            log_end_msg 0
+        fi
+        ;;
+    restart)
+        $0 stop && sleep 3 && $0 start
+        ;;
+    status)
+        # Check the status of the process.
+        if [ -e ${PIDFILE} ]; then
+            status_of_proc -p ${PIDFILE} ${DAEMON} ${NAME} && exit 0 || exit $?
+        else
+            log_daemon_msg "${NAME} is not running (no pidfile)"
+            log_end_msg 0
+        fi
+        ;;
+    reload)
+        if [ -e ${PIDFILE} ]; then
+            log_daemon_msg "Reloading ${NAME}" 
+            start-stop-daemon -K --quiet --signal ${RELOAD_SIGNAL:-USR1} --pidfile ${PIDFILE}
+            if [ "$?" = "0" ]; then
+                log_end_msg 0
+            else
+                log_end_msg 1
+            fi
+        else
+            log_failure_msg "Cannot find pidfile at ${PIDFILE}"
+        fi
+        ;;
+    *)
+        # Invalid argument, print the usage message.
+        echo "Usage: $0 {start|stop|restart|reload|status}"
+        exit 2
+        ;;
+esac
