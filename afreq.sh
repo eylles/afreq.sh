@@ -1,5 +1,15 @@
 #!/bin/sh
 
+# PATH should only include /usr/* if it runs after the mountnfs.sh
+# script.  Scripts running before mountnfs.sh should remove the /usr/*
+# entries.
+PATH=/usr/sbin:/usr/bin:/sbin:/bin
+export PATH
+
+# unset variables
+unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCHED ONBATBOOST \
+      ONACGOV_PERF ONACGOV_SCHED ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
+
 BoostPath=/sys/devices/system/cpu/cpufreq/boost
 
 DutyCycle=5
