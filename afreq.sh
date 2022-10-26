@@ -54,6 +54,11 @@ read_file() {
   done < "$1"
 }
 
+is_int() {
+  # usage: is_int "number"
+  printf %d "$1" >/dev/null 2>&1
+}
+
 keyval_parse() {
   old_IFS="$IFS"
   # Setting 'IFS' tells 'read' where to split the string.
@@ -61,22 +66,26 @@ keyval_parse() {
   # Skip over lines containing comments.
   # (Lines starting with '#').
   [ "${key##\#*}" ] || continue
-
   # '$key' stores the key.
   # '$val' stores the value.
-  printf '%s: %s\n' "$key" "$val"
-
-  # Alternatively replacing 'printf' with the following
-  # populates variables called '$key' with the value of '$val'.
-  #
-  # NOTE: I would extend this with a check to ensure 'key' is
-  #       a valid variable name.
-  # export "$key=$val"
-  #
-  # Example with error handling:
-  # export "$key=$val" 2>/dev/null ||
-  #     printf 'warning %s is not a valid variable name\n' "$key"
-  done < "file"
+  # validate type
+  case "${key}" in
+    *THRESH*)
+      # check integer type for thresholds
+      if is_int "$val"; then
+        case "${key}" in
+          "AC_THRESH_PERF")     CONF_ac_thresh_perf="$val" ;;
+          "AC_THRESH_SCHED")   CONF_ac_thresh_sched="$val" ;;
+          "AC_THRESH_BOOST")   CONF_ac_thresh_boost="$val" ;;
+          "BAT_THRESH_PERF")   CONF_bat_thresh_perf="$val" ;;
+          "BAT_THRESH_SCHED") CONF_bat_thresh_sched="$val" ;;
+          "BAT_THRESH_BOOST") CONF_bat_thresh_boost="$val" ;;
+        esac
+      fi
+      ;;
+    *) printf '%s\n' "invalid option ${key}"
+  esac
+  done < "$1"
   IFS="$old_IFS"
 }
 
