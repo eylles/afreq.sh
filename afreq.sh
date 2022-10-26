@@ -28,6 +28,7 @@ AFREQ_NO_CONTINUE=""
 DutyCycle=5
 WorkCycle=$(( DutyCycle * 2 ))
 
+# defaults
 ONBATGOV_PERF=40
 ONBATGOV_SCHED=70
 ONBATBOOST=35
@@ -35,6 +36,14 @@ ONBATBOOST=35
 ONACGOV_PERF=10
 ONACGOV_SCHED=60
 ONACBOOST=25
+
+# empty conf vars
+CONF_ac_thresh_perf=""
+CONF_ac_thresh_sched=""
+CONF_ac_thresh_boost=""
+CONF_bat_thresh_perf=""
+CONF_bat_thresh_sched=""
+CONF_bat_thresh_boost=""
 
 [ -f "$BoostPath" ] && CanBoost=1
 
