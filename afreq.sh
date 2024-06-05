@@ -25,8 +25,10 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCH
 BoostPath=/sys/devices/system/cpu/cpufreq/boost
 
 AFREQ_NO_CONTINUE=""
+# how many seconds do we tick
 DutyCycle=5
-WorkCycle=$(( DutyCycle * 2 ))
+CyclesPerSecond=2
+WorkCycle=""
 
 # defaults
 ONBATGOV_PERF=40
@@ -57,6 +59,12 @@ read_file() {
 # usage: is_int "number"
 is_int() {
   printf %d "$1" >/dev/null 2>&1
+}
+
+calc_workcycle() {
+  #WorkCycle
+  result=$(( DutyCycle * CyclesPerSecond ))
+  printf '%d\n' $result
 }
 
 keyval_parse() {
@@ -228,6 +236,7 @@ if [ "$ONESHOT" = 1 ]; then
 else
   count=0
   tick
+  WorkCycle=$(calc_workcycle)
   AFREQ_NO_CONTINUE=""
   while [ -z "$AFREQ_NO_CONTINUE" ]; do
     if [ -n "$AFREQ_NO_CONTINUE" ]; then
