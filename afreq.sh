@@ -24,6 +24,7 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCH
 
 BoostPath=/sys/devices/system/cpu/cpufreq/boost
 
+CONFIG=/etc/default/afreqconfig
 AFREQ_NO_CONTINUE=""
 # how many seconds do we tick
 DutyCycle=5
@@ -209,6 +210,11 @@ outHandler () {
 
 loadConf() {
   : # placeholder
+  # parse config file if it exists
+  if [ -f "$CONFIG" ]; then
+    keyval_parse "$CONFIG"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}: config parsed"
+  fi
 }
 
 # handle unexpected exits and termination
