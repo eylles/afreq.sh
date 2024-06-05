@@ -54,8 +54,8 @@ read_file() {
   done < "$1"
 }
 
+# usage: is_int "number"
 is_int() {
-  # usage: is_int "number"
   printf %d "$1" >/dev/null 2>&1
 }
 
