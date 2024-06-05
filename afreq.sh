@@ -207,9 +207,14 @@ outHandler () {
     AFREQ_NO_CONTINUE=1
 }
 
+loadConf() {
+  : # placeholder
+}
+
 # handle unexpected exits and termination
 trap 'outHandler "INT"' INT
 trap 'outHandler "TERM"' TERM
+trap 'loadConf' USR1
 
 ## MAIN ##
 # input parsing
