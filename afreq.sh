@@ -22,6 +22,8 @@ export PATH
 unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCHED ONBATBOOST \
       ONACGOV_PERF ONACGOV_SCHED ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
 
+myname="${0##*/}"
+
 BoostPath=/sys/devices/system/cpu/cpufreq/boost
 
 CONFIG=/etc/default/afreqconfig
@@ -213,7 +215,7 @@ loadConf() {
   # parse config file if it exists
   if [ -f "$CONFIG" ]; then
     keyval_parse "$CONFIG"
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}: config parsed"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
   fi
 }
 
@@ -230,17 +232,17 @@ while [ "$#" -gt 0 ]; do
         oneshot) ONESHOT=1 ;;
         dryrun)  DRYRUN=1  ;;
         *)
-          printf '%s\n' "${0##*/}: error, invalid argument: ${1}"
+          printf '%s\n' "${myname}: error, invalid argument: ${1}"
           exit 1
           ;;
     esac
     shift
 done
-[ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}"
+[ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}"
 
 if [ ! -f /sys/class/power_supply/AC/online ]; then
   DESKTOP=1
-  [ "$DBGOUT" = 1 ] && printf '%s\n' "${0##*/}: running on desktop mode"
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: running on desktop mode"
 fi
 
 # do we run as a one shot?
