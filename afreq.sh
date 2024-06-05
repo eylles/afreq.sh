@@ -46,6 +46,7 @@ CONF_ac_thresh_boost=""
 CONF_bat_thresh_perf=""
 CONF_bat_thresh_sched=""
 CONF_bat_thresh_boost=""
+CONF_interval=""
 
 [ -f "$BoostPath" ] && CanBoost=1
 
@@ -88,6 +89,7 @@ keyval_parse() {
           "BAT_THRESH_PERF")   CONF_bat_thresh_perf="$val" ;;
           "BAT_THRESH_SCHED") CONF_bat_thresh_sched="$val" ;;
           "BAT_THRESH_BOOST") CONF_bat_thresh_boost="$val" ;;
+          "INTERVAL") CONF_interval="$val" ;;
         esac
       fi
       ;;
