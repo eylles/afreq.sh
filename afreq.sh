@@ -24,7 +24,7 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCH
 
 myname="${0##*/}"
 
-BoostPath=/sys/devices/system/cpu/cpufreq/boost
+BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 
 CONFIG=/etc/default/afreqconfig
 AFREQ_NO_CONTINUE=""
