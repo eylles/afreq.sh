@@ -25,6 +25,7 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCH
 myname="${0##*/}"
 
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
+cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 
 CONFIG=/etc/default/afreqconfig
 AFREQ_NO_CONTINUE=""
@@ -107,7 +108,7 @@ keyval_parse() {
 }
 
 set_governor() {
-  for i in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+  for i in $cpu_paths; do
     currentSetting=$(read_file "$i")
       [ "$DBGOUT" = 1 ] && printf '%s current governor: %s\n' "$i" "$currentSetting"
     if [ "$currentSetting" != "$1" ]; then
