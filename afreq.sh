@@ -92,8 +92,12 @@ keyval_parse() {
           "BAT_THRESH_PERF")   CONF_bat_thresh_perf="$val" ;;
           "BAT_THRESH_SCHED") CONF_bat_thresh_sched="$val" ;;
           "BAT_THRESH_BOOST") CONF_bat_thresh_boost="$val" ;;
-          "INTERVAL") CONF_interval="$val" ;;
         esac
+      fi
+      ;;
+    "INTERVAL")
+      if is_int "$val"; then
+        CONF_interval="$val"
       fi
       ;;
     *) printf '%s\n' "invalid option ${key}"
