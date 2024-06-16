@@ -27,21 +27,32 @@ myname="${0##*/}"
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 
+# by default: /etc/default/afreqconfig
 CONFIG=/etc/default/afreqconfig
 AFREQ_NO_CONTINUE=""
 # how many seconds do we tick
-DutyCycle=5
+DEF_DutyCycle=5
+DutyCycle=""
 CyclesPerSecond=2
+# cycles to tick
 WorkCycle=""
 
 # defaults
-ONBATGOV_PERF=40
-ONBATGOV_SCHED=70
-ONBATBOOST=35
+DEF_ONBATGOV_PERF=40
+DEF_ONBATGOV_SCHED=70
+DEF_ONBATBOOST=35
 
-ONACGOV_PERF=10
-ONACGOV_SCHED=60
-ONACBOOST=25
+DEF_ONACGOV_PERF=10
+DEF_ONACGOV_SCHED=60
+DEF_ONACBOOST=25
+
+ONBATGOV_PERF=""
+ONBATGOV_SCHED=""
+ONBATBOOST=""
+
+ONACGOV_PERF=""
+ONACGOV_SCHED=""
+ONACBOOST=""
 
 # empty conf vars
 CONF_ac_thresh_perf=""
@@ -66,6 +77,9 @@ is_int() {
   printf %d "$1" >/dev/null 2>&1
 }
 
+# return the work cycle
+# calculated as:
+#   DutyCycle * CyclesPerSecond
 calc_workcycle() {
   #WorkCycle
   result=$(( DutyCycle * CyclesPerSecond ))
@@ -97,6 +111,7 @@ keyval_parse() {
       fi
       ;;
     "INTERVAL")
+      # check integer type
       if is_int "$val"; then
         CONF_interval="$val"
       fi
@@ -221,6 +236,30 @@ loadConf() {
   if [ -f "$CONFIG" ]; then
     keyval_parse "$CONFIG"
     [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+  else
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
+  fi
+  if [ -z "$CONF_ac_thresh_perf" ]; then
+    ONACGOV_PERF=$DEF_ONACGOV_PERF
+  fi
+  if [ -z "$CONF_ac_thresh_sched" ]; then
+    ONACGOV_SCHED=$DEF_ONACGOV_SCHED
+  fi
+  if [ -z "$CONF_ac_thresh_boost" ]; then
+    ONACBOOST=$DEF_ONACBOOST
+  fi
+  if [ -z "$CONF_bat_thresh_perf" ]; then
+    ONBATGOV_PERF=$DEF_ONBATGOV_PERF
+  fi
+  if [ -z "$CONF_bat_thresh_sched" ]; then
+    ONBATGOV_SCHED=$DEF_ONBATGOV_SCHED
+  fi
+  if [ -z "$CONF_bat_thresh_boost" ]; then
+    ONBATBOOST=$DEF_ONBATBOOST
+  fi
+  if [ -z "$CONF_interval" ]; then
+    DutyCycle=$DEF_DutyCycle
+    WorkCycle=$(calc_workcycle)
   fi
 }
 
@@ -250,13 +289,14 @@ if [ ! -f /sys/class/power_supply/AC/online ]; then
   [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: running on desktop mode"
 fi
 
+loadConf
+
 # do we run as a one shot?
 if [ "$ONESHOT" = 1 ]; then
   tick
 else
   count=0
   tick
-  WorkCycle=$(calc_workcycle)
   AFREQ_NO_CONTINUE=""
   while [ -z "$AFREQ_NO_CONTINUE" ]; do
     if [ -n "$AFREQ_NO_CONTINUE" ]; then
