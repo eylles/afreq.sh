@@ -99,7 +99,7 @@ keyval_parse() {
   case "${key}" in
     *THRESH*)
       # check integer type for thresholds
-      if is_int "$val"; then
+      if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
         case "${key}" in
           "AC_THRESH_PERF")     CONF_ac_thresh_perf="$val" ;;
           "AC_THRESH_SCHED")   CONF_ac_thresh_sched="$val" ;;
