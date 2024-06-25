@@ -112,7 +112,7 @@ keyval_parse() {
       ;;
     "INTERVAL")
       # check integer type
-      if is_int "$val"; then
+      if is_int "$val" && [ "$val" -ge 1 ]; then
         CONF_interval="$val"
       fi
       ;;
