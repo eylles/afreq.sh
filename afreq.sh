@@ -239,28 +239,44 @@ loadConf() {
   else
     [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
   fi
+
+  # fallback to defaults for whatever value wasn't set
   if [ -z "$CONF_ac_thresh_perf" ]; then
     ONACGOV_PERF=$DEF_ONACGOV_PERF
+  else
+    ONACGOV_PERF=$CONF_ac_thresh_perf
   fi
   if [ -z "$CONF_ac_thresh_sched" ]; then
     ONACGOV_SCHED=$DEF_ONACGOV_SCHED
+  else
+    ONACGOV_SCHED=$CONF_ac_thresh_sched
   fi
   if [ -z "$CONF_ac_thresh_boost" ]; then
     ONACBOOST=$DEF_ONACBOOST
+  else
+    ONACBOOST=$CONF_ac_thresh_boost
   fi
   if [ -z "$CONF_bat_thresh_perf" ]; then
     ONBATGOV_PERF=$DEF_ONBATGOV_PERF
+  else
+    ONBATGOV_PERF=$CONF_bat_thresh_perf
   fi
   if [ -z "$CONF_bat_thresh_sched" ]; then
     ONBATGOV_SCHED=$DEF_ONBATGOV_SCHED
+  else
+    ONBATGOV_SCHED=$CONF_bat_thresh_sched
   fi
   if [ -z "$CONF_bat_thresh_boost" ]; then
     ONBATBOOST=$DEF_ONBATBOOST
+  else
+    ONBATBOOST=$CONF_bat_thresh_boost
   fi
   if [ -z "$CONF_interval" ]; then
     DutyCycle=$DEF_DutyCycle
-    WorkCycle=$(calc_workcycle)
+  else
+    DutyCycle=$CONF_interval
   fi
+  WorkCycle=$(calc_workcycle)
 }
 
 # handle unexpected exits and termination
