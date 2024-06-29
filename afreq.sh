@@ -230,6 +230,28 @@ outHandler () {
     AFREQ_NO_CONTINUE=1
 }
 
+# return type: int
+# usage: min value minimum_value
+min () {
+  if [ "$1" -lt "$2" ]; then
+    result="$2"
+  else
+    result="$1"
+  fi
+  return "$result"
+}
+
+# return type: int
+# usage: max value maximum_value
+max () {
+  if [ "$1" -gt "$2" ]; then
+    result="$2"
+  else
+    result="$1"
+  fi
+  return "$result"
+}
+
 loadConf() {
   : # placeholder
   # parse config file if it exists
