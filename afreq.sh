@@ -299,6 +299,21 @@ loadConf() {
     DutyCycle=$CONF_interval
   fi
   WorkCycle=$(calc_workcycle)
+
+  # ensure no stupid values
+  ONBATGOV_PERF=$(min "$ONBATGOV_PERF" 10)
+  ONBATGOV_PERF=$(max "$ONBATGOV_PERF" 40)
+  ONBATGOV_SCHED=$(min "$ONBATGOV_SCHED" 60)
+  ONBATGOV_SCHED=$(max "$ONBATGOV_SCHED" 90)
+  ONBATBOOST=$(min "$ONBATBOOST" 10)
+  ONBATBOOST=$(min "$ONBATBOOST" 90)
+
+  ONACGOV_PERF=$(min "$ONACGOV_PERF" 10)
+  ONACGOV_PERF=$(max "$ONACGOV_PERF" 40)
+  ONACGOV_SCHED=$(min "$ONACGOV_SCHED" 60)
+  ONACGOV_SCHED=$(max "$ONACGOV_SCHED" 90)
+  ONACBOOST=$(min "$ONACBOOST" 10)
+  ONACBOOST=$(min "$ONACBOOST" 90)
 }
 
 # handle unexpected exits and termination
