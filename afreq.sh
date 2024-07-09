@@ -238,7 +238,7 @@ min () {
   else
     result="$1"
   fi
-  return "$result"
+  printf '%d\n' "$result"
 }
 
 # return type: int
@@ -249,7 +249,7 @@ max () {
   else
     result="$1"
   fi
-  return "$result"
+  printf '%d\n' "$result"
 }
 
 loadConf() {
