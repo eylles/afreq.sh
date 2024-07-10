@@ -19,8 +19,8 @@ export PATH
 # used by the program
 
 # unset variables
-unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_PERF ONBATGOV_SCHED ONBATBOOST \
-      ONACGOV_PERF ONACGOV_SCHED ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
+unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 ONBATBOOST \
+      ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
 
 myname="${0##*/}"
 
@@ -38,30 +38,46 @@ CyclesPerSecond=2
 WorkCycle=""
 
 # defaults
-DEF_ONBATGOV_PERF=40
-DEF_ONBATGOV_SCHED=70
+DEF_ONBATGOV_ST2=40
+DEF_ONBATGOV_ST3=70
 DEF_ONBATBOOST=35
 
-DEF_ONACGOV_PERF=10
-DEF_ONACGOV_SCHED=60
+DEF_ONACGOV_ST2=10
+DEF_ONACGOV_ST3=60
 DEF_ONACBOOST=25
 
-ONBATGOV_PERF=""
-ONBATGOV_SCHED=""
+ONBATGOV_ST2=""
+ONBATGOV_ST3=""
 ONBATBOOST=""
 
-ONACGOV_PERF=""
-ONACGOV_SCHED=""
+ONACGOV_ST2=""
+ONACGOV_ST3=""
 ONACBOOST=""
 
 # empty conf vars
-CONF_ac_thresh_perf=""
-CONF_ac_thresh_sched=""
+CONF_ac_thresh_ST2=""
+CONF_ac_thresh_ST3=""
 CONF_ac_thresh_boost=""
-CONF_bat_thresh_perf=""
-CONF_bat_thresh_sched=""
+CONF_bat_thresh_ST2=""
+CONF_bat_thresh_ST3=""
 CONF_bat_thresh_boost=""
 CONF_interval=""
+
+def_b_stage_1_gov="powersave"
+def_b_stage_2_gov="conservative"
+def_b_stage_3_gov="performance"
+
+def_a_stage_1_gov="schedutil"
+def_a_stage_2_gov="ondemand"
+def_a_stage_3_gov="performance"
+
+gov_ac_st1=""
+gov_ac_st2=""
+gov_ac_st3=""
+
+gov_bat_st1=""
+gov_bat_st2=""
+gov_bat_st3=""
 
 [ -f "$BoostPath" ] && CanBoost=1
 
@@ -101,11 +117,11 @@ keyval_parse() {
       # check integer type for thresholds
       if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
         case "${key}" in
-          "AC_THRESH_PERF")     CONF_ac_thresh_perf="$val" ;;
-          "AC_THRESH_SCHED")   CONF_ac_thresh_sched="$val" ;;
+          "AC_THRESH_ST2")     CONF_ac_thresh_ST2="$val" ;;
+          "AC_THRESH_ST3")   CONF_ac_thresh_ST3="$val" ;;
           "AC_THRESH_BOOST")   CONF_ac_thresh_boost="$val" ;;
-          "BAT_THRESH_PERF")   CONF_bat_thresh_perf="$val" ;;
-          "BAT_THRESH_SCHED") CONF_bat_thresh_sched="$val" ;;
+          "BAT_THRESH_ST2")   CONF_bat_thresh_ST2="$val" ;;
+          "BAT_THRESH_ST3") CONF_bat_thresh_ST3="$val" ;;
           "BAT_THRESH_BOOST") CONF_bat_thresh_boost="$val" ;;
         esac
       fi
@@ -183,13 +199,21 @@ tick() {
 
   [ "$DBGOUT" = 1 ] && printf '%s\n' "AC state: $acstate"
   if [ "$acstate" = 1 ]; then
-    GovnorPerf="$ONACGOV_PERF"
-    GovnorScd="$ONACGOV_SCHED"
+    # GovnorST1Thresh="$ONACGOV_ST1"
+    GovnorST2Thresh="$ONACGOV_ST2"
+    GovnorST3Thresh="$ONACGOV_ST3"
     BoostActiv="$ONACBOOST"
+    govnorst1="$gov_ac_st1"
+    govnorst2="$gov_ac_st2"
+    govnorst3="$gov_ac_st3"
   else
-    GovnorPerf="$ONBATGOV_PERF"
-    GovnorScd="$ONBATGOV_SCHED"
+    # GovnorST1Thresh="$ONACGOV_ST1"
+    GovnorST2Thresh="$ONBATGOV_ST2"
+    GovnorST3Thresh="$ONBATGOV_ST3"
     BoostActiv="$ONBATBOOST"
+    govnorst1="$gov_bat_st1"
+    govnorst2="$gov_bat_st2"
+    govnorst3="$gov_bat_st3"
   fi
 
   # set governor if gamemoded is not active
@@ -199,14 +223,14 @@ tick() {
       governor="performance"
     else
       [ "$DBGOUT" = 1 ] && printf '%s\n' "neither gamemode nor perfmod"
-      if [ "$cpupercentage" -lt "$GovnorPerf" ]; then
-        governor="powersave"
+      if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
+        governor="$govnorst1"
       fi
-      if [ "$cpupercentage" -ge "$GovnorPerf" ] && [ "$cpupercentage" -lt "$GovnorScd" ]; then
-        governor="performance"
+      if [ "$cpupercentage" -ge "$GovnorST2Thresh" ] && [ "$cpupercentage" -lt "$GovnorST3Thresh" ]; then
+        governor="$govnorst2"
       fi
-      if [ "$cpupercentage" -ge "$GovnorScd" ]; then
-        governor="schedutil"
+      if [ "$cpupercentage" -ge "$GovnorST3Thresh" ]; then
+        governor="$govnorst3"
       fi
     fi
     [ "$DBGOUT" = 1 ] && printf '%s\n' "$governor"
@@ -263,36 +287,79 @@ loadConf() {
   fi
 
   # fallback to defaults for whatever value wasn't set
-  if [ -z "$CONF_ac_thresh_perf" ]; then
-    ONACGOV_PERF=$DEF_ONACGOV_PERF
+  # ac governors
+  if [ -z "$CONF_gov_ac_stage_1" ]; then
+    gov_ac_st1="$def_a_stage_1_gov"
   else
-    ONACGOV_PERF=$CONF_ac_thresh_perf
+    gov_ac_st1="$CONF_gov_ac_stage_1"
   fi
-  if [ -z "$CONF_ac_thresh_sched" ]; then
-    ONACGOV_SCHED=$DEF_ONACGOV_SCHED
+  if [ -z "$CONF_gov_ac_stage_2" ]; then
+    gov_ac_st2="$def_a_stage_2_gov"
   else
-    ONACGOV_SCHED=$CONF_ac_thresh_sched
+    gov_ac_st2="$CONF_gov_ac_stage_2"
   fi
+  if [ -z "$CONF_gov_ac_stage_3" ]; then
+    gov_ac_st3="$def_a_stage_3_gov"
+  else
+    gov_ac_st3="$CONF_gov_ac_stage_3"
+  fi
+
+  # battery governors
+  if [ -z "$CONF_gov_bat_stage_1" ]; then
+    gov_bat_st1="$def_b_stage_1_gov"
+  else
+    gov_bat_st1="$CONF_gov_bat_stage_1"
+  fi
+  if [ -z "$CONF_gov_bat_stage_2" ]; then
+    gov_bat_st2="$def_b_stage_2_gov"
+  else
+    gov_bat_st2="$CONF_gov_bat_stage_2"
+  fi
+  if [ -z "$CONF_gov_bat_stage_3" ]; then
+    gov_bat_st3="$def_b_stage_3_gov"
+  else
+    gov_bat_st3="$CONF_gov_bat_stage_3"
+  fi
+
+  # governor stage thresholds ac
+  if [ -z "$CONF_ac_thresh_ST2" ]; then
+    ONACGOV_ST2=$DEF_ONACGOV_ST2
+  else
+    ONACGOV_ST2=$CONF_ac_thresh_ST2
+  fi
+  if [ -z "$CONF_ac_thresh_ST3" ]; then
+    ONACGOV_ST3=$DEF_ONACGOV_ST3
+  else
+    ONACGOV_ST3=$CONF_ac_thresh_ST3
+  fi
+
+  # boost threshold ac
   if [ -z "$CONF_ac_thresh_boost" ]; then
     ONACBOOST=$DEF_ONACBOOST
   else
     ONACBOOST=$CONF_ac_thresh_boost
   fi
-  if [ -z "$CONF_bat_thresh_perf" ]; then
-    ONBATGOV_PERF=$DEF_ONBATGOV_PERF
+
+  # governor stage thresholds bat
+  if [ -z "$CONF_bat_thresh_ST2" ]; then
+    ONBATGOV_ST2=$DEF_ONBATGOV_ST2
   else
-    ONBATGOV_PERF=$CONF_bat_thresh_perf
+    ONBATGOV_ST2=$CONF_bat_thresh_ST2
   fi
-  if [ -z "$CONF_bat_thresh_sched" ]; then
-    ONBATGOV_SCHED=$DEF_ONBATGOV_SCHED
+  if [ -z "$CONF_bat_thresh_ST3" ]; then
+    ONBATGOV_ST3=$DEF_ONBATGOV_ST3
   else
-    ONBATGOV_SCHED=$CONF_bat_thresh_sched
+    ONBATGOV_ST3=$CONF_bat_thresh_ST3
   fi
+
+  # boost threshold bat
   if [ -z "$CONF_bat_thresh_boost" ]; then
     ONBATBOOST=$DEF_ONBATBOOST
   else
     ONBATBOOST=$CONF_bat_thresh_boost
   fi
+
+  # work cycle
   if [ -z "$CONF_interval" ]; then
     DutyCycle=$DEF_DutyCycle
   else
@@ -301,17 +368,17 @@ loadConf() {
   WorkCycle=$(calc_workcycle)
 
   # ensure no stupid values
-  ONBATGOV_PERF=$(min "$ONBATGOV_PERF" 10)
-  ONBATGOV_PERF=$(max "$ONBATGOV_PERF" 40)
-  ONBATGOV_SCHED=$(min "$ONBATGOV_SCHED" 60)
-  ONBATGOV_SCHED=$(max "$ONBATGOV_SCHED" 90)
+  ONBATGOV_ST2=$(min "$ONBATGOV_ST2" 10)
+  ONBATGOV_ST2=$(max "$ONBATGOV_ST2" 40)
+  ONBATGOV_ST3=$(min "$ONBATGOV_ST3" 60)
+  ONBATGOV_ST3=$(max "$ONBATGOV_ST3" 90)
   ONBATBOOST=$(min "$ONBATBOOST" 10)
   ONBATBOOST=$(min "$ONBATBOOST" 90)
 
-  ONACGOV_PERF=$(min "$ONACGOV_PERF" 10)
-  ONACGOV_PERF=$(max "$ONACGOV_PERF" 40)
-  ONACGOV_SCHED=$(min "$ONACGOV_SCHED" 60)
-  ONACGOV_SCHED=$(max "$ONACGOV_SCHED" 90)
+  ONACGOV_ST2=$(min "$ONACGOV_ST2" 10)
+  ONACGOV_ST2=$(max "$ONACGOV_ST2" 40)
+  ONACGOV_ST3=$(min "$ONACGOV_ST3" 60)
+  ONACGOV_ST3=$(max "$ONACGOV_ST3" 90)
   ONACBOOST=$(min "$ONACBOOST" 10)
   ONACBOOST=$(min "$ONACBOOST" 90)
 }
