@@ -176,6 +176,11 @@ get_ac_state() {
 }
 
 tick() {
+  # immedaite ac state
+  im_acstate=""
+  if [ -n "${1}" ]; then
+    im_acstate=${1}
+  fi
 
   get_cpu_usage
   [ "$DBGOUT" = 1 ] && printf '%s\n' "cpu percentage: ${cpupercentage}%"
@@ -192,7 +197,11 @@ tick() {
   fi
 
   if [ -z "$DESKTOP" ]; then
-    get_ac_state
+    if [ -z "$im_acstate" ]; then
+      get_ac_state
+    else
+      [ "$DBGOUT" = 1 ] && printf '%s\n' "using immedaite ac state"
+    fi
   else
     acstate=1
   fi
@@ -429,6 +438,16 @@ else
       count=$(( count + 1 ))
     fi
     sleep 0.5
+    if [ -z "$DESKTOP" ]; then
+      old_acstate="$acstate"
+      get_ac_state
+      if [ "$old_acstate" -ne "$acstate" ]; then
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "ac state changed before tick!"
+        tick "$acstate"
+      fi
+    else
+      acstate=1
+    fi
   done
   exit 0
 fi
