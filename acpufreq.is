@@ -41,7 +41,7 @@ case $1 in
             [ ${status} = "0" ] && exit 0
         fi
         # Start the daemon.
-        log_daemon_msg "Starting ${NAME}" 
+        log_daemon_msg "Starting ${NAME}" "$DAEMON"
         # Start the daemon with the help of start-stop-daemon
         start-stop-daemon -S --quiet --oknodo --pidfile ${PIDFILE} --make-pidfile --background \
             --chuid ${RUN_AS_USER} --startas ${DAEMON} -- ${DAEMON_ARGS}
@@ -55,7 +55,7 @@ case $1 in
         if [ -e ${PIDFILE} ]; then
             status_of_proc -p ${PIDFILE} ${DAEMON} ${NAME} && status="0" || status="$?"
             if [ "$status" = "0" ]; then
-                log_daemon_msg "Stopping ${NAME}" 
+                log_daemon_msg "Stopping ${NAME}" "$DAEMON"
                 start-stop-daemon -K --signal TERM --quiet --oknodo --pidfile ${PIDFILE}
                 if [ "$?" = "0" ]; then
                     log_end_msg 0
