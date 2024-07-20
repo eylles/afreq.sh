@@ -176,7 +176,7 @@ get_ac_state() {
 }
 
 tick() {
-  # immedaite ac state
+  # immediate ac state
   im_acstate=""
   if [ -n "${1}" ]; then
     im_acstate=${1}
@@ -200,7 +200,7 @@ tick() {
     if [ -z "$im_acstate" ]; then
       get_ac_state
     else
-      [ "$DBGOUT" = 1 ] && printf '%s\n' "using immedaite ac state"
+      [ "$DBGOUT" = 1 ] && printf '%s\n' "using immediate ac state"
     fi
   else
     acstate=1
@@ -211,7 +211,7 @@ tick() {
     # GovnorST1Thresh="$ONACGOV_ST1"
     GovnorST2Thresh="$ONACGOV_ST2"
     GovnorST3Thresh="$ONACGOV_ST3"
-    BoostActiv="$ONACBOOST"
+    BoostActive="$ONACBOOST"
     govnorst1="$gov_ac_st1"
     govnorst2="$gov_ac_st2"
     govnorst3="$gov_ac_st3"
@@ -219,7 +219,7 @@ tick() {
     # GovnorST1Thresh="$ONACGOV_ST1"
     GovnorST2Thresh="$ONBATGOV_ST2"
     GovnorST3Thresh="$ONBATGOV_ST3"
-    BoostActiv="$ONBATBOOST"
+    BoostActive="$ONBATBOOST"
     govnorst1="$gov_bat_st1"
     govnorst2="$gov_bat_st2"
     govnorst3="$gov_bat_st3"
@@ -248,10 +248,10 @@ tick() {
     [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
   fi
 
-  if [ "$cpupercentage" -lt "$BoostActiv" ]; then
+  if [ "$cpupercentage" -lt "$BoostActive" ]; then
     boostsetting="0"
   fi
-  if [ "$cpupercentage" -ge "$BoostActiv" ]; then
+  if [ "$cpupercentage" -ge "$BoostActive" ]; then
     boostsetting="1"
   fi
 
