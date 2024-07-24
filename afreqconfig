@@ -10,7 +10,7 @@
 # similarely the turbo boost is capped at 5% minimum and 95% maximum for the threshold value.
 
 # setting the interval to check the system
-# and adjust frequency. SECONDS INTERGER
+# and adjust frequency. SECONDS INTEGER
 #INTERVAL=5
 
 # setting activation thresholds on AC
