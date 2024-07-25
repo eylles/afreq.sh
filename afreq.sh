@@ -79,6 +79,14 @@ gov_bat_st1=""
 gov_bat_st2=""
 gov_bat_st3=""
 
+CONF_gov_ac_stage_1=""
+CONF_gov_ac_stage_2=""
+CONF_gov_ac_stage_3=""
+
+CONF_gov_bat_stage_1=""
+CONF_gov_bat_stage_2=""
+CONF_gov_bat_stage_3=""
+
 [ -f "$BoostPath" ] && CanBoost=1
 
 read_file() {

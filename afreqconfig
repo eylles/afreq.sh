@@ -24,3 +24,14 @@
 #BAT_THRESH_ST2=10
 #BAT_THRESH_ST3=60
 #BAT_THRESH_BOOST=25
+
+# setting governors for stages 1 to 3
+# ac governors
+#GOV_AC_ST1=""
+#GOV_AC_ST2=""
+#GOV_AC_ST3=""
+
+# battery governors
+#GOV_BAT_ST1=""
+#GOV_BAT_ST2=""
+#GOV_BAT_ST3=""
