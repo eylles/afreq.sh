@@ -134,6 +134,16 @@ keyval_parse() {
         esac
       fi
       ;;
+    GOV_*)
+        case "${key}" in
+          "GOV_AC_ST1")  CONF_gov_ac_stage_1="$val" ;;
+          "GOV_AC_ST2")  CONF_gov_ac_stage_2="$val" ;;
+          "GOV_AC_ST3")  CONF_gov_ac_stage_3="$val" ;;
+          "GOV_BAT_ST1") CONF_gov_bat_stage_1="$val" ;;
+          "GOV_BAT_ST2") CONF_gov_bat_stage_2="$val" ;;
+          "GOV_BAT_ST3") CONF_gov_bat_stage_3="$val" ;;
+        esac
+      ;;
     "INTERVAL")
       # check integer type
       if is_int "$val" && [ "$val" -ge 1 ]; then
