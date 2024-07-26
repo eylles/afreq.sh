@@ -28,7 +28,8 @@ BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 
 # by default: /etc/default/afreqconfig
-CONFIG=/etc/default/afreqconfig
+DEFCFG=/etc/default/afreqconfig
+CONFIG=/etc/afreqconfig
 AFREQ_NO_CONTINUE=""
 # how many seconds do we tick
 DEF_DutyCycle=5
@@ -308,6 +309,9 @@ loadConf() {
   # parse config file if it exists
   if [ -f "$CONFIG" ]; then
     keyval_parse "$CONFIG"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+  elif [ -f "$DEFCFG" ]; then
+    keyval_parse "$DEFCFG"
     [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
   else
     [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
