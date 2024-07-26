@@ -3,9 +3,9 @@
 # the thresholds are the MINIMUM cpu usage percentage at which the setting for governor or boost
 # will be applied, these values are ONLY INTEGERS WITHOUT the percentage sign.
 
-# the minimum threshold to activate the performance governor cannot be lower than 5% cpu usage
-# the minimum threshold to activate the schedutil governor cannot be lower or equal than the minimum
-# for the performance governor, it also cannot be more than 95% cpu usage.
+# the minimum threshold to activate the stage 2 governor cannot be lower than 5% cpu usage
+# the minimum threshold to activate the stage 3 governor cannot be lower or equal than the minimum
+# for the stage 2 governor, it also cannot be more than 95% cpu usage.
 
 # similarely the turbo boost is capped at 5% minimum and 95% maximum for the threshold value.
 
@@ -26,6 +26,8 @@
 #BAT_THRESH_BOOST=25
 
 # setting governors for stages 1 to 3
+# available options are: powersave conservative ondemand schedutil performance
+
 # ac governors
 #GOV_AC_ST1=""
 #GOV_AC_ST2=""
