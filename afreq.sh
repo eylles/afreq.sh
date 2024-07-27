@@ -146,14 +146,65 @@ keyval_parse() {
       fi
       ;;
     GOV_*)
+      # strip ${val}
+      # because someone may want to put the governor string between double quotes
+      val=$(lstrip "${val}" "\"")
+      val=$(rstrip "${val}" "\"")
+      # or single quotes
+      val=$(lstrip "${val}" "\'")
+      val=$(rstrip "${val}" "\'")
+      # if the content of the value for the governor variable is a valid
+      # governor
+      # default value 0
+      is_governor=0
+      case "$val" in
+        "powersave")
+          is_governor=1
+          ;;
+        "conservative")
+          is_governor=1
+          ;;
+        "ondemand")
+          is_governor=1
+          ;;
+        "schedutil")
+          is_governor=1
+          ;;
+        "performance")
+          is_governor=1
+          ;;
+        *)
+          is_governor=0
+          ;;
+      esac
+      if [ "$is_governor" -eq 1 ]; then
         case "${key}" in
-          "GOV_AC_ST1")  CONF_gov_ac_stage_1="$val" ;;
-          "GOV_AC_ST2")  CONF_gov_ac_stage_2="$val" ;;
-          "GOV_AC_ST3")  CONF_gov_ac_stage_3="$val" ;;
-          "GOV_BAT_ST1") CONF_gov_bat_stage_1="$val" ;;
-          "GOV_BAT_ST2") CONF_gov_bat_stage_2="$val" ;;
-          "GOV_BAT_ST3") CONF_gov_bat_stage_3="$val" ;;
+          "GOV_AC_ST1")
+            CONF_gov_ac_stage_1="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st1 $CONF_gov_ac_stage_1"
+            ;;
+          "GOV_AC_ST2")
+            CONF_gov_ac_stage_2="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st2 $CONF_gov_ac_stage_2"
+            ;;
+          "GOV_AC_ST3")
+            CONF_gov_ac_stage_3="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st3 $CONF_gov_ac_stage_3"
+            ;;
+          "GOV_BAT_ST1")
+            CONF_gov_bat_stage_1="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st1 $CONF_gov_bat_stage_1"
+            ;;
+          "GOV_BAT_ST2")
+            CONF_gov_bat_stage_2="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st2 $CONF_gov_bat_stage_2"
+            ;;
+          "GOV_BAT_ST3")
+            CONF_gov_bat_stage_3="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st3 $CONF_gov_bat_stage_3"
+            ;;
         esac
+      fi
       ;;
     "INTERVAL")
       # check integer type
