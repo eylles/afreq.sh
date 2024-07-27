@@ -102,6 +102,16 @@ is_int() {
   printf %d "$1" >/dev/null 2>&1
 }
 
+# Usage: lstrip "string" "pattern"
+lstrip() {
+    printf '%s\n' "${1##$2}"
+}
+
+# Usage: rstrip "string" "pattern"
+rstrip() {
+    printf '%s\n' "${1%%$2}"
+}
+
 # return the work cycle
 # calculated as:
 #   DutyCycle * CyclesPerSecond
