@@ -136,12 +136,30 @@ keyval_parse() {
       # check integer type for thresholds
       if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
         case "${key}" in
-          "AC_THRESH_ST2")     CONF_ac_thresh_ST2="$val" ;;
-          "AC_THRESH_ST3")   CONF_ac_thresh_ST3="$val" ;;
-          "AC_THRESH_BOOST")   CONF_ac_thresh_boost="$val" ;;
-          "BAT_THRESH_ST2")   CONF_bat_thresh_ST2="$val" ;;
-          "BAT_THRESH_ST3") CONF_bat_thresh_ST3="$val" ;;
-          "BAT_THRESH_BOOST") CONF_bat_thresh_boost="$val" ;;
+          "AC_THRESH_ST2")
+            CONF_ac_thresh_ST2="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st2 $CONF_ac_thresh_ST2"
+            ;;
+          "AC_THRESH_ST3")
+            CONF_ac_thresh_ST3="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st3 $CONF_ac_thresh_ST3"
+            ;;
+          "AC_THRESH_BOOST")
+            CONF_ac_thresh_boost="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_ST3"
+            ;;
+          "BAT_THRESH_ST2")
+            CONF_bat_thresh_ST2="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_ac_thresh_ST3"
+            ;;
+          "BAT_THRESH_ST3")
+            CONF_bat_thresh_ST3="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st3 $CONF_ac_thresh_ST3"
+            ;;
+          "BAT_THRESH_BOOST")
+            CONF_bat_thresh_boost="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_ac_thresh_ST3"
+            ;;
         esac
       fi
       ;;
