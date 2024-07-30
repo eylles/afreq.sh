@@ -47,6 +47,25 @@ DEF_ONACGOV_ST2=10
 DEF_ONACGOV_ST3=60
 DEF_ONACBOOST=25
 
+# threshold caps
+# battery mode
+
+bt_st2_min=10
+bt_st2_max=40
+bt_st3_min=60
+bt_st3_max=90
+bt_bst_min=10
+bt_bst_max=90
+
+# ac mode
+
+ac_st2_min=10
+ac_st2_max=40
+ac_st3_min=60
+ac_st3_max=90
+ac_bst_min=10
+ac_bst_max=90
+
 ONBATGOV_ST2=""
 ONBATGOV_ST3=""
 ONBATBOOST=""
@@ -478,19 +497,19 @@ loadConf() {
   WorkCycle=$(calc_workcycle)
 
   # ensure no stupid values
-  ONBATGOV_ST2=$(min "$ONBATGOV_ST2" 10)
-  ONBATGOV_ST2=$(max "$ONBATGOV_ST2" 40)
-  ONBATGOV_ST3=$(min "$ONBATGOV_ST3" 60)
-  ONBATGOV_ST3=$(max "$ONBATGOV_ST3" 90)
-  ONBATBOOST=$(min "$ONBATBOOST" 10)
-  ONBATBOOST=$(min "$ONBATBOOST" 90)
+  ONBATGOV_ST2=$(min "$ONBATGOV_ST2" "$bt_st2_min")
+  ONBATGOV_ST2=$(max "$ONBATGOV_ST2" "$bt_st2_max")
+  ONBATGOV_ST3=$(min "$ONBATGOV_ST3" "$bt_st3_min")
+  ONBATGOV_ST3=$(max "$ONBATGOV_ST3" "$bt_st3_max")
+  ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_min")
+  ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_max")
 
-  ONACGOV_ST2=$(min "$ONACGOV_ST2" 10)
-  ONACGOV_ST2=$(max "$ONACGOV_ST2" 40)
-  ONACGOV_ST3=$(min "$ONACGOV_ST3" 60)
-  ONACGOV_ST3=$(max "$ONACGOV_ST3" 90)
-  ONACBOOST=$(min "$ONACBOOST" 10)
-  ONACBOOST=$(min "$ONACBOOST" 90)
+  ONACGOV_ST2=$(min "$ONACGOV_ST2" "$ac_st2_min")
+  ONACGOV_ST2=$(max "$ONACGOV_ST2" "$ac_st2_max")
+  ONACGOV_ST3=$(min "$ONACGOV_ST3" "$ac_st3_min")
+  ONACGOV_ST3=$(max "$ONACGOV_ST3" "$ac_st3_max")
+  ONACBOOST=$(min "$ONACBOOST" "$ac_bst_min")
+  ONACBOOST=$(min "$ONACBOOST" "$ac_bst_max")
 }
 
 # handle unexpected exits and termination
