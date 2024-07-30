@@ -21,19 +21,21 @@
 
 # setting activation thresholds on Battery
 # PERCENTAGE INTEGER
-#BAT_THRESH_ST2=10
-#BAT_THRESH_ST3=60
-#BAT_THRESH_BOOST=25
+#BAT_THRESH_ST2=40
+#BAT_THRESH_ST3=70
+#BAT_THRESH_BOOST=35
 
 # setting governors for stages 1 to 3
 # available options are: powersave conservative ondemand schedutil performance
 
 # ac governors
-#GOV_AC_ST1=""
-#GOV_AC_ST2=""
-#GOV_AC_ST3=""
+# default values
+#GOV_AC_ST1=schedutil
+#GOV_AC_ST2=ondemand
+#GOV_AC_ST3=performance
 
 # battery governors
-#GOV_BAT_ST1=""
-#GOV_BAT_ST2=""
-#GOV_BAT_ST3=""
+# default values
+#GOV_BAT_ST1=powersave
+#GOV_BAT_ST2=conservative
+#GOV_BAT_ST3=performance
