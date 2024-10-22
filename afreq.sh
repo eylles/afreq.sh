@@ -292,6 +292,26 @@ get_ac_state() {
   acstate=$(read_file /sys/class/power_supply/AC/online)
 }
 
+dirty_writeback=""
+kernel_watchdog=""
+
+get_vm_vals () {
+  dirty_writeback=$(read_file /proc/sys/vm/dirty_writeback_centisecs)
+  kernel_watchdog=$(read_file /proc/sys/kernel/nmi_watchdog)
+}
+
+bat_optim() {
+  if [ "$acstate" -eq 0 ]; then
+    printf '%d\n' 0                  > /proc/sys/kernel/nmi_watchdog
+    printf '%d\n' 1500               > /proc/sys/vm/dirty_writeback_centisecs
+    printf '%d\n' 5                  > /proc/sys/vm/laptop_mode
+  else
+    printf '%d\n' "$kernel_watchdog" > /proc/sys/kernel/nmi_watchdog
+    printf '%d\n' "$dirty_writeback" > /proc/sys/vm/dirty_writeback_centisecs
+    printf '%d\n' 0                  > /proc/sys/vm/laptop_mode
+  fi
+}
+
 tick() {
   # immediate ac state
   im_acstate=""
@@ -319,6 +339,7 @@ tick() {
     else
       [ "$DBGOUT" = 1 ] && printf '%s\n' "using immediate ac state"
     fi
+    bat_optim
   else
     acstate=1
   fi
@@ -536,6 +557,8 @@ done
 if [ ! -f /sys/class/power_supply/AC/online ]; then
   DESKTOP=1
   [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: running on desktop mode"
+else
+  get_vm_vals
 fi
 
 loadConf
