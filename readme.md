@@ -2,6 +2,12 @@
 
 A simple daemon for setting cpu frequency governor
 
+<p align="center">
+<a href="./LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-green.svg"></a>
+<a href="https://liberapay.com/eylles/donate"><img alt="Donate using Liberapay" src="https://img.shields.io/liberapay/receives/eylles.svg?logo=liberapay"></a>
+<a href="https://liberapay.com/eylles/donate"><img alt="Donate using Liberapay" src="https://img.shields.io/liberapay/patrons/eylles.svg?logo=liberapay"></a>
+</p>
+
 Inspired by [auto-cpufreq](https://github.com/AdnanHodzic/auto-cpufreq),
 afreq.sh is a minimal daemon built on posix shell and core utils, it is intended
 to be extensible, lean and have the least amount of dependencies.
