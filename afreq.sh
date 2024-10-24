@@ -426,7 +426,6 @@ max () {
 }
 
 loadConf() {
-  : # placeholder
   # parse config file if it exists
   if [ -f "$CONFIG" ]; then
     keyval_parse "$CONFIG"
