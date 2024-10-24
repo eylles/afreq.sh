@@ -296,8 +296,8 @@ dirty_writeback=""
 kernel_watchdog=""
 
 get_vm_vals () {
-  dirty_writeback=$(read_file /proc/sys/vm/dirty_writeback_centisecs)
-  kernel_watchdog=$(read_file /proc/sys/kernel/nmi_watchdog)
+  dirty_writeback=$(cat /proc/sys/vm/dirty_writeback_centisecs)
+  kernel_watchdog=$(cat /proc/sys/kernel/nmi_watchdog)
 }
 
 bat_optim() {
