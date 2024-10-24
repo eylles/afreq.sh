@@ -247,6 +247,7 @@ keyval_parse() {
       # check integer type
       if is_int "$val" && [ "$val" -ge 1 ]; then
         CONF_interval="$val"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
       fi
       ;;
     *) printf '%s\n' "invalid option ${key}"
