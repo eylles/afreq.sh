@@ -518,6 +518,7 @@ loadConf() {
     DutyCycle=$CONF_interval
   fi
   WorkCycle=$(calc_workcycle)
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "work cycle $WorkCycle"
 
   # ensure no stupid values
   ONBATGOV_ST2=$(min "$ONBATGOV_ST2" "$bt_st2_min")
