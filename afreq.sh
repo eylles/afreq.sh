@@ -297,7 +297,9 @@ kernel_watchdog=""
 
 get_vm_vals () {
   dirty_writeback=$(cat /proc/sys/vm/dirty_writeback_centisecs)
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
   kernel_watchdog=$(cat /proc/sys/kernel/nmi_watchdog)
+  [ "$DBGOUT" = 1 ] && printf '%s\n' "nmi watchdog: $kernel_watchdog"
 }
 
 bat_optim() {
