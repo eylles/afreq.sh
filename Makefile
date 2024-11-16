@@ -44,4 +44,11 @@ uninstall:
 	rm -v $(SERVICE_LOCATION_SYSD)/$(NAME).service
 	echo $(NAME).service uninstalled from $(SERVICE_LOCATION_SYSD)
 
-.PHONY: install uninstall
+all: sysvserv sysdserv
+
+clean:
+	rm $(NAME).service
+	rm $(NAME)
+
+
+.PHONY: install uninstall clean
