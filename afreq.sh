@@ -297,6 +297,10 @@ dirty_writeback=""
 kernel_watchdog=""
 
 get_vm_vals () {
+  # system's huge pages setup
+  huge_pages=$(cat /proc/sys/vm/nr_hugepages)
+  # set huge pages to 1024
+  printf '%d' 1024 > /proc/sys/vm/nr_hugepages
   if [ -z "$DESKTOP" ]; then
     dirty_writeback=$(cat /proc/sys/vm/dirty_writeback_centisecs)
     [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
@@ -404,6 +408,8 @@ tick() {
 outHandler () {
     [ "$DBGOUT" = 1 ] && printf '\n%s\n' "exiting on signal: $1"
     AFREQ_NO_CONTINUE=1
+    # restore default huge pages on exit
+    print '%d' "$huge_pages" > /proc/sys/vm/nr_hugepages
 }
 
 # return type: int
