@@ -561,6 +561,13 @@ loadConf() {
     ONACBOOST=$CONF_ac_thresh_boost
   fi
 
+  # optim threshold ac
+  if [ -z "$CONF_ac_thresh_optim" ]; then
+    ONACPERFOPTIM=$ONACBOOST
+  else
+    ONACPERFOPTIM=$CONF_ac_thresh_optim
+  fi
+
   # governor stage thresholds bat
   if [ -z "$CONF_bat_thresh_ST2" ]; then
     ONBATGOV_ST2=$DEF_ONBATGOV_ST2
@@ -580,6 +587,13 @@ loadConf() {
     ONBATBOOST=$CONF_bat_thresh_boost
   fi
 
+  # optim threshold bat
+  if [ -z "$CONF_bat_thresh_optim" ]; then
+    ONBATPERFOPTIM=$ONBATBOOST
+  else
+    ONBATPERFOPTIM=$CONF_bat_thresh_optim
+  fi
+
   # work cycle
   if [ -z "$CONF_interval" ]; then
     DutyCycle=$DEF_DutyCycle
@@ -596,6 +610,8 @@ loadConf() {
   ONBATGOV_ST3=$(max "$ONBATGOV_ST3" "$bt_st3_max")
   ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_min")
   ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_max")
+  ONBATPERFOPTIM=$(min "$ONBATPERFOPTIM" "$bt_bst_min")
+  ONBATPERFOPTIM=$(max "$ONBATPERFOPTIM" "$bt_bst_max")
 
   ONACGOV_ST2=$(min "$ONACGOV_ST2" "$ac_st2_min")
   ONACGOV_ST2=$(max "$ONACGOV_ST2" "$ac_st2_max")
@@ -603,6 +619,8 @@ loadConf() {
   ONACGOV_ST3=$(max "$ONACGOV_ST3" "$ac_st3_max")
   ONACBOOST=$(min "$ONACBOOST" "$ac_bst_min")
   ONACBOOST=$(min "$ONACBOOST" "$ac_bst_max")
+  ONACPERFOPTIM=$(min "$ONACPERFOPTIM" "$ac_bst_min")
+  ONACPERFOPTIM=$(max "$ONACPERFOPTIM" "$ac_bst_max")
 }
 
 # handle unexpected exits and termination
