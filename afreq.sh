@@ -301,6 +301,9 @@ get_vm_vals () {
   huge_pages=$(cat /proc/sys/vm/nr_hugepages)
   # set huge pages to 1024
   printf '%d' 1024 > /proc/sys/vm/nr_hugepages
+  compaction=$(cat /proc/sys/vm/compaction_proactiveness)
+  huge_page_defrag=$(cat /sys/kernel/mm/transparent_hugepage/khugepaged/defrag)
+  lock_unfairness=$(cat /proc/sys/vm/page_lock_unfairness)
   if [ -z "$DESKTOP" ]; then
     dirty_writeback=$(cat /proc/sys/vm/dirty_writeback_centisecs)
     [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
