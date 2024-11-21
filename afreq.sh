@@ -411,8 +411,15 @@ tick() {
 outHandler () {
     [ "$DBGOUT" = 1 ] && printf '\n%s\n' "exiting on signal: $1"
     AFREQ_NO_CONTINUE=1
-    # restore default huge pages on exit
-    print '%d' "$huge_pages" > /proc/sys/vm/nr_hugepages
+    # restore defaults on exit
+    print '%d' "$huge_pages"         > /proc/sys/vm/nr_hugepages
+    print '%d' "$compaction"         > /proc/sys/vm/compaction_proactiveness
+    print '%d' "$huge_page_defrag"   > /sys/kernel/mm/transparent_hugepage/khugepaged/defrag
+    print '%d' "$lock_unfairness"    > /proc/sys/vm/page_lock_unfairness
+    if [ -z "$DESKTOP" ]; then
+      printf '%d' "$dirty_writeback" > /proc/sys/vm/dirty_writeback_centisecs
+      printf '%d' "$kernel_watchdog" > /proc/sys/kernel/nmi_watchdog
+    fi
 }
 
 # return type: int
