@@ -18,12 +18,14 @@
 #AC_THRESH_ST2=10
 #AC_THRESH_ST3=60
 #AC_THRESH_BOOST=25
+#AC_THRESH_OPTIM=25
 
 # setting activation thresholds on Battery
 # PERCENTAGE INTEGER
 #BAT_THRESH_ST2=40
 #BAT_THRESH_ST3=70
 #BAT_THRESH_BOOST=35
+#BAT_THRESH_OPTIM=35
 
 # setting governors for stages 1 to 3
 # available options are: powersave conservative ondemand schedutil performance
