@@ -189,7 +189,7 @@ keyval_parse() {
             ;;
           "AC_THRESH_BOOST")
             CONF_ac_thresh_boost="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_ST3"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_boost"
             ;;
           "AC_THRESH_OPTIM")
             CONF_ac_thresh_optim="$val"
@@ -197,15 +197,15 @@ keyval_parse() {
             ;;
           "BAT_THRESH_ST2")
             CONF_bat_thresh_ST2="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_ac_thresh_ST3"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_bat_thresh_ST2"
             ;;
           "BAT_THRESH_ST3")
             CONF_bat_thresh_ST3="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st3 $CONF_ac_thresh_ST3"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st3 $CONF_bat_thresh_ST3"
             ;;
           "BAT_THRESH_BOOST")
             CONF_bat_thresh_boost="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_ac_thresh_ST3"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_bat_thresh_boost"
             ;;
           "BAT_THRESH_OPTIM")
             CONF_bat_thresh_optim="$val"
