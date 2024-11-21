@@ -351,8 +351,14 @@ bat_optim() {
 perf_optim() {
   case "$1" in
     on)
+      print '%d' 0                     > "$k_compaction"
+      print '%d' 0                     > "$k_pagedefrag"
+      print '%d' 1                     > "$k_lock"
       ;;
     off)
+      print '%d' "$compaction"         > "$k_compaction"
+      print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
+      print '%d' "$lock_unfairness"    > "$k_lock"
       ;;
   esac
 }
