@@ -27,6 +27,19 @@ myname="${0##*/}"
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 
+# battery mode kernel paths
+
+k_watchdog=/proc/sys/kernel/nmi_watchdog
+k_writeback=/proc/sys/vm/dirty_writeback_centisecs
+k_laptopmode=/proc/sys/vm/laptop_mode
+
+# performance optimization kernel paths
+
+k_hugepages=/proc/sys/vm/nr_hugepages
+k_compaction=/proc/sys/vm/compaction_proactiveness
+k_pagedefrag=/sys/kernel/mm/transparent_hugepage/khugepaged/defrag
+k_lock=/proc/sys/vm/page_lock_unfairness
+
 # by default: /etc/default/afreqconfig
 DEFCFG=/etc/default/afreqconfig
 CONFIG=/etc/afreqconfig
