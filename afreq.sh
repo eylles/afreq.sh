@@ -413,6 +413,7 @@ tick() {
     GovnorST2Thresh="$ONACGOV_ST2"
     GovnorST3Thresh="$ONACGOV_ST3"
     BoostActive="$ONACBOOST"
+    OptimActive="$ONACPERFOPTIM"
     govnorst1="$gov_ac_st1"
     govnorst2="$gov_ac_st2"
     govnorst3="$gov_ac_st3"
@@ -421,6 +422,7 @@ tick() {
     GovnorST2Thresh="$ONBATGOV_ST2"
     GovnorST3Thresh="$ONBATGOV_ST3"
     BoostActive="$ONBATBOOST"
+    OptimActive="$ONBATPERFOPTIM"
     govnorst1="$gov_bat_st1"
     govnorst2="$gov_bat_st2"
     govnorst3="$gov_bat_st3"
@@ -457,6 +459,15 @@ tick() {
   fi
 
   set_boost "$boostsetting"
+
+  if [ "$cpupercentage" -lt "$OptimActive" ]; then
+    optimsetting="off"
+  fi
+  if [ "$cpupercentage" -ge "$OptimActive" ]; then
+    optimsetting="on"
+  fi
+
+  perf_optim "$optimsetting"
 }
 
 outHandler () {
