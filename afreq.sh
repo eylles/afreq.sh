@@ -29,15 +29,22 @@ cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 
 # battery mode kernel paths
 
+# /proc/sys/kernel/nmi_watchdog
 k_watchdog=/proc/sys/kernel/nmi_watchdog
+# /proc/sys/vm/dirty_writeback_centisecs
 k_writeback=/proc/sys/vm/dirty_writeback_centisecs
+# /proc/sys/vm/laptop_mode
 k_laptopmode=/proc/sys/vm/laptop_mode
 
 # performance optimization kernel paths
 
+# /proc/sys/vm/nr_hugepages
 k_hugepages=/proc/sys/vm/nr_hugepages
+# /proc/sys/vm/compaction_proactiveness
 k_compaction=/proc/sys/vm/compaction_proactiveness
+# /sys/kernel/mm/transparent_hugepage/khugepaged/defrag
 k_pagedefrag=/sys/kernel/mm/transparent_hugepage/khugepaged/defrag
+# /proc/sys/vm/page_lock_unfairness
 k_lock=/proc/sys/vm/page_lock_unfairness
 
 # by default: /etc/default/afreqconfig
