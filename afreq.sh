@@ -306,35 +306,48 @@ get_ac_state() {
   acstate=$(read_file /sys/class/power_supply/AC/online)
 }
 
+huge_pages=""
+compaction=""
+huge_page_defrag=""
+lock_unfairness=""
 dirty_writeback=""
 kernel_watchdog=""
 
 get_vm_vals () {
   # system's huge pages setup
-  huge_pages=$(cat /proc/sys/vm/nr_hugepages)
+  huge_pages=$(cat "$k_hugepages")
   # set huge pages to 1024
-  printf '%d' 1024 > /proc/sys/vm/nr_hugepages
-  compaction=$(cat /proc/sys/vm/compaction_proactiveness)
-  huge_page_defrag=$(cat /sys/kernel/mm/transparent_hugepage/khugepaged/defrag)
-  lock_unfairness=$(cat /proc/sys/vm/page_lock_unfairness)
+  printf '%d' 1024 > "$k_hugepages"
+  compaction=$(cat "$k_compaction")
+  huge_page_defrag=$(cat "$k_pagedefrag")
+  lock_unfairness=$(cat "$k_lock")
   if [ -z "$DESKTOP" ]; then
-    dirty_writeback=$(cat /proc/sys/vm/dirty_writeback_centisecs)
+    dirty_writeback=$(cat "$k_writeback")
     [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
-    kernel_watchdog=$(cat /proc/sys/kernel/nmi_watchdog)
+    kernel_watchdog=$(cat "$k_watchdog")
     [ "$DBGOUT" = 1 ] && printf '%s\n' "nmi watchdog: $kernel_watchdog"
   fi
 }
 
 bat_optim() {
   if [ "$acstate" -eq 0 ]; then
-    printf '%d\n' 0                  > /proc/sys/kernel/nmi_watchdog
-    printf '%d\n' 1500               > /proc/sys/vm/dirty_writeback_centisecs
-    printf '%d\n' 5                  > /proc/sys/vm/laptop_mode
+    printf '%d\n' 0                  > "$k_watchdog"
+    printf '%d\n' 1500               > "$k_writeback"
+    printf '%d\n' 5                  > "$k_laptopmode"
   else
-    printf '%d\n' "$kernel_watchdog" > /proc/sys/kernel/nmi_watchdog
-    printf '%d\n' "$dirty_writeback" > /proc/sys/vm/dirty_writeback_centisecs
-    printf '%d\n' 0                  > /proc/sys/vm/laptop_mode
+    printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
+    printf '%d\n' "$dirty_writeback" > "$k_writeback"
+    printf '%d\n' 0                  > "$k_laptopmode"
   fi
+}
+
+perf_optim() {
+  case "$1" in
+    on)
+      ;;
+    off)
+      ;;
+  esac
 }
 
 tick() {
@@ -425,13 +438,13 @@ outHandler () {
     [ "$DBGOUT" = 1 ] && printf '\n%s\n' "exiting on signal: $1"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
-    print '%d' "$huge_pages"         > /proc/sys/vm/nr_hugepages
-    print '%d' "$compaction"         > /proc/sys/vm/compaction_proactiveness
-    print '%d' "$huge_page_defrag"   > /sys/kernel/mm/transparent_hugepage/khugepaged/defrag
-    print '%d' "$lock_unfairness"    > /proc/sys/vm/page_lock_unfairness
+    print '%d' "$huge_pages"         > "$k_hugepages"
+    print '%d' "$compaction"         > "$k_compaction"
+    print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
+    print '%d' "$lock_unfairness"    > "$k_lock"
     if [ -z "$DESKTOP" ]; then
-      printf '%d' "$dirty_writeback" > /proc/sys/vm/dirty_writeback_centisecs
-      printf '%d' "$kernel_watchdog" > /proc/sys/kernel/nmi_watchdog
+      printf '%d' "$dirty_writeback" > "$k_writeback"
+      printf '%d' "$kernel_watchdog" > "$k_watchdog"
     fi
 }
 
