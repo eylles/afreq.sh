@@ -89,18 +89,22 @@ ac_bst_max=90
 ONBATGOV_ST2=""
 ONBATGOV_ST3=""
 ONBATBOOST=""
+ONBATPERFOPTIM=""
 
 ONACGOV_ST2=""
 ONACGOV_ST3=""
 ONACBOOST=""
+ONACPERFOPTIM=""
 
 # empty conf vars
 CONF_ac_thresh_ST2=""
 CONF_ac_thresh_ST3=""
 CONF_ac_thresh_boost=""
+CONF_ac_thresh_optim=""
 CONF_bat_thresh_ST2=""
 CONF_bat_thresh_ST3=""
 CONF_bat_thresh_boost=""
+CONF_bat_thresh_optim=""
 CONF_interval=""
 
 def_b_stage_1_gov="powersave"
@@ -187,6 +191,10 @@ keyval_parse() {
             CONF_ac_thresh_boost="$val"
             [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_ST3"
             ;;
+          "AC_THRESH_OPTIM")
+            CONF_ac_thresh_optim="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac optim thresh $CONF_ac_thresh_optim"
+            ;;
           "BAT_THRESH_ST2")
             CONF_bat_thresh_ST2="$val"
             [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_ac_thresh_ST3"
@@ -198,6 +206,10 @@ keyval_parse() {
           "BAT_THRESH_BOOST")
             CONF_bat_thresh_boost="$val"
             [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_ac_thresh_ST3"
+            ;;
+          "BAT_THRESH_OPTIM")
+            CONF_bat_thresh_optim="$val"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat optim thresh $CONF_bat_thresh_optim"
             ;;
         esac
       fi
