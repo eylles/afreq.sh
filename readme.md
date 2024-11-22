@@ -19,6 +19,56 @@ As of now afreq depends only on:
 - procps (vmstat, pgrep)
 
 
+## installation
+
+  Install everything:
+  ```sh
+  sudo make install-all
+  ```
+  this will provide:
+  |component|default location|description|
+  |----|----|----|
+  |afreq|`/usr/local/sbin/afreq`|the actual daemon doing the work|
+  |acpufreq|`/etc/init.d/acpufreq`|sysvinit initscript|
+  |acpufreq.service|`/etc/systemd/system/acpufreq.service`|systemd unit|
+
+
+### install config
+
+  Edit the config.mk file to tweak installation options.
+
+#### SysV init script
+
+  This repo provides 2 sysvinit init scripts, a hand written one and one that uses
+  Debian's init-d-script framework that provides a Debian and LSB compliant init.d
+  script that may be preferred on some environments, you can choose with the
+  config.mk file.
+
+## Usage
+
+### sysvinit
+
+  The makefile should put the script in `/etc/init.d/acpufreq` by default, after that
+  a simple ```sudo update-rc.d acpufreq defaults``` should be enough to activate
+  it for the next boot
+
+  The service script supports the standard actions.
+
+  A simple `sudo service acpufreq start` will initiate the daemon.
+
+
+### systemd
+
+  The makefile should put the unit in `/etc/systemd/system/acpufreq.service` by
+  default, all you need is run ```sudo systemctl enable acpufreq``` to activate the
+  service for the next boot.
+
+  Initiate the service with `sudo systemctl start acpufreq`
+
+
+##
+
+
 Currently afreq.sh is a proof of concept to demonstrate that such a program can
 be written in a real unix way (not reinventing the wheel, using the tools
 available), with the expectation that it may mature further.
