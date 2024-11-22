@@ -508,12 +508,17 @@ max () {
 
 loadConf() {
   # parse config file if it exists
-  if [ -f "$CONFIG" ]; then
-    keyval_parse "$CONFIG"
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
-  elif [ -f "$DEFCFG" ]; then
-    keyval_parse "$DEFCFG"
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+  if [ -f "$DEFCFG" ] || [ -f "$CONFIG" ]; then
+    # parse the default config if it exists
+    if [ -f "$DEFCFG" ]; then
+      keyval_parse "$DEFCFG"
+      [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: default config parsed"
+    fi
+    # parse the config if it exists, this will write over the default config values
+    if [ -f "$CONFIG" ]; then
+      keyval_parse "$CONFIG"
+      [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+    fi
   else
     [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
   fi
