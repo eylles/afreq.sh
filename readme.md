@@ -14,9 +14,9 @@ to be extensible, lean and have the least amount of dependencies.
 
 As of now afreq depends only on:
 
-- core utils (grep, sleep, tail, awk)
-- built ins (printf)
-- procps (vmstat)
+- core utils (grep, sleep, tail, awk) however busybox and other posix compliant utils will work
+- built ins (printf, command)
+- procps (vmstat, pgrep)
 
 
 Currently afreq.sh is a proof of concept to demonstrate that such a program can
