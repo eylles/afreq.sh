@@ -1,10 +1,17 @@
 NAME = acpufreq
 SERVICE_LOCATION_SYSV = /etc/init.d
 SERVICE_LOCATION_SYSD = /etc/systemd/system
+RAW_SYSV = acpufreq.is
+INIT_LSB = acpufreq.init
+
+SYSV_SCRIPT = $(RAW_SYSV)
+
 PREFIX = /usr/local
 
+include config.mk
+
 sysvserv:
-	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" acpufreq.is > $(NAME)
+	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" $(SYSV_SCRIPT) > $(NAME)
 
 sysdserv:
 	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" acpufreq.sysd > $(NAME).service
