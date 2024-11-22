@@ -316,7 +316,7 @@ set_boost() {
 cpupercentage=""
 
 get_cpu_usage() {
-  cpupercentage=$((100-$(vmstat 1 2 | tail -1 | awk '{printf "%d\n", $15}')))
+  cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
 }
 
 acstate=""
