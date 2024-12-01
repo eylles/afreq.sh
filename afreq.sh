@@ -428,6 +428,24 @@ tick() {
     govnorst3="$gov_bat_st3"
   fi
 
+  if [ "$cpupercentage" -lt "$BoostActive" ]; then
+    boostsetting="0"
+  fi
+  if [ "$cpupercentage" -ge "$BoostActive" ]; then
+    boostsetting="1"
+  fi
+
+  set_boost "$boostsetting"
+
+  if [ "$cpupercentage" -lt "$OptimActive" ]; then
+    optimsetting="off"
+  fi
+  if [ "$cpupercentage" -ge "$OptimActive" ]; then
+    optimsetting="on"
+  fi
+
+  perf_optim "$optimsetting"
+
   # set governor if gamemoded is not active
   if [ -z "$gamemodeactive" ]; then
     if pgrep -a perfmod >/dev/null; then
@@ -450,24 +468,6 @@ tick() {
   else
     [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
   fi
-
-  if [ "$cpupercentage" -lt "$BoostActive" ]; then
-    boostsetting="0"
-  fi
-  if [ "$cpupercentage" -ge "$BoostActive" ]; then
-    boostsetting="1"
-  fi
-
-  set_boost "$boostsetting"
-
-  if [ "$cpupercentage" -lt "$OptimActive" ]; then
-    optimsetting="off"
-  fi
-  if [ "$cpupercentage" -ge "$OptimActive" ]; then
-    optimsetting="on"
-  fi
-
-  perf_optim "$optimsetting"
 }
 
 outHandler () {
