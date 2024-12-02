@@ -435,8 +435,6 @@ tick() {
     boostsetting="1"
   fi
 
-  set_boost "$boostsetting"
-
   if [ "$cpupercentage" -lt "$OptimActive" ]; then
     optimsetting="off"
   fi
@@ -444,13 +442,13 @@ tick() {
     optimsetting="on"
   fi
 
-  perf_optim "$optimsetting"
-
   # set governor if gamemoded is not active
   if [ -z "$gamemodeactive" ]; then
     if pgrep -a perfmod >/dev/null; then
       [ "$DBGOUT" = 1 ] && printf 'perfmod running, setting performance governor\n'
       governor="performance"
+      set_boost 1
+      perf_optim "on"
     else
       [ "$DBGOUT" = 1 ] && printf '%s\n' "neither gamemode nor perfmod"
       if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
@@ -465,6 +463,8 @@ tick() {
     fi
     [ "$DBGOUT" = 1 ] && printf '%s\n' "$governor"
     set_governor "$governor"
+    set_boost "$boostsetting"
+    perf_optim "$optimsetting"
   else
     [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
   fi
