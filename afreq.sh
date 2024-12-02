@@ -467,6 +467,7 @@ tick() {
     perf_optim "$optimsetting"
   else
     [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
+    perf_optim "on"
   fi
 }
 
