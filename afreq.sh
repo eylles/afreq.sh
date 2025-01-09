@@ -147,12 +147,12 @@ is_int() {
 
 # Usage: lstrip "string" "pattern"
 lstrip() {
-    printf '%s\n' "${1##$2}"
+  printf '%s\n' "${1##$2}"
 }
 
 # Usage: rstrip "string" "pattern"
 rstrip() {
-    printf '%s\n' "${1%%$2}"
+  printf '%s\n' "${1%%$2}"
 }
 
 # return the work cycle
@@ -168,122 +168,122 @@ keyval_parse() {
   old_IFS="$IFS"
   # Setting 'IFS' tells 'read' where to split the string.
   while IFS='=' read -r key val; do
-  # Skip over lines containing comments.
-  # (Lines starting with '#').
-  [ "${key##\#*}" ] || continue
-  # '$key' stores the key.
-  # '$val' stores the value.
-  # validate type
-  case "${key}" in
-    *THRESH*)
-      # check integer type for thresholds
-      if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
-        case "${key}" in
-          "AC_THRESH_ST2")
-            CONF_ac_thresh_ST2="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st2 $CONF_ac_thresh_ST2"
+    # Skip over lines containing comments.
+    # (Lines starting with '#').
+    [ "${key##\#*}" ] || continue
+    # '$key' stores the key.
+    # '$val' stores the value.
+    # validate type
+    case "${key}" in
+      *THRESH*)
+        # check integer type for thresholds
+        if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
+          case "${key}" in
+            "AC_THRESH_ST2")
+              CONF_ac_thresh_ST2="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st2 $CONF_ac_thresh_ST2"
             ;;
-          "AC_THRESH_ST3")
-            CONF_ac_thresh_ST3="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st3 $CONF_ac_thresh_ST3"
+            "AC_THRESH_ST3")
+              CONF_ac_thresh_ST3="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st3 $CONF_ac_thresh_ST3"
             ;;
-          "AC_THRESH_BOOST")
-            CONF_ac_thresh_boost="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_boost"
+            "AC_THRESH_BOOST")
+              CONF_ac_thresh_boost="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_boost"
             ;;
-          "AC_THRESH_OPTIM")
-            CONF_ac_thresh_optim="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac optim thresh $CONF_ac_thresh_optim"
+            "AC_THRESH_OPTIM")
+              CONF_ac_thresh_optim="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac optim thresh $CONF_ac_thresh_optim"
             ;;
-          "BAT_THRESH_ST2")
-            CONF_bat_thresh_ST2="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_bat_thresh_ST2"
+            "BAT_THRESH_ST2")
+              CONF_bat_thresh_ST2="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_bat_thresh_ST2"
             ;;
-          "BAT_THRESH_ST3")
-            CONF_bat_thresh_ST3="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st3 $CONF_bat_thresh_ST3"
+            "BAT_THRESH_ST3")
+              CONF_bat_thresh_ST3="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st3 $CONF_bat_thresh_ST3"
             ;;
-          "BAT_THRESH_BOOST")
-            CONF_bat_thresh_boost="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_bat_thresh_boost"
+            "BAT_THRESH_BOOST")
+              CONF_bat_thresh_boost="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_bat_thresh_boost"
             ;;
-          "BAT_THRESH_OPTIM")
-            CONF_bat_thresh_optim="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat optim thresh $CONF_bat_thresh_optim"
+            "BAT_THRESH_OPTIM")
+              CONF_bat_thresh_optim="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat optim thresh $CONF_bat_thresh_optim"
             ;;
+          esac
+        fi
+      ;;
+      GOV_*)
+        # strip ${val}
+        # because someone may want to put the governor string between double quotes
+        val=$(lstrip "${val}" "\"")
+        val=$(rstrip "${val}" "\"")
+        # or single quotes
+        val=$(lstrip "${val}" "\'")
+        val=$(rstrip "${val}" "\'")
+        # if the content of the value for the governor variable is a valid
+        # governor
+        # default value 0
+        is_governor=0
+        case "$val" in
+          "powersave")
+            is_governor=1
+          ;;
+          "conservative")
+            is_governor=1
+          ;;
+          "ondemand")
+            is_governor=1
+          ;;
+          "schedutil")
+            is_governor=1
+          ;;
+          "performance")
+            is_governor=1
+          ;;
+          *)
+            is_governor=0
+          ;;
         esac
-      fi
+        if [ "$is_governor" -eq 1 ]; then
+          case "${key}" in
+            "GOV_AC_ST1")
+              CONF_gov_ac_stage_1="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st1 $CONF_gov_ac_stage_1"
+            ;;
+            "GOV_AC_ST2")
+              CONF_gov_ac_stage_2="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st2 $CONF_gov_ac_stage_2"
+            ;;
+            "GOV_AC_ST3")
+              CONF_gov_ac_stage_3="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st3 $CONF_gov_ac_stage_3"
+            ;;
+            "GOV_BAT_ST1")
+              CONF_gov_bat_stage_1="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st1 $CONF_gov_bat_stage_1"
+            ;;
+            "GOV_BAT_ST2")
+              CONF_gov_bat_stage_2="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st2 $CONF_gov_bat_stage_2"
+            ;;
+            "GOV_BAT_ST3")
+              CONF_gov_bat_stage_3="$val"
+              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st3 $CONF_gov_bat_stage_3"
+            ;;
+          esac
+        fi
       ;;
-    GOV_*)
-      # strip ${val}
-      # because someone may want to put the governor string between double quotes
-      val=$(lstrip "${val}" "\"")
-      val=$(rstrip "${val}" "\"")
-      # or single quotes
-      val=$(lstrip "${val}" "\'")
-      val=$(rstrip "${val}" "\'")
-      # if the content of the value for the governor variable is a valid
-      # governor
-      # default value 0
-      is_governor=0
-      case "$val" in
-        "powersave")
-          is_governor=1
-          ;;
-        "conservative")
-          is_governor=1
-          ;;
-        "ondemand")
-          is_governor=1
-          ;;
-        "schedutil")
-          is_governor=1
-          ;;
-        "performance")
-          is_governor=1
-          ;;
-        *)
-          is_governor=0
-          ;;
-      esac
-      if [ "$is_governor" -eq 1 ]; then
-        case "${key}" in
-          "GOV_AC_ST1")
-            CONF_gov_ac_stage_1="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st1 $CONF_gov_ac_stage_1"
-            ;;
-          "GOV_AC_ST2")
-            CONF_gov_ac_stage_2="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st2 $CONF_gov_ac_stage_2"
-            ;;
-          "GOV_AC_ST3")
-            CONF_gov_ac_stage_3="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st3 $CONF_gov_ac_stage_3"
-            ;;
-          "GOV_BAT_ST1")
-            CONF_gov_bat_stage_1="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st1 $CONF_gov_bat_stage_1"
-            ;;
-          "GOV_BAT_ST2")
-            CONF_gov_bat_stage_2="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st2 $CONF_gov_bat_stage_2"
-            ;;
-          "GOV_BAT_ST3")
-            CONF_gov_bat_stage_3="$val"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st3 $CONF_gov_bat_stage_3"
-            ;;
-        esac
-      fi
+      "INTERVAL")
+        # check integer type
+        if is_int "$val" && [ "$val" -ge 1 ]; then
+          CONF_interval="$val"
+          [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
+        fi
       ;;
-    "INTERVAL")
-      # check integer type
-      if is_int "$val" && [ "$val" -ge 1 ]; then
-        CONF_interval="$val"
-        [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
-      fi
-      ;;
-    *) printf '%s\n' "invalid option ${key}"
-  esac
+      *) printf '%s\n' "invalid option ${key}"
+    esac
   done < "$1"
   IFS="$old_IFS"
 }
@@ -655,7 +655,7 @@ while [ "$#" -gt 0 ]; do
         *)
           printf '%s\n' "${myname}: error, invalid argument: ${1}"
           exit 1
-          ;;
+        ;;
     esac
     shift
 done
