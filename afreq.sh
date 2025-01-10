@@ -282,7 +282,7 @@ keyval_parse() {
           [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
         fi
       ;;
-      *) printf '%s\n' "invalid option ${key}"
+      *) printf '%s\n' "invalid option ${key}" ;;
     esac
   done < "$1"
   IFS="$old_IFS"
