@@ -17,7 +17,7 @@ charset = utf-8
 
 # This is just what we use, sorry if you disagree
 indent_style = space
-indent_size = 2
+indent_size = 4
 
 # line length, same as linux kernel stipulated
 max_line_length = 100
