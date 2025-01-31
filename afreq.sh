@@ -20,7 +20,7 @@ export PATH
 
 # unset variables
 unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 ONBATBOOST \
-      ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
+        ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
 
 myname="${0##*/}"
 
@@ -134,195 +134,209 @@ CONF_gov_bat_stage_3=""
 [ -f "$BoostPath" ] && CanBoost=1
 
 read_file() {
-  while read -r FileLine
-  do
-    printf '%s\n' "$FileLine"
-  done < "$1"
+    while read -r FileLine
+    do
+        printf '%s\n' "$FileLine"
+    done < "$1"
 }
 
 # usage: is_int "number"
 is_int() {
-  printf %d "$1" >/dev/null 2>&1
+    printf %d "$1" >/dev/null 2>&1
 }
 
 # Usage: lstrip "string" "pattern"
 lstrip() {
-  printf '%s\n' "${1##$2}"
+    printf '%s\n' "${1##$2}"
 }
 
 # Usage: rstrip "string" "pattern"
 rstrip() {
-  printf '%s\n' "${1%%$2}"
+    printf '%s\n' "${1%%$2}"
 }
 
 # return the work cycle
 # calculated as:
 #   DutyCycle * CyclesPerSecond
 calc_workcycle() {
-  #WorkCycle
-  result=$(( DutyCycle * CyclesPerSecond ))
-  printf '%d\n' $result
+    #WorkCycle
+    result=$(( DutyCycle * CyclesPerSecond ))
+    printf '%d\n' $result
 }
 
 keyval_parse() {
-  old_IFS="$IFS"
-  # Setting 'IFS' tells 'read' where to split the string.
-  while IFS='=' read -r key val; do
-    # Skip over lines containing comments.
-    # (Lines starting with '#').
-    [ "${key##\#*}" ] || continue
-    # '$key' stores the key.
-    # '$val' stores the value.
-    # validate type
-    case "${key}" in
-      *THRESH*)
-        # check integer type for thresholds
-        if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
-          case "${key}" in
-            "AC_THRESH_ST2")
-              CONF_ac_thresh_ST2="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st2 $CONF_ac_thresh_ST2"
+    old_IFS="$IFS"
+    # Setting 'IFS' tells 'read' where to split the string.
+    while IFS='=' read -r key val; do
+        # Skip over lines containing comments.
+        # (Lines starting with '#').
+        [ "${key##\#*}" ] || continue
+        # '$key' stores the key.
+        # '$val' stores the value.
+        # validate type
+        case "${key}" in
+            *THRESH*)
+                # check integer type for thresholds
+                if is_int "$val" && [ "$val" -gt 0 ] && [ "$val" -le 100 ] ; then
+                    case "${key}" in
+                        "AC_THRESH_ST2")
+                            CONF_ac_thresh_ST2="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf ac thresh st2 $CONF_ac_thresh_ST2"
+                        ;;
+                        "AC_THRESH_ST3")
+                            CONF_ac_thresh_ST3="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf ac thresh st3 $CONF_ac_thresh_ST3"
+                        ;;
+                        "AC_THRESH_BOOST")
+                            CONF_ac_thresh_boost="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf ac boost thresh $CONF_ac_thresh_boost"
+                        ;;
+                        "AC_THRESH_OPTIM")
+                            CONF_ac_thresh_optim="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf ac optim thresh $CONF_ac_thresh_optim"
+                        ;;
+                        "BAT_THRESH_ST2")
+                            CONF_bat_thresh_ST2="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf bat thresh st2 $CONF_bat_thresh_ST2"
+                        ;;
+                        "BAT_THRESH_ST3")
+                            CONF_bat_thresh_ST3="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf bat thresh st3 $CONF_bat_thresh_ST3"
+                        ;;
+                        "BAT_THRESH_BOOST")
+                            CONF_bat_thresh_boost="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf bat boost thresh $CONF_bat_thresh_boost"
+                        ;;
+                        "BAT_THRESH_OPTIM")
+                            CONF_bat_thresh_optim="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf bat optim thresh $CONF_bat_thresh_optim"
+                        ;;
+                    esac
+                fi
             ;;
-            "AC_THRESH_ST3")
-              CONF_ac_thresh_ST3="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac thresh st3 $CONF_ac_thresh_ST3"
+            GOV_*)
+                # strip ${val}
+                # because someone may want to put the governor string between double quotes
+                val=$(lstrip "${val}" "\"")
+                val=$(rstrip "${val}" "\"")
+                # or single quotes
+                val=$(lstrip "${val}" "\'")
+                val=$(rstrip "${val}" "\'")
+                # if the content of the value for the governor variable is a valid
+                # governor
+                # default value 0
+                is_governor=0
+                case "$val" in
+                    "powersave")
+                        is_governor=1
+                    ;;
+                    "conservative")
+                        is_governor=1
+                    ;;
+                    "ondemand")
+                        is_governor=1
+                    ;;
+                    "schedutil")
+                        is_governor=1
+                    ;;
+                    "performance")
+                        is_governor=1
+                    ;;
+                    *)
+                        is_governor=0
+                    ;;
+                esac
+                if [ "$is_governor" -eq 1 ]; then
+                    case "${key}" in
+                        "GOV_AC_ST1")
+                            CONF_gov_ac_stage_1="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf gov ac st1 $CONF_gov_ac_stage_1"
+                        ;;
+                        "GOV_AC_ST2")
+                            CONF_gov_ac_stage_2="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf gov ac st2 $CONF_gov_ac_stage_2"
+                        ;;
+                        "GOV_AC_ST3")
+                            CONF_gov_ac_stage_3="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf gov ac st3 $CONF_gov_ac_stage_3"
+                        ;;
+                        "GOV_BAT_ST1")
+                            CONF_gov_bat_stage_1="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf gov bat st1 $CONF_gov_bat_stage_1"
+                        ;;
+                        "GOV_BAT_ST2")
+                            CONF_gov_bat_stage_2="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf gov bat st2 $CONF_gov_bat_stage_2"
+                        ;;
+                        "GOV_BAT_ST3")
+                            CONF_gov_bat_stage_3="$val"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
+                                "${myname}: conf gov bat st3 $CONF_gov_bat_stage_3"
+                        ;;
+                    esac
+                fi
             ;;
-            "AC_THRESH_BOOST")
-              CONF_ac_thresh_boost="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac boost thresh $CONF_ac_thresh_boost"
-            ;;
-            "AC_THRESH_OPTIM")
-              CONF_ac_thresh_optim="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf ac optim thresh $CONF_ac_thresh_optim"
-            ;;
-            "BAT_THRESH_ST2")
-              CONF_bat_thresh_ST2="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st2 $CONF_bat_thresh_ST2"
-            ;;
-            "BAT_THRESH_ST3")
-              CONF_bat_thresh_ST3="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat thresh st3 $CONF_bat_thresh_ST3"
-            ;;
-            "BAT_THRESH_BOOST")
-              CONF_bat_thresh_boost="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat boost thresh $CONF_bat_thresh_boost"
-            ;;
-            "BAT_THRESH_OPTIM")
-              CONF_bat_thresh_optim="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf bat optim thresh $CONF_bat_thresh_optim"
-            ;;
-          esac
-        fi
-      ;;
-      GOV_*)
-        # strip ${val}
-        # because someone may want to put the governor string between double quotes
-        val=$(lstrip "${val}" "\"")
-        val=$(rstrip "${val}" "\"")
-        # or single quotes
-        val=$(lstrip "${val}" "\'")
-        val=$(rstrip "${val}" "\'")
-        # if the content of the value for the governor variable is a valid
-        # governor
-        # default value 0
-        is_governor=0
-        case "$val" in
-          "powersave")
-            is_governor=1
-          ;;
-          "conservative")
-            is_governor=1
-          ;;
-          "ondemand")
-            is_governor=1
-          ;;
-          "schedutil")
-            is_governor=1
-          ;;
-          "performance")
-            is_governor=1
-          ;;
-          *)
-            is_governor=0
-          ;;
+            "INTERVAL")
+                # check integer type
+                if is_int "$val" && [ "$val" -ge 1 ]; then
+                    CONF_interval="$val"
+                    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
+                fi
+                ;;
+            *) printf '%s\n' "invalid option ${key}" ;;
         esac
-        if [ "$is_governor" -eq 1 ]; then
-          case "${key}" in
-            "GOV_AC_ST1")
-              CONF_gov_ac_stage_1="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st1 $CONF_gov_ac_stage_1"
-            ;;
-            "GOV_AC_ST2")
-              CONF_gov_ac_stage_2="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st2 $CONF_gov_ac_stage_2"
-            ;;
-            "GOV_AC_ST3")
-              CONF_gov_ac_stage_3="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov ac st3 $CONF_gov_ac_stage_3"
-            ;;
-            "GOV_BAT_ST1")
-              CONF_gov_bat_stage_1="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st1 $CONF_gov_bat_stage_1"
-            ;;
-            "GOV_BAT_ST2")
-              CONF_gov_bat_stage_2="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st2 $CONF_gov_bat_stage_2"
-            ;;
-            "GOV_BAT_ST3")
-              CONF_gov_bat_stage_3="$val"
-              [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf gov bat st3 $CONF_gov_bat_stage_3"
-            ;;
-          esac
-        fi
-      ;;
-      "INTERVAL")
-        # check integer type
-        if is_int "$val" && [ "$val" -ge 1 ]; then
-          CONF_interval="$val"
-          [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
-        fi
-      ;;
-      *) printf '%s\n' "invalid option ${key}" ;;
-    esac
-  done < "$1"
-  IFS="$old_IFS"
+    done < "$1"
+    IFS="$old_IFS"
 }
 
 set_governor() {
-  for i in $cpu_paths; do
-    currentSetting=$(read_file "$i")
-      [ "$DBGOUT" = 1 ] && printf '%s current governor: %s\n' "$i" "$currentSetting"
-    if [ "$currentSetting" != "$1" ]; then
-      [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$i"
-      [ "$DBGOUT" = 1 ] && printf '%s setting governor: %s\n' "$i" "$1"
-    else
-      [ "$DBGOUT" = 1 ] && printf '%s governor already: %s\n' "$i" "$1"
-    fi
-  done
+    for i in $cpu_paths; do
+        currentSetting=$(read_file "$i")
+        [ "$DBGOUT" = 1 ] && printf '%s current governor: %s\n' "$i" "$currentSetting"
+        if [ "$currentSetting" != "$1" ]; then
+            [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$i"
+            [ "$DBGOUT" = 1 ] && printf '%s setting governor: %s\n' "$i" "$1"
+        else
+            [ "$DBGOUT" = 1 ] && printf '%s governor already: %s\n' "$i" "$1"
+        fi
+    done
 }
 
 set_boost() {
-  if [ -n "$CanBoost" ]; then
-    currentBoost=$(read_file "$BoostPath")
-    if [ "$currentBoost" != "$1" ]; then
-      [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$BoostPath"
-      [ "$DBGOUT" = 1 ] && printf 'setting %s to %s\n' "$1" "$BoostPath"
-    else
-      [ "$DBGOUT" = 1 ] && printf '%s already: %s\n' "$BoostPath" "$1"
+    if [ -n "$CanBoost" ]; then
+        currentBoost=$(read_file "$BoostPath")
+        if [ "$currentBoost" != "$1" ]; then
+            [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$BoostPath"
+            [ "$DBGOUT" = 1 ] && printf 'setting %s to %s\n' "$1" "$BoostPath"
+        else
+            [ "$DBGOUT" = 1 ] && printf '%s already: %s\n' "$BoostPath" "$1"
+        fi
     fi
-  fi
 }
 
 cpupercentage=""
 
 get_cpu_usage() {
-  cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
+    cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
 }
 
 acstate=""
 
 get_ac_state() {
-  acstate=$(read_file /sys/class/power_supply/AC/online)
+    acstate=$(read_file /sys/class/power_supply/AC/online)
 }
 
 huge_pages=""
@@ -333,142 +347,145 @@ dirty_writeback=""
 kernel_watchdog=""
 
 get_vm_vals () {
-  # system's huge pages setup
-  huge_pages=$(cat "$k_hugepages")
-  # set huge pages to 1024
-  printf '%d' 1024 > "$k_hugepages"
-  compaction=$(cat "$k_compaction")
-  huge_page_defrag=$(cat "$k_pagedefrag")
-  lock_unfairness=$(cat "$k_lock")
-  if [ -z "$DESKTOP" ]; then
-    dirty_writeback=$(cat "$k_writeback")
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
-    kernel_watchdog=$(cat "$k_watchdog")
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "nmi watchdog: $kernel_watchdog"
-  fi
+    # system's huge pages setup
+    huge_pages=$(cat "$k_hugepages")
+    # set huge pages to 1024
+    printf '%d' 1024 > "$k_hugepages"
+    compaction=$(cat "$k_compaction")
+    huge_page_defrag=$(cat "$k_pagedefrag")
+    lock_unfairness=$(cat "$k_lock")
+    if [ -z "$DESKTOP" ]; then
+        dirty_writeback=$(cat "$k_writeback")
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
+        kernel_watchdog=$(cat "$k_watchdog")
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "nmi watchdog: $kernel_watchdog"
+    fi
 }
 
 bat_optim() {
-  if [ "$acstate" -eq 0 ]; then
-    printf '%d\n' 0                  > "$k_watchdog"
-    printf '%d\n' 1500               > "$k_writeback"
-    printf '%d\n' 5                  > "$k_laptopmode"
-  else
-    printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
-    printf '%d\n' "$dirty_writeback" > "$k_writeback"
-    printf '%d\n' 0                  > "$k_laptopmode"
-  fi
+    if [ "$acstate" -eq 0 ]; then
+        printf '%d\n' 0                  > "$k_watchdog"
+        printf '%d\n' 1500               > "$k_writeback"
+        printf '%d\n' 5                  > "$k_laptopmode"
+    else
+        printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
+        printf '%d\n' "$dirty_writeback" > "$k_writeback"
+        printf '%d\n' 0                  > "$k_laptopmode"
+    fi
 }
 
 perf_optim() {
-  case "$1" in
-    on)
-      print '%d' 0                     > "$k_compaction"
-      print '%d' 0                     > "$k_pagedefrag"
-      print '%d' 1                     > "$k_lock"
-      ;;
-    off)
-      print '%d' "$compaction"         > "$k_compaction"
-      print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
-      print '%d' "$lock_unfairness"    > "$k_lock"
-      ;;
-  esac
+    case "$1" in
+        on)
+            print '%d' 0                     > "$k_compaction"
+            print '%d' 0                     > "$k_pagedefrag"
+            print '%d' 1                     > "$k_lock"
+            ;;
+        off)
+            print '%d' "$compaction"         > "$k_compaction"
+            print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
+            print '%d' "$lock_unfairness"    > "$k_lock"
+            ;;
+    esac
 }
 
 tick() {
-  # immediate ac state
-  im_acstate=""
-  if [ -n "${1}" ]; then
-    im_acstate=${1}
-  fi
-
-  get_cpu_usage
-  [ "$DBGOUT" = 1 ] && printf '%s\n' "cpu percentage: ${cpupercentage}%"
-
-  # it could be installed or uninstalled during service runtime
-  if command -v gamemoded >/dev/null; then
-    if pgrep -f gamemoderun >/dev/null; then
-      gamemodeactive=1
-    else
-      gamemodeactive=""
+    # immediate ac state
+    im_acstate=""
+    if [ -n "${1}" ]; then
+        im_acstate=${1}
     fi
-  else
-    gamemodeactive=""
-  fi
 
-  if [ -z "$DESKTOP" ]; then
-    if [ -z "$im_acstate" ]; then
-      get_ac_state
+    get_cpu_usage
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "cpu percentage: ${cpupercentage}%"
+
+    # it could be installed or uninstalled during service runtime
+    if command -v gamemoded >/dev/null; then
+        if pgrep -f gamemoderun >/dev/null; then
+            gamemodeactive=1
+        else
+            gamemodeactive=""
+        fi
     else
-      [ "$DBGOUT" = 1 ] && printf '%s\n' "using immediate ac state"
+        gamemodeactive=""
     fi
-    bat_optim
-  else
-    acstate=1
-  fi
 
-  [ "$DBGOUT" = 1 ] && printf '%s\n' "AC state: $acstate"
-  if [ "$acstate" = 1 ]; then
-    # GovnorST1Thresh="$ONACGOV_ST1"
-    GovnorST2Thresh="$ONACGOV_ST2"
-    GovnorST3Thresh="$ONACGOV_ST3"
-    BoostActive="$ONACBOOST"
-    OptimActive="$ONACPERFOPTIM"
-    govnorst1="$gov_ac_st1"
-    govnorst2="$gov_ac_st2"
-    govnorst3="$gov_ac_st3"
-  else
-    # GovnorST1Thresh="$ONACGOV_ST1"
-    GovnorST2Thresh="$ONBATGOV_ST2"
-    GovnorST3Thresh="$ONBATGOV_ST3"
-    BoostActive="$ONBATBOOST"
-    OptimActive="$ONBATPERFOPTIM"
-    govnorst1="$gov_bat_st1"
-    govnorst2="$gov_bat_st2"
-    govnorst3="$gov_bat_st3"
-  fi
-
-  if [ "$cpupercentage" -lt "$BoostActive" ]; then
-    boostsetting="0"
-  fi
-  if [ "$cpupercentage" -ge "$BoostActive" ]; then
-    boostsetting="1"
-  fi
-
-  if [ "$cpupercentage" -lt "$OptimActive" ]; then
-    optimsetting="off"
-  fi
-  if [ "$cpupercentage" -ge "$OptimActive" ]; then
-    optimsetting="on"
-  fi
-
-  # set governor if gamemoded is not active
-  if [ -z "$gamemodeactive" ]; then
-    if pgrep -a perfmod >/dev/null; then
-      [ "$DBGOUT" = 1 ] && printf 'perfmod running, setting performance governor\n'
-      governor="performance"
-      set_boost 1
-      perf_optim "on"
+    if [ -z "$DESKTOP" ]; then
+        if [ -z "$im_acstate" ]; then
+            get_ac_state
+        else
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "using immediate ac state"
+        fi
+        bat_optim
     else
-      [ "$DBGOUT" = 1 ] && printf '%s\n' "neither gamemode nor perfmod"
-      if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
-        governor="$govnorst1"
-      fi
-      if [ "$cpupercentage" -ge "$GovnorST2Thresh" ] && [ "$cpupercentage" -lt "$GovnorST3Thresh" ]; then
-        governor="$govnorst2"
-      fi
-      if [ "$cpupercentage" -ge "$GovnorST3Thresh" ]; then
-        governor="$govnorst3"
-      fi
+        acstate=1
     fi
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "$governor"
-    set_governor "$governor"
-    set_boost "$boostsetting"
-    perf_optim "$optimsetting"
-  else
-    [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
-    perf_optim "on"
-  fi
+
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "AC state: $acstate"
+    if [ "$acstate" = 1 ]; then
+        # GovnorST1Thresh="$ONACGOV_ST1"
+        GovnorST2Thresh="$ONACGOV_ST2"
+        GovnorST3Thresh="$ONACGOV_ST3"
+        BoostActive="$ONACBOOST"
+        OptimActive="$ONACPERFOPTIM"
+        govnorst1="$gov_ac_st1"
+        govnorst2="$gov_ac_st2"
+        govnorst3="$gov_ac_st3"
+    else
+        # GovnorST1Thresh="$ONACGOV_ST1"
+        GovnorST2Thresh="$ONBATGOV_ST2"
+        GovnorST3Thresh="$ONBATGOV_ST3"
+        BoostActive="$ONBATBOOST"
+        OptimActive="$ONBATPERFOPTIM"
+        govnorst1="$gov_bat_st1"
+        govnorst2="$gov_bat_st2"
+        govnorst3="$gov_bat_st3"
+    fi
+
+    if [ "$cpupercentage" -lt "$BoostActive" ]; then
+        boostsetting="0"
+    fi
+    if [ "$cpupercentage" -ge "$BoostActive" ]; then
+        boostsetting="1"
+    fi
+
+    if [ "$cpupercentage" -lt "$OptimActive" ]; then
+        optimsetting="off"
+    fi
+    if [ "$cpupercentage" -ge "$OptimActive" ]; then
+        optimsetting="on"
+    fi
+
+    # set governor if gamemoded is not active
+    if [ -z "$gamemodeactive" ]; then
+        if pgrep -a perfmod >/dev/null; then
+            [ "$DBGOUT" = 1 ] && printf 'perfmod running, setting performance governor\n'
+            governor="performance"
+            set_boost 1
+            perf_optim "on"
+        else
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "neither gamemode nor perfmod"
+            if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
+                governor="$govnorst1"
+            fi
+            if
+                [ "$cpupercentage" -ge "$GovnorST2Thresh" ] &&
+                [ "$cpupercentage" -lt "$GovnorST3Thresh" ]
+                then
+                governor="$govnorst2"
+            fi
+            if [ "$cpupercentage" -ge "$GovnorST3Thresh" ]; then
+                governor="$govnorst3"
+            fi
+        fi
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$governor"
+        set_governor "$governor"
+        set_boost "$boostsetting"
+        perf_optim "$optimsetting"
+    else
+        [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
+        perf_optim "on"
+    fi
 }
 
 outHandler () {
@@ -480,164 +497,164 @@ outHandler () {
     print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
     print '%d' "$lock_unfairness"    > "$k_lock"
     if [ -z "$DESKTOP" ]; then
-      printf '%d' "$dirty_writeback" > "$k_writeback"
-      printf '%d' "$kernel_watchdog" > "$k_watchdog"
+        printf '%d' "$dirty_writeback" > "$k_writeback"
+        printf '%d' "$kernel_watchdog" > "$k_watchdog"
     fi
 }
 
 # return type: int
 # usage: min value minimum_value
 min () {
-  if [ "$1" -lt "$2" ]; then
-    result="$2"
-  else
-    result="$1"
-  fi
-  printf '%d\n' "$result"
+    if [ "$1" -lt "$2" ]; then
+        result="$2"
+    else
+        result="$1"
+    fi
+    printf '%d\n' "$result"
 }
 
 # return type: int
 # usage: max value maximum_value
 max () {
-  if [ "$1" -gt "$2" ]; then
-    result="$2"
-  else
-    result="$1"
-  fi
-  printf '%d\n' "$result"
+    if [ "$1" -gt "$2" ]; then
+        result="$2"
+    else
+        result="$1"
+    fi
+    printf '%d\n' "$result"
 }
 
 loadConf() {
-  # parse config file if it exists
-  if [ -f "$DEFCFG" ] || [ -f "$CONFIG" ]; then
-    # parse the default config if it exists
-    if [ -f "$DEFCFG" ]; then
-      keyval_parse "$DEFCFG"
-      [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: default config parsed"
+    # parse config file if it exists
+    if [ -f "$DEFCFG" ] || [ -f "$CONFIG" ]; then
+        # parse the default config if it exists
+        if [ -f "$DEFCFG" ]; then
+            keyval_parse "$DEFCFG"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: default config parsed"
+        fi
+        # parse the config if it exists, this will write over the default config values
+        if [ -f "$CONFIG" ]; then
+            keyval_parse "$CONFIG"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+        fi
+    else
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
     fi
-    # parse the config if it exists, this will write over the default config values
-    if [ -f "$CONFIG" ]; then
-      keyval_parse "$CONFIG"
-      [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+
+    # fallback to defaults for whatever value wasn't set
+    # ac governors
+    if [ -z "$CONF_gov_ac_stage_1" ]; then
+        gov_ac_st1="$def_a_stage_1_gov"
+    else
+        gov_ac_st1="$CONF_gov_ac_stage_1"
     fi
-  else
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
-  fi
+    if [ -z "$CONF_gov_ac_stage_2" ]; then
+        gov_ac_st2="$def_a_stage_2_gov"
+    else
+        gov_ac_st2="$CONF_gov_ac_stage_2"
+    fi
+    if [ -z "$CONF_gov_ac_stage_3" ]; then
+        gov_ac_st3="$def_a_stage_3_gov"
+    else
+        gov_ac_st3="$CONF_gov_ac_stage_3"
+    fi
 
-  # fallback to defaults for whatever value wasn't set
-  # ac governors
-  if [ -z "$CONF_gov_ac_stage_1" ]; then
-    gov_ac_st1="$def_a_stage_1_gov"
-  else
-    gov_ac_st1="$CONF_gov_ac_stage_1"
-  fi
-  if [ -z "$CONF_gov_ac_stage_2" ]; then
-    gov_ac_st2="$def_a_stage_2_gov"
-  else
-    gov_ac_st2="$CONF_gov_ac_stage_2"
-  fi
-  if [ -z "$CONF_gov_ac_stage_3" ]; then
-    gov_ac_st3="$def_a_stage_3_gov"
-  else
-    gov_ac_st3="$CONF_gov_ac_stage_3"
-  fi
+    # battery governors
+    if [ -z "$CONF_gov_bat_stage_1" ]; then
+        gov_bat_st1="$def_b_stage_1_gov"
+    else
+        gov_bat_st1="$CONF_gov_bat_stage_1"
+    fi
+    if [ -z "$CONF_gov_bat_stage_2" ]; then
+        gov_bat_st2="$def_b_stage_2_gov"
+    else
+        gov_bat_st2="$CONF_gov_bat_stage_2"
+    fi
+    if [ -z "$CONF_gov_bat_stage_3" ]; then
+        gov_bat_st3="$def_b_stage_3_gov"
+    else
+        gov_bat_st3="$CONF_gov_bat_stage_3"
+    fi
 
-  # battery governors
-  if [ -z "$CONF_gov_bat_stage_1" ]; then
-    gov_bat_st1="$def_b_stage_1_gov"
-  else
-    gov_bat_st1="$CONF_gov_bat_stage_1"
-  fi
-  if [ -z "$CONF_gov_bat_stage_2" ]; then
-    gov_bat_st2="$def_b_stage_2_gov"
-  else
-    gov_bat_st2="$CONF_gov_bat_stage_2"
-  fi
-  if [ -z "$CONF_gov_bat_stage_3" ]; then
-    gov_bat_st3="$def_b_stage_3_gov"
-  else
-    gov_bat_st3="$CONF_gov_bat_stage_3"
-  fi
+    # governor stage thresholds ac
+    if [ -z "$CONF_ac_thresh_ST2" ]; then
+        ONACGOV_ST2=$DEF_ONACGOV_ST2
+    else
+        ONACGOV_ST2=$CONF_ac_thresh_ST2
+    fi
+    if [ -z "$CONF_ac_thresh_ST3" ]; then
+        ONACGOV_ST3=$DEF_ONACGOV_ST3
+    else
+        ONACGOV_ST3=$CONF_ac_thresh_ST3
+    fi
 
-  # governor stage thresholds ac
-  if [ -z "$CONF_ac_thresh_ST2" ]; then
-    ONACGOV_ST2=$DEF_ONACGOV_ST2
-  else
-    ONACGOV_ST2=$CONF_ac_thresh_ST2
-  fi
-  if [ -z "$CONF_ac_thresh_ST3" ]; then
-    ONACGOV_ST3=$DEF_ONACGOV_ST3
-  else
-    ONACGOV_ST3=$CONF_ac_thresh_ST3
-  fi
+    # boost threshold ac
+    if [ -z "$CONF_ac_thresh_boost" ]; then
+        ONACBOOST=$DEF_ONACBOOST
+    else
+        ONACBOOST=$CONF_ac_thresh_boost
+    fi
 
-  # boost threshold ac
-  if [ -z "$CONF_ac_thresh_boost" ]; then
-    ONACBOOST=$DEF_ONACBOOST
-  else
-    ONACBOOST=$CONF_ac_thresh_boost
-  fi
+    # optim threshold ac
+    if [ -z "$CONF_ac_thresh_optim" ]; then
+        ONACPERFOPTIM=$ONACBOOST
+    else
+        ONACPERFOPTIM=$CONF_ac_thresh_optim
+    fi
 
-  # optim threshold ac
-  if [ -z "$CONF_ac_thresh_optim" ]; then
-    ONACPERFOPTIM=$ONACBOOST
-  else
-    ONACPERFOPTIM=$CONF_ac_thresh_optim
-  fi
+    # governor stage thresholds bat
+    if [ -z "$CONF_bat_thresh_ST2" ]; then
+        ONBATGOV_ST2=$DEF_ONBATGOV_ST2
+    else
+        ONBATGOV_ST2=$CONF_bat_thresh_ST2
+    fi
+    if [ -z "$CONF_bat_thresh_ST3" ]; then
+        ONBATGOV_ST3=$DEF_ONBATGOV_ST3
+    else
+        ONBATGOV_ST3=$CONF_bat_thresh_ST3
+    fi
 
-  # governor stage thresholds bat
-  if [ -z "$CONF_bat_thresh_ST2" ]; then
-    ONBATGOV_ST2=$DEF_ONBATGOV_ST2
-  else
-    ONBATGOV_ST2=$CONF_bat_thresh_ST2
-  fi
-  if [ -z "$CONF_bat_thresh_ST3" ]; then
-    ONBATGOV_ST3=$DEF_ONBATGOV_ST3
-  else
-    ONBATGOV_ST3=$CONF_bat_thresh_ST3
-  fi
+    # boost threshold bat
+    if [ -z "$CONF_bat_thresh_boost" ]; then
+        ONBATBOOST=$DEF_ONBATBOOST
+    else
+        ONBATBOOST=$CONF_bat_thresh_boost
+    fi
 
-  # boost threshold bat
-  if [ -z "$CONF_bat_thresh_boost" ]; then
-    ONBATBOOST=$DEF_ONBATBOOST
-  else
-    ONBATBOOST=$CONF_bat_thresh_boost
-  fi
+    # optim threshold bat
+    if [ -z "$CONF_bat_thresh_optim" ]; then
+        ONBATPERFOPTIM=$ONBATBOOST
+    else
+        ONBATPERFOPTIM=$CONF_bat_thresh_optim
+    fi
 
-  # optim threshold bat
-  if [ -z "$CONF_bat_thresh_optim" ]; then
-    ONBATPERFOPTIM=$ONBATBOOST
-  else
-    ONBATPERFOPTIM=$CONF_bat_thresh_optim
-  fi
+    # work cycle
+    if [ -z "$CONF_interval" ]; then
+        DutyCycle=$DEF_DutyCycle
+    else
+        DutyCycle=$CONF_interval
+    fi
+    WorkCycle=$(calc_workcycle)
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "work cycle $WorkCycle"
 
-  # work cycle
-  if [ -z "$CONF_interval" ]; then
-    DutyCycle=$DEF_DutyCycle
-  else
-    DutyCycle=$CONF_interval
-  fi
-  WorkCycle=$(calc_workcycle)
-  [ "$DBGOUT" = 1 ] && printf '%s\n' "work cycle $WorkCycle"
+    # ensure no stupid values
+    ONBATGOV_ST2=$(min "$ONBATGOV_ST2" "$bt_st2_min")
+    ONBATGOV_ST2=$(max "$ONBATGOV_ST2" "$bt_st2_max")
+    ONBATGOV_ST3=$(min "$ONBATGOV_ST3" "$bt_st3_min")
+    ONBATGOV_ST3=$(max "$ONBATGOV_ST3" "$bt_st3_max")
+    ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_min")
+    ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_max")
+    ONBATPERFOPTIM=$(min "$ONBATPERFOPTIM" "$bt_bst_min")
+    ONBATPERFOPTIM=$(max "$ONBATPERFOPTIM" "$bt_bst_max")
 
-  # ensure no stupid values
-  ONBATGOV_ST2=$(min "$ONBATGOV_ST2" "$bt_st2_min")
-  ONBATGOV_ST2=$(max "$ONBATGOV_ST2" "$bt_st2_max")
-  ONBATGOV_ST3=$(min "$ONBATGOV_ST3" "$bt_st3_min")
-  ONBATGOV_ST3=$(max "$ONBATGOV_ST3" "$bt_st3_max")
-  ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_min")
-  ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_max")
-  ONBATPERFOPTIM=$(min "$ONBATPERFOPTIM" "$bt_bst_min")
-  ONBATPERFOPTIM=$(max "$ONBATPERFOPTIM" "$bt_bst_max")
-
-  ONACGOV_ST2=$(min "$ONACGOV_ST2" "$ac_st2_min")
-  ONACGOV_ST2=$(max "$ONACGOV_ST2" "$ac_st2_max")
-  ONACGOV_ST3=$(min "$ONACGOV_ST3" "$ac_st3_min")
-  ONACGOV_ST3=$(max "$ONACGOV_ST3" "$ac_st3_max")
-  ONACBOOST=$(min "$ONACBOOST" "$ac_bst_min")
-  ONACBOOST=$(min "$ONACBOOST" "$ac_bst_max")
-  ONACPERFOPTIM=$(min "$ONACPERFOPTIM" "$ac_bst_min")
-  ONACPERFOPTIM=$(max "$ONACPERFOPTIM" "$ac_bst_max")
+    ONACGOV_ST2=$(min "$ONACGOV_ST2" "$ac_st2_min")
+    ONACGOV_ST2=$(max "$ONACGOV_ST2" "$ac_st2_max")
+    ONACGOV_ST3=$(min "$ONACGOV_ST3" "$ac_st3_min")
+    ONACGOV_ST3=$(max "$ONACGOV_ST3" "$ac_st3_max")
+    ONACBOOST=$(min "$ONACBOOST" "$ac_bst_min")
+    ONACBOOST=$(min "$ONACBOOST" "$ac_bst_max")
+    ONACPERFOPTIM=$(min "$ONACPERFOPTIM" "$ac_bst_min")
+    ONACPERFOPTIM=$(max "$ONACPERFOPTIM" "$ac_bst_max")
 }
 
 # handle unexpected exits and termination
@@ -653,8 +670,8 @@ while [ "$#" -gt 0 ]; do
         oneshot) ONESHOT=1 ;;
         dryrun)  DRYRUN=1  ;;
         *)
-          printf '%s\n' "${myname}: error, invalid argument: ${1}"
-          exit 1
+            printf '%s\n' "${myname}: error, invalid argument: ${1}"
+            exit 1
         ;;
     esac
     shift
@@ -662,8 +679,8 @@ done
 [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}"
 
 if [ ! -f /sys/class/power_supply/AC/online ]; then
-  DESKTOP=1
-  [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: running on desktop mode"
+    DESKTOP=1
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: running on desktop mode"
 fi
 
 get_vm_vals
@@ -672,32 +689,32 @@ loadConf
 
 # do we run as a one shot?
 if [ "$ONESHOT" = 1 ]; then
-  tick
+    tick
 else
-  count=0
-  tick
-  AFREQ_NO_CONTINUE=""
-  while [ -z "$AFREQ_NO_CONTINUE" ]; do
-    if [ -n "$AFREQ_NO_CONTINUE" ]; then
-      exit 0
-    fi
-    if [ "$count" -eq "$WorkCycle" ]; then
-      tick
-      count=0
-    else
-      count=$(( count + 1 ))
-    fi
-    sleep 0.5
-    if [ -z "$DESKTOP" ]; then
-      old_acstate="$acstate"
-      get_ac_state
-      if [ "$old_acstate" -ne "$acstate" ]; then
-        [ "$DBGOUT" = 1 ] && printf '%s\n' "ac state changed before tick!"
-        tick "$acstate"
-      fi
-    else
-      acstate=1
-    fi
-  done
-  exit 0
+    count=0
+    tick
+    AFREQ_NO_CONTINUE=""
+    while [ -z "$AFREQ_NO_CONTINUE" ]; do
+        if [ -n "$AFREQ_NO_CONTINUE" ]; then
+            exit 0
+        fi
+        if [ "$count" -eq "$WorkCycle" ]; then
+            tick
+            count=0
+        else
+            count=$(( count + 1 ))
+        fi
+        sleep 0.5
+        if [ -z "$DESKTOP" ]; then
+            old_acstate="$acstate"
+            get_ac_state
+            if [ "$old_acstate" -ne "$acstate" ]; then
+                [ "$DBGOUT" = 1 ] && printf '%s\n' "ac state changed before tick!"
+                tick "$acstate"
+            fi
+        else
+            acstate=1
+        fi
+    done
+    exit 0
 fi
