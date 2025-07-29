@@ -17,6 +17,6 @@ fi
 DESC="acpufreq"
 DAEMON=placeholder/sbin/afreq
 PIDFILE=/var/run/acpufreq.pid
-START_ARGS="--user root --chuid root --background --make-pidfile"
-STOP_ARGS="--user root --remove-pidfile"
+START_ARGS="--user root --chuid root --background --pidfile ${PIDFILE} --make-pidfile"
+STOP_ARGS="--user root --pidfile ${PIDFILE} --remove-pidfile"
 
