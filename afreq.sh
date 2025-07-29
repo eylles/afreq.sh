@@ -661,6 +661,7 @@ loadConf() {
 trap 'outHandler "INT"' INT
 trap 'outHandler "TERM"' TERM
 trap 'loadConf' USR1
+trap 'loadConf' HUP
 
 ## MAIN ##
 # input parsing
