@@ -377,14 +377,14 @@ bat_optim() {
 perf_optim() {
     case "$1" in
         on)
-            print '%d' 0                     > "$k_compaction"
-            print '%d' 0                     > "$k_pagedefrag"
-            print '%d' 1                     > "$k_lock"
+            printf '%d' 0                     > "$k_compaction"
+            printf '%d' 0                     > "$k_pagedefrag"
+            printf '%d' 1                     > "$k_lock"
             ;;
         off)
-            print '%d' "$compaction"         > "$k_compaction"
-            print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
-            print '%d' "$lock_unfairness"    > "$k_lock"
+            printf '%d' "$compaction"         > "$k_compaction"
+            printf '%d' "$huge_page_defrag"   > "$k_pagedefrag"
+            printf '%d' "$lock_unfairness"    > "$k_lock"
             ;;
     esac
 }
@@ -492,10 +492,10 @@ outHandler () {
     [ "$DBGOUT" = 1 ] && printf '\n%s\n' "exiting on signal: $1"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
-    print '%d' "$huge_pages"         > "$k_hugepages"
-    print '%d' "$compaction"         > "$k_compaction"
-    print '%d' "$huge_page_defrag"   > "$k_pagedefrag"
-    print '%d' "$lock_unfairness"    > "$k_lock"
+    printf '%d' "$huge_pages"         > "$k_hugepages"
+    printf '%d' "$compaction"         > "$k_compaction"
+    printf '%d' "$huge_page_defrag"   > "$k_pagedefrag"
+    printf '%d' "$lock_unfairness"    > "$k_lock"
     if [ -z "$DESKTOP" ]; then
         printf '%d' "$dirty_writeback" > "$k_writeback"
         printf '%d' "$kernel_watchdog" > "$k_watchdog"
