@@ -503,8 +503,10 @@ outHandler () {
 }
 
 # return type: int
-# usage: min value minimum_value
-min () {
+# usage: min_cap value minimum_value
+# description: prevents the value from
+#     being lower than the minimum_value.
+min_cap () {
     if [ "$1" -lt "$2" ]; then
         result="$2"
     else
@@ -514,8 +516,10 @@ min () {
 }
 
 # return type: int
-# usage: max value maximum_value
-max () {
+# usage: max_cap value maximum_value
+# description: prevents the value from
+#     being higher than the maximum_value.
+max_cap () {
     if [ "$1" -gt "$2" ]; then
         result="$2"
     else
@@ -638,23 +642,23 @@ loadConf() {
     [ "$DBGOUT" = 1 ] && printf '%s\n' "work cycle $WorkCycle"
 
     # ensure no stupid values
-    ONBATGOV_ST2=$(min "$ONBATGOV_ST2" "$bt_st2_min")
-    ONBATGOV_ST2=$(max "$ONBATGOV_ST2" "$bt_st2_max")
-    ONBATGOV_ST3=$(min "$ONBATGOV_ST3" "$bt_st3_min")
-    ONBATGOV_ST3=$(max "$ONBATGOV_ST3" "$bt_st3_max")
-    ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_min")
-    ONBATBOOST=$(min "$ONBATBOOST" "$bt_bst_max")
-    ONBATPERFOPTIM=$(min "$ONBATPERFOPTIM" "$bt_bst_min")
-    ONBATPERFOPTIM=$(max "$ONBATPERFOPTIM" "$bt_bst_max")
+    ONBATGOV_ST2=$(min_cap "$ONBATGOV_ST2" "$bt_st2_min")
+    ONBATGOV_ST2=$(max_cap "$ONBATGOV_ST2" "$bt_st2_max")
+    ONBATGOV_ST3=$(min_cap "$ONBATGOV_ST3" "$bt_st3_min")
+    ONBATGOV_ST3=$(max_cap "$ONBATGOV_ST3" "$bt_st3_max")
+    ONBATBOOST=$(min_cap "$ONBATBOOST" "$bt_bst_min")
+    ONBATBOOST=$(min_cap "$ONBATBOOST" "$bt_bst_max")
+    ONBATPERFOPTIM=$(min_cap "$ONBATPERFOPTIM" "$bt_bst_min")
+    ONBATPERFOPTIM=$(max_cap "$ONBATPERFOPTIM" "$bt_bst_max")
 
-    ONACGOV_ST2=$(min "$ONACGOV_ST2" "$ac_st2_min")
-    ONACGOV_ST2=$(max "$ONACGOV_ST2" "$ac_st2_max")
-    ONACGOV_ST3=$(min "$ONACGOV_ST3" "$ac_st3_min")
-    ONACGOV_ST3=$(max "$ONACGOV_ST3" "$ac_st3_max")
-    ONACBOOST=$(min "$ONACBOOST" "$ac_bst_min")
-    ONACBOOST=$(min "$ONACBOOST" "$ac_bst_max")
-    ONACPERFOPTIM=$(min "$ONACPERFOPTIM" "$ac_bst_min")
-    ONACPERFOPTIM=$(max "$ONACPERFOPTIM" "$ac_bst_max")
+    ONACGOV_ST2=$(min_cap "$ONACGOV_ST2" "$ac_st2_min")
+    ONACGOV_ST2=$(max_cap "$ONACGOV_ST2" "$ac_st2_max")
+    ONACGOV_ST3=$(min_cap "$ONACGOV_ST3" "$ac_st3_min")
+    ONACGOV_ST3=$(max_cap "$ONACGOV_ST3" "$ac_st3_max")
+    ONACBOOST=$(min_cap "$ONACBOOST" "$ac_bst_min")
+    ONACBOOST=$(min_cap "$ONACBOOST" "$ac_bst_max")
+    ONACPERFOPTIM=$(min_cap "$ONACPERFOPTIM" "$ac_bst_min")
+    ONACPERFOPTIM=$(max_cap "$ONACPERFOPTIM" "$ac_bst_max")
 }
 
 # handle unexpected exits and termination
