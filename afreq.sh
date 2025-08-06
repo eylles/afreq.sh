@@ -717,13 +717,14 @@ get_vm_vals
 
 loadConf
 
+# first tick
+tick
+
 # do we run as a one shot?
 if [ "$ONESHOT" = 1 ]; then
-    tick
+    exit 0
 else
     count=0
-    tick
-    AFREQ_NO_CONTINUE=""
     while [ -z "$AFREQ_NO_CONTINUE" ]; do
         if [ -n "$AFREQ_NO_CONTINUE" ]; then
             exit 0
