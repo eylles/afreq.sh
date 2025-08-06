@@ -22,6 +22,11 @@ export PATH
 unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 ONBATBOOST \
         ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
 
+
+#############
+# constants #
+#############
+
 myname="${0##*/}"
 
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
@@ -50,13 +55,14 @@ k_lock=/proc/sys/vm/page_lock_unfairness
 # by default: /etc/default/afreqconfig
 DEFCFG=/etc/default/afreqconfig
 CONFIG=/etc/afreqconfig
-AFREQ_NO_CONTINUE=""
+
+############
+# defaults #
+############
+
 # how many seconds do we tick
 DEF_DutyCycle=5
-DutyCycle=""
 CyclesPerSecond=2
-# cycles to tick
-WorkCycle=""
 
 # defaults
 DEF_ONBATGOV_ST2=40
@@ -86,6 +92,23 @@ ac_st3_max=90
 ac_bst_min=10
 ac_bst_max=90
 
+def_b_stage_1_gov="powersave"
+def_b_stage_2_gov="conservative"
+def_b_stage_3_gov="performance"
+
+def_a_stage_1_gov="schedutil"
+def_a_stage_2_gov="ondemand"
+def_a_stage_3_gov="performance"
+
+###########
+# globals #
+###########
+
+DutyCycle=""
+# cycles to tick
+WorkCycle=""
+AFREQ_NO_CONTINUE=""
+
 ONBATGOV_ST2=""
 ONBATGOV_ST3=""
 ONBATBOOST=""
@@ -95,6 +118,32 @@ ONACGOV_ST2=""
 ONACGOV_ST3=""
 ONACBOOST=""
 ONACPERFOPTIM=""
+
+gov_ac_st1=""
+gov_ac_st2=""
+gov_ac_st3=""
+
+gov_bat_st1=""
+gov_bat_st2=""
+gov_bat_st3=""
+
+huge_pages=""
+compaction=""
+huge_page_defrag=""
+lock_unfairness=""
+dirty_writeback=""
+kernel_watchdog=""
+
+cpupercentage=""
+
+acstate=""
+
+CanBoost=""
+[ -f "$BoostPath" ] && CanBoost=1
+
+#############
+# conf vars #
+#############
 
 # empty conf vars
 CONF_ac_thresh_ST2=""
@@ -107,22 +156,6 @@ CONF_bat_thresh_boost=""
 CONF_bat_thresh_optim=""
 CONF_interval=""
 
-def_b_stage_1_gov="powersave"
-def_b_stage_2_gov="conservative"
-def_b_stage_3_gov="performance"
-
-def_a_stage_1_gov="schedutil"
-def_a_stage_2_gov="ondemand"
-def_a_stage_3_gov="performance"
-
-gov_ac_st1=""
-gov_ac_st2=""
-gov_ac_st3=""
-
-gov_bat_st1=""
-gov_bat_st2=""
-gov_bat_st3=""
-
 CONF_gov_ac_stage_1=""
 CONF_gov_ac_stage_2=""
 CONF_gov_ac_stage_3=""
@@ -131,7 +164,9 @@ CONF_gov_bat_stage_1=""
 CONF_gov_bat_stage_2=""
 CONF_gov_bat_stage_3=""
 
-[ -f "$BoostPath" ] && CanBoost=1
+#############
+# functions #
+#############
 
 read_file() {
     while read -r FileLine
@@ -327,24 +362,13 @@ set_boost() {
     fi
 }
 
-cpupercentage=""
-
 get_cpu_usage() {
     cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
 }
 
-acstate=""
-
 get_ac_state() {
     acstate=$(read_file /sys/class/power_supply/AC/online)
 }
-
-huge_pages=""
-compaction=""
-huge_page_defrag=""
-lock_unfairness=""
-dirty_writeback=""
-kernel_watchdog=""
 
 get_vm_vals () {
     # system's huge pages setup
@@ -664,6 +688,7 @@ loadConf() {
 # handle unexpected exits and termination
 trap 'outHandler "INT"' INT
 trap 'outHandler "TERM"' TERM
+# handle config reloads
 trap 'loadConf' USR1
 trap 'loadConf' HUP
 
