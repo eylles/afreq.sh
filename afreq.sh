@@ -20,7 +20,7 @@ export PATH
 
 # unset variables
 unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 ONBATBOOST \
-        ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP
+        ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP ONESHOT
 
 
 #############
@@ -103,6 +103,10 @@ def_a_stage_3_gov="performance"
 ###########
 # globals #
 ###########
+
+DBGOUT=""
+ONESHOT=""
+DRYRUN=""
 
 DutyCycle=""
 # cycles to tick
@@ -686,8 +690,8 @@ loadConf() {
 }
 
 # handle unexpected exits and termination
-trap 'outHandler "INT"' INT
-trap 'outHandler "TERM"' TERM
+trap 'outHandler INT' INT
+trap 'outHandler TERM' TERM
 # handle config reloads
 trap 'loadConf' USR1
 trap 'loadConf' HUP
@@ -721,9 +725,7 @@ loadConf
 tick
 
 # do we run as a one shot?
-if [ "$ONESHOT" = 1 ]; then
-    exit 0
-else
+if [ -z "$ONESHOT" ]; then
     count=0
     while [ -z "$AFREQ_NO_CONTINUE" ]; do
         if [ -n "$AFREQ_NO_CONTINUE" ]; then
@@ -747,5 +749,4 @@ else
             acstate=1
         fi
     done
-    exit 0
 fi
