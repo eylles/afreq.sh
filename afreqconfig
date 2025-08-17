@@ -9,6 +9,14 @@
 
 # similarely the turbo boost is capped at 5% minimum and 95% maximum for the threshold value.
 
+# setting the log level of the daemon
+# possible values:
+#     0  -  none
+#     1  -  info
+#     2  -  err
+#     3  -  debug
+#LOG_LEVEL="none"
+
 # setting the interval to check the system
 # and adjust frequency. SECONDS INTEGER
 #INTERVAL=5

@@ -73,6 +73,8 @@ DEF_ONACGOV_ST2=10
 DEF_ONACGOV_ST3=60
 DEF_ONACBOOST=25
 
+def_log_level="0"
+
 # threshold caps
 # battery mode
 
@@ -123,6 +125,14 @@ ONACGOV_ST3=""
 ONACBOOST=""
 ONACPERFOPTIM=""
 
+# type: string
+# possible values:
+#     0  -  none
+#     1  -  info
+#     2  -  err
+#     3  -  debug
+LOG_LEVEL=0
+
 gov_ac_st1=""
 gov_ac_st2=""
 gov_ac_st3=""
@@ -159,6 +169,7 @@ CONF_bat_thresh_ST3=""
 CONF_bat_thresh_boost=""
 CONF_bat_thresh_optim=""
 CONF_interval=""
+CONF_log_level=""
 
 CONF_gov_ac_stage_1=""
 CONF_gov_ac_stage_2=""
@@ -194,6 +205,38 @@ rstrip() {
     printf '%s\n' "${1%%$2}"
 }
 
+# usage: msg_log "level" "message"
+# log level can be:
+#     info
+#     err
+#     debug
+msg_log () {
+    loglevel="$1"
+    shift
+    message="$*"
+    should_log=""
+    case "$loglevel" in
+        info)
+            if [ "$LOG_LEVEL" -gt 0 ]; then
+                should_log=1
+            fi
+            ;;
+        err)
+            if [ "$LOG_LEVEL" -gt 1 ]; then
+                should_log=1
+            fi
+            ;;
+        debug)
+            if [ "$LOG_LEVEL" -gt 2 ]; then
+                should_log=1
+            fi
+            ;;
+    esac
+    if [ -n "$should_log" ]; then
+        logger -i -t "$myname" -p "daemon.${loglevel}" "$message"
+    fi
+}
+
 # return the work cycle
 # calculated as:
 #   DutyCycle * CyclesPerSecond
@@ -220,43 +263,51 @@ keyval_parse() {
                     case "${key}" in
                         "AC_THRESH_ST2")
                             CONF_ac_thresh_ST2="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf ac thresh st2 $CONF_ac_thresh_ST2"
+                            msg="conf ac thresh st2 $CONF_ac_thresh_ST2"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "AC_THRESH_ST3")
                             CONF_ac_thresh_ST3="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf ac thresh st3 $CONF_ac_thresh_ST3"
+                            msg="conf ac thresh st3 $CONF_ac_thresh_ST3"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "AC_THRESH_BOOST")
                             CONF_ac_thresh_boost="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf ac boost thresh $CONF_ac_thresh_boost"
+                            msg="conf ac boost thresh $CONF_ac_thresh_boost"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "AC_THRESH_OPTIM")
                             CONF_ac_thresh_optim="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf ac optim thresh $CONF_ac_thresh_optim"
+                            msg="conf ac optim thresh $CONF_ac_thresh_optim"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "BAT_THRESH_ST2")
                             CONF_bat_thresh_ST2="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf bat thresh st2 $CONF_bat_thresh_ST2"
+                            msg="conf bat thresh st2 $CONF_bat_thresh_ST2"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "BAT_THRESH_ST3")
                             CONF_bat_thresh_ST3="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf bat thresh st3 $CONF_bat_thresh_ST3"
+                            msg="conf bat thresh st3 $CONF_bat_thresh_ST3"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "BAT_THRESH_BOOST")
                             CONF_bat_thresh_boost="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf bat boost thresh $CONF_bat_thresh_boost"
+                            msg="conf bat boost thresh $CONF_bat_thresh_boost"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "BAT_THRESH_OPTIM")
                             CONF_bat_thresh_optim="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf bat optim thresh $CONF_bat_thresh_optim"
+                            msg="conf bat optim thresh $CONF_bat_thresh_optim"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                     esac
                 fi
@@ -297,33 +348,39 @@ keyval_parse() {
                     case "${key}" in
                         "GOV_AC_ST1")
                             CONF_gov_ac_stage_1="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf gov ac st1 $CONF_gov_ac_stage_1"
+                            msg="conf gov ac st1 $CONF_gov_ac_stage_1"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "GOV_AC_ST2")
                             CONF_gov_ac_stage_2="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf gov ac st2 $CONF_gov_ac_stage_2"
+                            msg="conf gov ac st2 $CONF_gov_ac_stage_2"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "GOV_AC_ST3")
                             CONF_gov_ac_stage_3="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf gov ac st3 $CONF_gov_ac_stage_3"
+                            msg="conf gov ac st3 $CONF_gov_ac_stage_3"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "GOV_BAT_ST1")
                             CONF_gov_bat_stage_1="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf gov bat st1 $CONF_gov_bat_stage_1"
+                            msg="conf gov bat st1 $CONF_gov_bat_stage_1"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "GOV_BAT_ST2")
                             CONF_gov_bat_stage_2="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf gov bat st2 $CONF_gov_bat_stage_2"
+                            msg="conf gov bat st2 $CONF_gov_bat_stage_2"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                         "GOV_BAT_ST3")
                             CONF_gov_bat_stage_3="$val"
-                            [ "$DBGOUT" = 1 ] && printf '%s\n' \
-                                "${myname}: conf gov bat st3 $CONF_gov_bat_stage_3"
+                            msg="conf gov bat st3 $CONF_gov_bat_stage_3"
+                            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                            msg_log "debug" "$msg"
                         ;;
                     esac
                 fi
@@ -332,10 +389,32 @@ keyval_parse() {
                 # check integer type
                 if is_int "$val" && [ "$val" -ge 1 ]; then
                     CONF_interval="$val"
-                    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: conf interval $CONF_interval"
+                    msg="conf interval $CONF_interval"
+                    [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                    msg_log "debug" "$msg"
                 fi
                 ;;
-            *) printf '%s\n' "invalid option ${key}" ;;
+            "LOG_LEVEL")
+                case "${val}" in
+                    0|[Nn][Oo][Nn][Ee])
+                        CONF_log_level="0"
+                        ;;
+                    1|[Ii][Nn][Ff][Oo])
+                        CONF_log_level="1"
+                        ;;
+                    2|[Ee][Rr][Rr])
+                        CONF_log_level="2"
+                        ;;
+                    3|[Dd][Ee][Bb][Uu][Gg])
+                        CONF_log_level="3"
+                        ;;
+                esac
+                ;;
+            *)
+                msg="invalid option ${key}"
+                [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+                msg_log "debug" "$msg"
+                ;;
         esac
     done < "$1"
     IFS="$old_IFS"
@@ -344,12 +423,18 @@ keyval_parse() {
 set_governor() {
     for i in $cpu_paths; do
         currentSetting=$(read_file "$i")
-        [ "$DBGOUT" = 1 ] && printf '%s current governor: %s\n' "$i" "$currentSetting"
+        msg="${i} current governor: ${currentSetting}"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+        msg_log "debug" "$msg"
         if [ "$currentSetting" != "$1" ]; then
             [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$i"
-            [ "$DBGOUT" = 1 ] && printf '%s setting governor: %s\n' "$i" "$1"
+            msg="${i} setting governor: ${1}"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         else
-            [ "$DBGOUT" = 1 ] && printf '%s governor already: %s\n' "$i" "$1"
+            msg="${i} governor already: ${1}"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         fi
     done
 }
@@ -359,9 +444,13 @@ set_boost() {
         currentBoost=$(read_file "$BoostPath")
         if [ "$currentBoost" != "$1" ]; then
             [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$BoostPath"
-            [ "$DBGOUT" = 1 ] && printf 'setting %s to %s\n' "$1" "$BoostPath"
+            msg="${BoostPath} setting: ${1}"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         else
-            [ "$DBGOUT" = 1 ] && printf '%s already: %s\n' "$BoostPath" "$1"
+            msg="${BoostPath} already: ${1}"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         fi
     fi
 }
@@ -384,9 +473,13 @@ get_vm_vals () {
     lock_unfairness=$(cat "$k_lock")
     if [ -z "$DESKTOP" ]; then
         dirty_writeback=$(cat "$k_writeback")
-        [ "$DBGOUT" = 1 ] && printf '%s\n' "dirty writeback: $dirty_writeback"
+        msg="dirty writeback: $dirty_writeback"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+        msg_log "debug" "$msg"
         kernel_watchdog=$(cat "$k_watchdog")
-        [ "$DBGOUT" = 1 ] && printf '%s\n' "nmi watchdog: $kernel_watchdog"
+        msg="nmi watchdog: $kernel_watchdog"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+        msg_log "debug" "$msg"
     fi
 }
 
@@ -418,6 +511,8 @@ perf_optim() {
 }
 
 tick() {
+    msg="setting performance optimization"
+    msg_log "info"
     # immediate ac state
     im_acstate=""
     if [ -n "${1}" ]; then
@@ -425,7 +520,9 @@ tick() {
     fi
 
     get_cpu_usage
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "cpu percentage: ${cpupercentage}%"
+    msg="cpu percentage: ${cpupercentage}%"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+    msg_log "debug" "$msg"
 
     # it could be installed or uninstalled during service runtime
     if command -v gamemoded >/dev/null; then
@@ -442,14 +539,18 @@ tick() {
         if [ -z "$im_acstate" ]; then
             get_ac_state
         else
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "using immediate ac state"
+            msg="using immediate ac state"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         fi
         bat_optim
     else
         acstate=1
     fi
 
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "AC state: $acstate"
+    msg="AC state: $acstate"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+    msg_log "debug" "$msg"
     if [ "$acstate" = 1 ]; then
         # GovnorST1Thresh="$ONACGOV_ST1"
         GovnorST2Thresh="$ONACGOV_ST2"
@@ -487,12 +588,16 @@ tick() {
     # set governor if gamemoded is not active
     if [ -z "$gamemodeactive" ]; then
         if pgrep -a perfmod >/dev/null; then
-            [ "$DBGOUT" = 1 ] && printf 'perfmod running, setting performance governor\n'
+            msg="perfmod running, setting performance governor"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
             governor="performance"
             set_boost 1
             perf_optim "on"
         else
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "neither gamemode nor perfmod"
+            msg="neither gamemode nor perfmod"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
             if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
                 governor="$govnorst1"
             fi
@@ -506,18 +611,24 @@ tick() {
                 governor="$govnorst3"
             fi
         fi
-        [ "$DBGOUT" = 1 ] && printf '%s\n' "$governor"
+        msg="governor: $governor"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+        msg_log "debug" "$msg"
         set_governor "$governor"
         set_boost "$boostsetting"
         perf_optim "$optimsetting"
     else
-        [ "$DBGOUT" = 1 ] && printf 'gamemode active, nothing to do here\n'
+        msg="gamemode active, nothing to do here"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+        msg_log "debug" "$msg"
         perf_optim "on"
     fi
 }
 
 outHandler () {
-    [ "$DBGOUT" = 1 ] && printf '\n%s\n' "exiting on signal: $1"
+    msg="exiting on signal: $1"
+    [ "$DBGOUT" = 1 ] && printf '\n%s\n' "$msg"
+    msg_log "debug" "$msg"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
     printf '%d' "$huge_pages"         > "$k_hugepages"
@@ -562,15 +673,21 @@ loadConf() {
         # parse the default config if it exists
         if [ -f "$DEFCFG" ]; then
             keyval_parse "$DEFCFG"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: default config parsed"
+            msg="default config parsed"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         fi
         # parse the config if it exists, this will write over the default config values
         if [ -f "$CONFIG" ]; then
             keyval_parse "$CONFIG"
-            [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: config parsed"
+            msg="config parsed"
+            [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+            msg_log "debug" "$msg"
         fi
     else
-        [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: no config, using default values"
+        msg="no config, using default values"
+        [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+        msg_log "debug" "$msg"
     fi
 
     # fallback to defaults for whatever value wasn't set
@@ -660,6 +777,13 @@ loadConf() {
         ONBATPERFOPTIM=$CONF_bat_thresh_optim
     fi
 
+    # log level
+    if [ -z "$CONF_log_level" ]; then
+        LOG_LEVEL="$def_log_level"
+    else
+        LOG_LEVEL="$CONF_log_level"
+    fi
+
     # work cycle
     if [ -z "$CONF_interval" ]; then
         DutyCycle=$DEF_DutyCycle
@@ -667,7 +791,9 @@ loadConf() {
         DutyCycle=$CONF_interval
     fi
     WorkCycle=$(calc_workcycle)
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "work cycle $WorkCycle"
+    msg="work cycle $WorkCycle"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
+    msg_log "debug" "$msg"
 
     # ensure no stupid values
     ONBATGOV_ST2=$(min_cap "$ONBATGOV_ST2" "$bt_st2_min")
@@ -710,16 +836,19 @@ while [ "$#" -gt 0 ]; do
     esac
     shift
 done
+
+loadConf
+
 [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}"
 
 if [ ! -f /sys/class/power_supply/AC/online ]; then
     DESKTOP=1
-    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: running on desktop mode"
+    msg="running on desktop mode"
+    msg_log "info" "$msg"
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
 fi
 
 get_vm_vals
-
-loadConf
 
 # first tick
 tick
@@ -742,7 +871,9 @@ if [ -z "$ONESHOT" ]; then
             old_acstate="$acstate"
             get_ac_state
             if [ "$old_acstate" -ne "$acstate" ]; then
-                [ "$DBGOUT" = 1 ] && printf '%s\n' "ac state changed before tick!"
+                msg="ac state changed before tick"
+                msg_log "info" "$msg"
+                [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
                 tick "$acstate"
             fi
         else
