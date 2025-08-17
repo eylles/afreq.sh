@@ -467,7 +467,7 @@ get_vm_vals () {
     # system's huge pages setup
     huge_pages=$(cat "$k_hugepages")
     # set huge pages to 1024
-    printf '%d' 1024 > "$k_hugepages"
+    printf '%d\n' 1024 > "$k_hugepages"
     compaction=$(cat "$k_compaction")
     huge_page_defrag=$(cat "$k_pagedefrag")
     lock_unfairness=$(cat "$k_lock")
@@ -498,14 +498,14 @@ bat_optim() {
 perf_optim() {
     case "$1" in
         on)
-            printf '%d' 0                     > "$k_compaction"
-            printf '%d' 0                     > "$k_pagedefrag"
-            printf '%d' 1                     > "$k_lock"
+            printf '%d\n' 0                     > "$k_compaction"
+            printf '%d\n' 0                     > "$k_pagedefrag"
+            printf '%d\n' 1                     > "$k_lock"
             ;;
         off)
-            printf '%d' "$compaction"         > "$k_compaction"
-            printf '%d' "$huge_page_defrag"   > "$k_pagedefrag"
-            printf '%d' "$lock_unfairness"    > "$k_lock"
+            printf '%d\n' "$compaction"         > "$k_compaction"
+            printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
+            printf '%d\n' "$lock_unfairness"    > "$k_lock"
             ;;
     esac
 }
@@ -631,13 +631,13 @@ outHandler () {
     msg_log "debug" "$msg"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
-    printf '%d' "$huge_pages"         > "$k_hugepages"
-    printf '%d' "$compaction"         > "$k_compaction"
-    printf '%d' "$huge_page_defrag"   > "$k_pagedefrag"
-    printf '%d' "$lock_unfairness"    > "$k_lock"
+    printf '%d\n' "$huge_pages"         > "$k_hugepages"
+    printf '%d\n' "$compaction"         > "$k_compaction"
+    printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
+    printf '%d\n' "$lock_unfairness"    > "$k_lock"
     if [ -z "$DESKTOP" ]; then
-        printf '%d' "$dirty_writeback" > "$k_writeback"
-        printf '%d' "$kernel_watchdog" > "$k_watchdog"
+        printf '%d\n' "$dirty_writeback" > "$k_writeback"
+        printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
     fi
 }
 
