@@ -197,11 +197,15 @@ is_int() {
 
 # Usage: lstrip "string" "pattern"
 lstrip() {
+    # we want these to match as patterns
+    # shellcheck disable=SC2295
     printf '%s\n' "${1##$2}"
 }
 
 # Usage: rstrip "string" "pattern"
 rstrip() {
+    # we want these to match as patterns
+    # shellcheck disable=SC2295
     printf '%s\n' "${1%%$2}"
 }
 
