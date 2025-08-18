@@ -592,8 +592,8 @@ tick() {
             [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
             msg_log "debug" "$msg"
             governor="performance"
-            set_boost 1
-            perf_optim "on"
+            boostsetting="1"
+            optimsetting="on"
         else
             msg="neither gamemode nor perfmod"
             [ "$DBGOUT" = 1 ] && printf '%s\n' "$msg"
