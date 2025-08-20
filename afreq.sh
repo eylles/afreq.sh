@@ -877,6 +877,7 @@ loadConf() {
 # handle unexpected exits and termination
 trap 'outHandler INT' INT
 trap 'outHandler TERM' TERM
+trap 'outHandler USR2' USR2
 trap 'outHandler EXIT' EXIT
 # handle config reloads
 trap 'loadConf' USR1
