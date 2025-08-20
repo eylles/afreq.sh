@@ -28,9 +28,13 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 
 #############
 
 myname="${0##*/}"
+mypid="$$"
 
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
+
+status_path="/var/run/afreq"
+status_file="${status_path}/status"
 
 # battery mode kernel paths
 
@@ -105,6 +109,8 @@ def_a_stage_3_gov="performance"
 ###########
 # globals #
 ###########
+
+DESKTOP=""
 
 DBGOUT=""
 ONESHOT=""
@@ -492,6 +498,85 @@ perf_optim() {
     esac
 }
 
+print_status () {
+    cpu_d_paths="/sys/devices/system/cpu/cpu*"
+
+    cpu_f_path="/sys/devices/system/cpu/cpu0/cpufreq"
+
+    date +"[%Y-%m-%d %H:%M:%S]"
+    printf '%s %s: %s\n\n' "$myname" "pid" "$mypid"
+    if [ -n "$CanBoost" ]; then
+        boost_state=$(cat "$BoostPath")
+        boost_status=""
+        case "$boost_state" in
+            0)
+                boost_status="off"
+                ;;
+            1)
+                boost_status="on"
+                ;;
+        esac
+
+        printf '%8s: %s\n' "Boost" "$boost_status"
+    fi
+
+    govnor=$(cat "${cpu_f_path}/scaling_governor")
+
+    printf '%8s: %s\n' "Governor" "$govnor"
+
+    printf '\n'
+
+    min=$(cat "${cpu_f_path}/scaling_min_freq")
+    printf '%s %s\n' "CPU min freq" "$min Hz"
+
+    max=$(cat "${cpu_f_path}/scaling_max_freq")
+    printf '%s %s\n' "CPU max freq" "$max Hz"
+
+    printf '\n'
+
+    printf '%8s: %12s\n' "CPU" "Frequecy"
+    for cpu in $cpu_d_paths; do
+        frqpath="${cpu}/cpufreq/scaling_cur_freq"
+        if [ -r "$frqpath" ]; then
+            freq=$(cat "$frqpath")
+            indx=${cpu##*/}
+            printf '%8s: %12s\n' "$indx" "${freq} Hz"
+        fi
+    done
+
+    printf '\n'
+
+    avg_load=$(awk '{print $1}' /proc/loadavg)
+    printf '%s: %s\n' "Average system load" "$avg_load"
+    printf '%s: %s\n' "Average CPU percentage" "${cpupercentage}%"
+
+    if [ -z "$DESKTOP" ]; then
+        acstatus=""
+        case "$acstate" in
+            0)
+                acstatus="disconnected"
+                ;;
+            1)
+                acstatus="connected"
+                ;;
+        esac
+        printf '%s: %s\n' "AC status" "$acstatus"
+    fi
+}
+
+write_stats () {
+    if [ -z "$DRYRUN" ]; then
+        if [ ! -d "$status_path" ]; then
+            mkdir "$status_path"
+            : > "$status_file"
+        fi
+        print_status > "$status_file"
+    else
+        print_status
+    fi
+
+}
+
 tick() {
     msg="setting performance optimization"
     msg_log "info"
@@ -598,6 +683,7 @@ tick() {
         msg_log "debug" "$msg"
         perf_optim "on"
     fi
+    write_stats
 }
 
 outHandler () {
@@ -612,6 +698,9 @@ outHandler () {
     if [ -z "$DESKTOP" ]; then
         printf '%d\n' "$dirty_writeback" > "$k_writeback"
         printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
+    fi
+    if [ -d "$status_path" ]; then
+        rm -rf "$status_path"
     fi
 }
 
