@@ -457,7 +457,7 @@ get_vm_vals () {
     # system's huge pages setup
     huge_pages=$(cat "$k_hugepages")
     # set huge pages to 1024
-    printf '%d\n' 1024 > "$k_hugepages"
+    [ -z "$DRYRUN" ] &&  printf '%d\n' 1024 > "$k_hugepages"
     compaction=$(cat "$k_compaction")
     huge_page_defrag=$(cat "$k_pagedefrag")
     lock_unfairness=$(cat "$k_lock")
@@ -473,27 +473,27 @@ get_vm_vals () {
 
 bat_optim() {
     if [ "$acstate" -eq 0 ]; then
-        printf '%d\n' 0                  > "$k_watchdog"
-        printf '%d\n' 1500               > "$k_writeback"
-        printf '%d\n' 5                  > "$k_laptopmode"
+        [ -z "$DRYRUN" ] && printf '%d\n' 0                  > "$k_watchdog"
+        [ -z "$DRYRUN" ] && printf '%d\n' 1500               > "$k_writeback"
+        [ -z "$DRYRUN" ] && printf '%d\n' 5                  > "$k_laptopmode"
     else
-        printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
-        printf '%d\n' "$dirty_writeback" > "$k_writeback"
-        printf '%d\n' 0                  > "$k_laptopmode"
+        [ -z "$DRYRUN" ] && printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
+        [ -z "$DRYRUN" ] && printf '%d\n' "$dirty_writeback" > "$k_writeback"
+        [ -z "$DRYRUN" ] && printf '%d\n' 0                  > "$k_laptopmode"
     fi
 }
 
 perf_optim() {
     case "$1" in
         on)
-            printf '%d\n' 0                     > "$k_compaction"
-            printf '%d\n' 0                     > "$k_pagedefrag"
-            printf '%d\n' 1                     > "$k_lock"
+            [ -z "$DRYRUN" ] && printf '%d\n' 0                     > "$k_compaction"
+            [ -z "$DRYRUN" ] && printf '%d\n' 0                     > "$k_pagedefrag"
+            [ -z "$DRYRUN" ] && printf '%d\n' 1                     > "$k_lock"
             ;;
         off)
-            printf '%d\n' "$compaction"         > "$k_compaction"
-            printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
-            printf '%d\n' "$lock_unfairness"    > "$k_lock"
+            [ -z "$DRYRUN" ] && printf '%d\n' "$compaction"         > "$k_compaction"
+            [ -z "$DRYRUN" ] && printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
+            [ -z "$DRYRUN" ] && printf '%d\n' "$lock_unfairness"    > "$k_lock"
             ;;
     esac
 }
@@ -691,13 +691,13 @@ outHandler () {
     msg_log "debug" "$msg"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
-    printf '%d\n' "$huge_pages"         > "$k_hugepages"
-    printf '%d\n' "$compaction"         > "$k_compaction"
-    printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
-    printf '%d\n' "$lock_unfairness"    > "$k_lock"
+    [ -z "$DRYRUN" ] && printf '%d\n' "$huge_pages"         > "$k_hugepages"
+    [ -z "$DRYRUN" ] && printf '%d\n' "$compaction"         > "$k_compaction"
+    [ -z "$DRYRUN" ] && printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
+    [ -z "$DRYRUN" ] && printf '%d\n' "$lock_unfairness"    > "$k_lock"
     if [ -z "$DESKTOP" ]; then
-        printf '%d\n' "$dirty_writeback" > "$k_writeback"
-        printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
+        [ -z "$DRYRUN" ] && printf '%d\n' "$dirty_writeback" > "$k_writeback"
+        [ -z "$DRYRUN" ] && printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
     fi
     if [ -d "$status_path" ]; then
         rm -rf "$status_path"
