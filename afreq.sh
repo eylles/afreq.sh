@@ -421,9 +421,12 @@ keyval_parse() {
 
 # usage: write_to_file "value" "file"
 write_to_file () {
-    msg="writing '$1' to '$2'"
-    msg_log "debug" "$msg"
-    [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$2"
+    currcontent=$(head -n 1 "$2" 2>/dev/null)
+    if [ "$currcontent" != "$1" ]; then
+        msg="writing '$1' to '$2'"
+        msg_log "debug" "$msg"
+        [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$2"
+    fi
 }
 
 set_governor() {
