@@ -30,6 +30,10 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 
 myname="${0##*/}"
 mypid="$$"
 
+if [ -z "$PIDFILE" ]; then
+    PIDFILE=/var/run/acpufreq.pid
+fi
+
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 
@@ -702,6 +706,9 @@ outHandler () {
     if [ -d "$status_path" ]; then
         rm -rf "$status_path"
     fi
+    if [ -f "$PIDFILE" ]; then
+        rm "$PIDFILE"
+    fi
 }
 
 # return type: int
@@ -874,6 +881,10 @@ loadConf() {
     ONACPERFOPTIM=$(max_cap "$ONACPERFOPTIM" "$ac_bst_max")
 }
 
+write_pidfile () {
+    [ -z "$DRYRUN" ] &&  printf '%s\n' "$mypid" > "$PIDFILE"
+}
+
 # handle unexpected exits and termination
 trap 'outHandler INT' INT
 trap 'outHandler TERM' TERM
@@ -890,6 +901,7 @@ while [ "$#" -gt 0 ]; do
         debug)   DBGOUT=1  ;;
         oneshot) ONESHOT=1 ;;
         dryrun)  DRYRUN=1  ;;
+        pidfile|--pidfile) PIDFILE="$1" ;;
         *)
             printf '%s\n' "${myname}: error, invalid argument: ${1}"
             exit 1
@@ -916,12 +928,20 @@ tick
 # do we run as a one shot?
 if [ -z "$ONESHOT" ]; then
     count=0
+    pidfile_dir="${PIDFILE%/*}"
+    # hopefully this is not needed...
+    if [ ! -d "$pidfile_dir" ]; then
+        [ -z "$DRYRUN" ] && mkdir -p "$pidfile_dir"
+    fi
+    write_pidfile
     while [ -z "$AFREQ_NO_CONTINUE" ]; do
         if [ -n "$AFREQ_NO_CONTINUE" ]; then
             exit 0
         fi
         if [ "$count" -eq "$WorkCycle" ]; then
             tick
+            # may as well while we are running...
+            write_pidfile
             count=0
         else
             count=$(( count + 1 ))
