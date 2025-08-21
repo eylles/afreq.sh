@@ -12,7 +12,7 @@ DAEMON_ARGS=""
 RUN_AS_USER=root
 NAME=${DAEMON##*/}
 PIDFILE=/var/run/acpufreq.pid
-RELOAD_SIGNAL="HUP"
+RELOAD_SIGNAL="USR1"
 
 # Define LSB log_* functions.
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present
@@ -83,7 +83,7 @@ case $1 in
         ;;
     reload)
         if [ -e ${PIDFILE} ]; then
-            log_daemon_msg "Reloading ${NAME}" 
+            log_daemon_msg "Reloading ${NAME}"
             start-stop-daemon -K --quiet --signal ${RELOAD_SIGNAL:-USR1} --pidfile ${PIDFILE}
             if [ "$?" = "0" ]; then
                 log_end_msg 0
