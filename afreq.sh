@@ -938,11 +938,10 @@ fi
 
 get_vm_vals
 
-# first tick
-tick
-
 # do we run as a one shot?
-if [ -z "$ONESHOT" ]; then
+if [ -n "$ONESHOT" ]; then
+    tick
+else
     count=0
     pidfile_dir="${PIDFILE%/*}"
     # hopefully this is not needed...
