@@ -592,8 +592,8 @@ write_stats () {
 }
 
 tick() {
-    msg="setting performance optimization"
-    msg_log "info"
+    msg="setting optimization"
+    msg_log "info" "$msg"
     # immediate ac state
     im_acstate=""
     if [ -n "${1}" ]; then
