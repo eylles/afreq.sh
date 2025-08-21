@@ -580,6 +580,8 @@ print_status () {
 
 write_stats () {
     if [ -z "$DRYRUN" ]; then
+        msg="writing status to '${status_file}'"
+        msg_log "debug" "$msg"
         if [ ! -d "$status_path" ]; then
             mkdir -p "$status_path"
             : > "$status_file"
