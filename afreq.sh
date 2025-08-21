@@ -894,7 +894,11 @@ loadConf() {
 }
 
 write_pidfile () {
-    write_to_file "$mypid" "$PIDFILE"
+    if [ ! -r "$PIDFILE" ]; then
+        msg="pidfile not present, creating it."
+        msg_log "info" "$msg"
+        write_to_file "$mypid" "$PIDFILE"
+    fi
 }
 
 # handle unexpected exits and termination
