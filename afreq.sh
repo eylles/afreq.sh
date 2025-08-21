@@ -932,8 +932,11 @@ loadConf
 
 if [ ! -f /sys/class/power_supply/AC/online ]; then
     DESKTOP=1
+    acstate=1
     msg="running on desktop mode"
     msg_log "info" "$msg"
+else
+    acstate=0
 fi
 
 get_vm_vals
