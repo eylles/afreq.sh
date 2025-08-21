@@ -469,17 +469,17 @@ get_ac_state() {
 
 get_vm_vals () {
     # system's huge pages setup
-    huge_pages=$(cat "$k_hugepages")
+    huge_pages=$(head "$k_hugepages")
     # set huge pages to 1024
     write_to_file 1024 "$k_hugepages"
-    compaction=$(cat "$k_compaction")
-    huge_page_defrag=$(cat "$k_pagedefrag")
-    lock_unfairness=$(cat "$k_lock")
+    compaction=$(head "$k_compaction")
+    huge_page_defrag=$(head "$k_pagedefrag")
+    lock_unfairness=$(head "$k_lock")
     if [ -z "$DESKTOP" ]; then
-        dirty_writeback=$(cat "$k_writeback")
+        dirty_writeback=$(head "$k_writeback")
         msg="dirty writeback: $dirty_writeback"
         msg_log "debug" "$msg"
-        kernel_watchdog=$(cat "$k_watchdog")
+        kernel_watchdog=$(head "$k_watchdog")
         msg="nmi watchdog: $kernel_watchdog"
         msg_log "debug" "$msg"
     fi
@@ -520,7 +520,7 @@ print_status () {
     date +"[%Y-%m-%d %H:%M:%S]"
     printf '%s %s: %s\n\n' "$myname" "pid" "$mypid"
     if [ -n "$CanBoost" ]; then
-        boost_state=$(cat "$BoostPath")
+        boost_state=$(head "$BoostPath")
         boost_status=""
         case "$boost_state" in
             0)
@@ -534,16 +534,16 @@ print_status () {
         printf '%8s: %s\n' "Boost" "$boost_status"
     fi
 
-    govnor=$(cat "${cpu_f_path}/scaling_governor")
+    govnor=$(head "${cpu_f_path}/scaling_governor")
 
     printf '%8s: %s\n' "Governor" "$govnor"
 
     printf '\n'
 
-    min=$(cat "${cpu_f_path}/scaling_min_freq")
+    min=$(head "${cpu_f_path}/scaling_min_freq")
     printf '%s %s\n' "CPU min freq" "$min Hz"
 
-    max=$(cat "${cpu_f_path}/scaling_max_freq")
+    max=$(head "${cpu_f_path}/scaling_max_freq")
     printf '%s %s\n' "CPU max freq" "$max Hz"
 
     printf '\n'
@@ -552,7 +552,7 @@ print_status () {
     for cpu in $cpu_d_paths; do
         frqpath="${cpu}/cpufreq/scaling_cur_freq"
         if [ -r "$frqpath" ]; then
-            freq=$(cat "$frqpath")
+            freq=$(head "$frqpath")
             indx=${cpu##*/}
             printf '%8s: %12s\n' "$indx" "${freq} Hz"
         fi
