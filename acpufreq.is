@@ -43,7 +43,7 @@ case $1 in
         # Start the daemon.
         log_daemon_msg "Starting ${NAME}" "$DAEMON"
         # Start the daemon with the help of start-stop-daemon
-        start-stop-daemon -S --quiet --oknodo --pidfile ${PIDFILE} --make-pidfile --background \
+        start-stop-daemon -S --quiet --oknodo --pidfile ${PIDFILE} --background \
             --chuid ${RUN_AS_USER} --startas ${DAEMON} -- ${DAEMON_ARGS}
         if [ "$?" = "0" ]; then
             log_end_msg 0
