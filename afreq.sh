@@ -419,13 +419,20 @@ keyval_parse() {
     IFS="$old_IFS"
 }
 
+# usage: write_to_file "value" "file"
+write_to_file () {
+    msg="writing '$1' to '$2'"
+    msg_log "debug" "$msg"
+    [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$2"
+}
+
 set_governor() {
     for i in $cpu_paths; do
         currentSetting=$(read_file "$i")
         msg="${i} current governor: ${currentSetting}"
         msg_log "debug" "$msg"
         if [ "$currentSetting" != "$1" ]; then
-            [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$i"
+            write_to_file "$1" "$i"
             msg="${i} setting governor: ${1}"
             msg_log "debug" "$msg"
         else
@@ -439,7 +446,7 @@ set_boost() {
     if [ -n "$CanBoost" ]; then
         currentBoost=$(read_file "$BoostPath")
         if [ "$currentBoost" != "$1" ]; then
-            [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$BoostPath"
+            write_to_file "$1" "$BoostPath"
             msg="${BoostPath} setting: ${1}"
             msg_log "debug" "$msg"
         else
@@ -461,7 +468,7 @@ get_vm_vals () {
     # system's huge pages setup
     huge_pages=$(cat "$k_hugepages")
     # set huge pages to 1024
-    [ -z "$DRYRUN" ] &&  printf '%d\n' 1024 > "$k_hugepages"
+    write_to_file 1024 "$k_hugepages"
     compaction=$(cat "$k_compaction")
     huge_page_defrag=$(cat "$k_pagedefrag")
     lock_unfairness=$(cat "$k_lock")
@@ -477,27 +484,27 @@ get_vm_vals () {
 
 bat_optim() {
     if [ "$acstate" -eq 0 ]; then
-        [ -z "$DRYRUN" ] && printf '%d\n' 0                  > "$k_watchdog"
-        [ -z "$DRYRUN" ] && printf '%d\n' 1500               > "$k_writeback"
-        [ -z "$DRYRUN" ] && printf '%d\n' 5                  > "$k_laptopmode"
+        write_to_file 0                   "$k_watchdog"
+        write_to_file 1500                "$k_writeback"
+        write_to_file 5                   "$k_laptopmode"
     else
-        [ -z "$DRYRUN" ] && printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
-        [ -z "$DRYRUN" ] && printf '%d\n' "$dirty_writeback" > "$k_writeback"
-        [ -z "$DRYRUN" ] && printf '%d\n' 0                  > "$k_laptopmode"
+        write_to_file "$kernel_watchdog"  "$k_watchdog"
+        write_to_file "$dirty_writeback"  "$k_writeback"
+        write_to_file 0                   "$k_laptopmode"
     fi
 }
 
 perf_optim() {
     case "$1" in
         on)
-            [ -z "$DRYRUN" ] && printf '%d\n' 0                     > "$k_compaction"
-            [ -z "$DRYRUN" ] && printf '%d\n' 0                     > "$k_pagedefrag"
-            [ -z "$DRYRUN" ] && printf '%d\n' 1                     > "$k_lock"
+            write_to_file 0                      "$k_compaction"
+            write_to_file 0                      "$k_pagedefrag"
+            write_to_file 1                      "$k_lock"
             ;;
         off)
-            [ -z "$DRYRUN" ] && printf '%d\n' "$compaction"         > "$k_compaction"
-            [ -z "$DRYRUN" ] && printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
-            [ -z "$DRYRUN" ] && printf '%d\n' "$lock_unfairness"    > "$k_lock"
+            write_to_file "$compaction"          "$k_compaction"
+            write_to_file "$huge_page_defrag"    "$k_pagedefrag"
+            write_to_file "$lock_unfairness"     "$k_lock"
             ;;
     esac
 }
@@ -695,13 +702,13 @@ outHandler () {
     msg_log "debug" "$msg"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
-    [ -z "$DRYRUN" ] && printf '%d\n' "$huge_pages"         > "$k_hugepages"
-    [ -z "$DRYRUN" ] && printf '%d\n' "$compaction"         > "$k_compaction"
-    [ -z "$DRYRUN" ] && printf '%d\n' "$huge_page_defrag"   > "$k_pagedefrag"
-    [ -z "$DRYRUN" ] && printf '%d\n' "$lock_unfairness"    > "$k_lock"
+    write_to_file "$huge_pages"          "$k_hugepages"
+    write_to_file "$compaction"          "$k_compaction"
+    write_to_file "$huge_page_defrag"    "$k_pagedefrag"
+    write_to_file "$lock_unfairness"     "$k_lock"
     if [ -z "$DESKTOP" ]; then
-        [ -z "$DRYRUN" ] && printf '%d\n' "$dirty_writeback" > "$k_writeback"
-        [ -z "$DRYRUN" ] && printf '%d\n' "$kernel_watchdog" > "$k_watchdog"
+        write_to_file "$dirty_writeback"  "$k_writeback"
+        write_to_file "$kernel_watchdog"  "$k_watchdog"
     fi
     if [ -d "$status_path" ]; then
         rm -rf "$status_path"
@@ -882,7 +889,7 @@ loadConf() {
 }
 
 write_pidfile () {
-    [ -z "$DRYRUN" ] &&  printf '%s\n' "$mypid" > "$PIDFILE"
+    write_to_file "$mypid" "$PIDFILE"
 }
 
 # handle unexpected exits and termination
