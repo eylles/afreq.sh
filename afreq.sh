@@ -571,7 +571,7 @@ print_status () {
 write_stats () {
     if [ -z "$DRYRUN" ]; then
         if [ ! -d "$status_path" ]; then
-            mkdir "$status_path"
+            mkdir -p "$status_path"
             : > "$status_file"
         fi
         print_status > "$status_file"
