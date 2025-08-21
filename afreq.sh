@@ -897,8 +897,8 @@ write_pidfile () {
     if [ ! -r "$PIDFILE" ]; then
         msg="pidfile not present, creating it."
         msg_log "info" "$msg"
-        write_to_file "$mypid" "$PIDFILE"
     fi
+    write_to_file "$mypid" "$PIDFILE"
 }
 
 # handle unexpected exits and termination
