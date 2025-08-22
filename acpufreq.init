@@ -20,3 +20,12 @@ PIDFILE=/var/run/acpufreq.pid
 START_ARGS="--pidfile ${PIDFILE} --background"
 STOP_ARGS="--pidfile ${PIDFILE}"
 RELOAD_SIGNAL="USR1"
+
+do_stop_cmd_override() {
+	start-stop-daemon --stop --quiet \
+	    --retry=CONT/0/TERM/30/KILL/5 \
+	    ${PIDFILE:+--pidfile "$PIDFILE"} \
+	    ${COMMAND_NAME:+--name "$COMMAND_NAME"} $STOP_ARGS
+	RETVAL="$?"
+	return $RETVAL
+}
