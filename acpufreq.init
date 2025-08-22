@@ -29,3 +29,11 @@ do_stop_cmd_override() {
 	RETVAL="$?"
 	return $RETVAL
 }
+
+do_reload_cmd() {
+	start-stop-daemon --stop --signal $RELOAD_SIGNAL --quiet \
+	    ${PIDFILE:+--pidfile "$PIDFILE"} \
+	    ${COMMAND_NAME:+--name "$COMMAND_NAME"} $RELOAD_ARGS
+	RETVAL="$?"
+	return $RETVAL
+}
