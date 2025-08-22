@@ -30,6 +30,8 @@ unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 
 myname="${0##*/}"
 mypid="$$"
 
+version="@VERSION@"
+
 if [ -z "$PIDFILE" ]; then
     PIDFILE=/var/run/acpufreq.pid
 fi
@@ -518,7 +520,8 @@ print_status () {
     cpu_f_path="/sys/devices/system/cpu/cpu0/cpufreq"
 
     date +"[%Y-%m-%d %H:%M:%S]"
-    printf '%s %s: %s\n\n' "$myname" "pid" "$mypid"
+    printf '%s %s: %s\n' "$myname" "pid" "$mypid"
+    printf '%s: %s\n\n'  "Version" "$version"
     if [ -n "$CanBoost" ]; then
         boost_state=$(head "$BoostPath")
         boost_status=""

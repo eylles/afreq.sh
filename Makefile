@@ -13,7 +13,7 @@ include config.mk
 all: afreq sysvserv sysdserv
 
 afreq:
-	cp afreq.sh afreq
+	sed "s|@VERSION@|$(VERSION)|" afreq.sh > afreq
 	chmod 755 afreq
 
 sysvserv:
