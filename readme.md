@@ -29,8 +29,7 @@ As of now afreq depends only on:
   |component|default location|description|
   |----|----|----|
   |afreq|`/usr/local/sbin/afreq`|the actual daemon doing the work|
-  |perfmod|`/usr/local/sbin/perfmod`|a thin wrapper to force performance governor when a program
-  runs|
+  |perfmod|`/usr/local/sbin/perfmod`|thin wrapper to force performance governor when a program runs|
   |acpufreq|`/etc/init.d/acpufreq`|sysvinit initscript|
   |acpufreq.service|`/etc/systemd/system/acpufreq.service`|systemd unit|
 
