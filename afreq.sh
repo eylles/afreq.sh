@@ -904,6 +904,21 @@ write_pidfile () {
     write_to_file "$mypid" "$PIDFILE"
 }
 
+# usage: is_instance "pid"
+# return type: bool
+is_instance () {
+    ps ax -o'pid=,cmd=' \
+        | sed 's/^ *//' \
+        | awk \
+            -v pid="$1" \
+            -v name="$myname" \
+            '
+                BEGIN { found = 0 }
+                $1 == pid && $0 ~ name { found = 1 }
+                END { if (!found) exit 1 }
+            '
+}
+
 # handle unexpected exits and termination
 trap 'outHandler INT' INT
 trap 'outHandler TERM' TERM
@@ -953,6 +968,13 @@ else
     # hopefully this is not needed...
     if [ ! -d "$pidfile_dir" ]; then
         [ -z "$DRYRUN" ] && mkdir -p "$pidfile_dir"
+    fi
+    if [ -z "$DRYRUN" ] && [ -r "$PIDFILE" ]; then
+        pidfilepid=$(head "$PIDFILE")
+        if [ "$mypid" -ne "$pidfilepid" ] && is_instance "$pidfilepid" ;then
+            printf '%s\n' "${myname}: an instance is already running with pid $pidfilepid"
+            exit 1
+        fi
     fi
     write_pidfile
     while [ -z "$AFREQ_NO_CONTINUE" ]; do
