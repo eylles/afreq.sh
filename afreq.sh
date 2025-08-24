@@ -718,11 +718,11 @@ outHandler () {
         write_to_file "$dirty_writeback"  "$k_writeback"
         write_to_file "$kernel_watchdog"  "$k_watchdog"
     fi
-    if [ -d "$status_path" ]; then
-        rm -rf "$status_path"
+    if [ -z "$DRYRUN" ] && [ -d "$status_path" ]; then
+        rm -rf "$status_path" 2>/dev/null
     fi
-    if [ -f "$PIDFILE" ]; then
-        rm "$PIDFILE"
+    if [ -z "$DRYRUN" ] && [ -f "$PIDFILE" ]; then
+        rm -f "$PIDFILE" 2>/dev/null
     fi
 }
 
