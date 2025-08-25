@@ -422,13 +422,43 @@ keyval_parse() {
 }
 
 # usage: write_to_file "value" "file"
+#     if the passed value is "--" then read value from stdin
+#     only write_stats is ever going to use this so we can do special handling
 write_to_file () {
-    currcontent=$(head -n 1 "$2" 2>/dev/null)
-    if [ "$currcontent" != "$1" ]; then
-        msg="writing '$1' to '$2'"
-        msg_log "debug" "$msg"
-        [ -z "$DRYRUN" ] &&  printf '%s\n' "$1" > "$2"
+    stdin_val=""
+    file="$2"
+    filedir="${file%/*}"
+    value="$1"
+    can_w=""
+    if [ "$value" = "--" ]; then
+        stdin_val=1
+        value=$(cat)
+        a_value=$(printf '%s\n' "$value" | awk '/Boost/||/Governor/||/AC/{print$0}')
     fi
+    if [ -e "$file" ] && [ -w "$file" ]; then
+        if [ -z "$stdin_val" ]; then
+            currcontent=$(head -n 1 "$file" 2>/dev/null)
+            if [ "$currcontent" != "$value" ]; then
+                can_w=1
+            fi
+        else
+            currcontent=$(awk '/Boost/||/Governor/||/AC/{print$0}' "$file")
+            if [ "$currcontent" != "$a_value" ]; then
+                can_w=1
+            fi
+        fi
+    elif [ -e "$filedir" ] && [ -w "$filedir" ]; then
+        can_w=1
+    else
+        msg="cannot write to file $file"
+        msg_log "err" "$msg"
+    fi
+    if [ -n "$can_w" ]; then
+        msg="writing '$value' to '$file'"
+        msg_log "debug" "$msg"
+        [ -z "$DRYRUN" ] &&  printf '%s\n' "$value" > "$file"
+    fi
+
 }
 
 set_governor() {
@@ -586,10 +616,9 @@ write_stats () {
         msg="writing status to '${status_file}'"
         msg_log "debug" "$msg"
         if [ ! -d "$status_path" ]; then
-            mkdir -p "$status_path"
-            : > "$status_file"
+            mkdir -p "$status_path" 2>/dev/null
         fi
-        print_status > "$status_file"
+        print_status | write_to_file "--" "$status_file"
     else
         print_status
     fi
