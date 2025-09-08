@@ -38,6 +38,7 @@ fi
 
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
+ac_adapter_path="/sys/class/power_supply/AC*/online"
 
 status_path="/var/run/afreq"
 status_file="${status_path}/status"
@@ -496,7 +497,7 @@ get_cpu_usage() {
 }
 
 get_ac_state() {
-    acstate=$(read_file /sys/class/power_supply/AC/online)
+    acstate=$(read_file "$ac_adapter_path")
 }
 
 get_vm_vals () {
@@ -977,7 +978,7 @@ loadConf
 
 [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}"
 
-if [ ! -f /sys/class/power_supply/AC/online ]; then
+if [ ! -f "$ac_adapter_path" ]; then
     DESKTOP=1
     acstate=1
     msg="running on desktop mode"
