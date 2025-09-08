@@ -38,7 +38,7 @@ fi
 
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
-ac_adapter_path="/sys/class/power_supply/AC*/online"
+ac_adapter_path="/sys/class/power_supply/A*/online"
 
 status_path="/var/run/afreq"
 status_file="${status_path}/status"
