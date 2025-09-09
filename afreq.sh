@@ -497,7 +497,11 @@ get_cpu_usage() {
 }
 
 get_ac_state() {
-    acstate=$(read_file "$ac_adapter_path")
+    if on_ac_power; then
+        acstate=1
+    else
+        acstate=0
+    fi
 }
 
 get_vm_vals () {
