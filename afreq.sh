@@ -196,13 +196,6 @@ CONF_gov_bat_stage_3=""
 # functions #
 #############
 
-read_file() {
-    while read -r FileLine
-    do
-        printf '%s\n' "$FileLine"
-    done < "$1"
-}
-
 # usage: is_int "number"
 is_int() {
     printf %d "$1" >/dev/null 2>&1
@@ -464,7 +457,7 @@ write_to_file () {
 
 set_governor() {
     for i in $cpu_paths; do
-        currentSetting=$(read_file "$i")
+        currentSetting=$(head -n 1 "$i")
         msg="${i} current governor: ${currentSetting}"
         msg_log "debug" "$msg"
         if [ "$currentSetting" != "$1" ]; then
@@ -480,7 +473,7 @@ set_governor() {
 
 set_boost() {
     if [ -n "$CanBoost" ]; then
-        currentBoost=$(read_file "$BoostPath")
+        currentBoost=$(head -n 1 "$BoostPath")
         if [ "$currentBoost" != "$1" ]; then
             write_to_file "$1" "$BoostPath"
             msg="${BoostPath} setting: ${1}"
