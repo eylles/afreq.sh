@@ -38,7 +38,7 @@ fi
 
 BoostPath="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
-ac_adapter_path="/sys/class/power_supply/A*/online"
+ac_adapter_path="/sys/class/power_supply"
 
 status_path="/var/run/afreq"
 status_file="${status_path}/status"
@@ -975,13 +975,24 @@ loadConf
 
 [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}"
 
-if [ ! -f "$ac_adapter_path" ]; then
-    DESKTOP=1
-    acstate=1
-    msg="running on desktop mode"
-    msg_log "info" "$msg"
-else
-    acstate=0
+DESKTOP=1
+acstate=1
+if [ -d "$ac_adapter_path" ]; then
+    for supply in "$ac_adapter_path"/B* ; do
+        if [ -d "$supply" ] && [ -r "${supply}/type" ]; then
+            type=$(head -n 1 "${supply}/type")
+            case "$type" in
+                Battery)
+                    DESKTOP=""
+                    ;;
+            esac
+        else
+            continue
+        fi
+    done
+    if [ -z "$DESKTOP" ]; then
+        get_ac_state
+    fi
 fi
 
 get_vm_vals
@@ -1027,6 +1038,8 @@ else
             fi
         else
             acstate=1
+            msg="running on desktop mode"
+            msg_log "info" "$msg"
         fi
     done
 fi
