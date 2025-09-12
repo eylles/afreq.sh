@@ -32,6 +32,12 @@ install: afreq
 	chmod 755 $(PREFIX)/bin/perfmod
 	echo perfmod installed in $(PREFIX)/bin
 
+install-on_ac_power:
+	mkdir -p $(PREFIX)/bin
+	cp on_ac_power $(PREFIX)/bin/perfmod
+	chmod 755 $(PREFIX)/bin/on_ac_power
+	echo on_ac_power installed in $(PREFIX)/bin
+
 install-sysv: sysvserv
 	mkdir -p $(SERVICE_LOCATION_SYSV)
 	cp $(NAME) $(SERVICE_LOCATION_SYSV)/
@@ -54,6 +60,10 @@ uninstall:
 	echo $(NAME) uninstalled from $(SERVICE_LOCATION_SYSV)
 	rm -v $(SERVICE_LOCATION_SYSD)/$(NAME).service
 	echo $(NAME).service uninstalled from $(SERVICE_LOCATION_SYSD)
+
+uninstall-on_ac_power:
+	rm $(PREFIX)/bin/on_ac_power
+	echo on_ac_power uninstalled from $(PREFIX)/bin
 
 clean:
 	rm -f $(NAME) $(NAME).service afreq
