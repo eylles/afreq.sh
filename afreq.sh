@@ -473,15 +473,16 @@ set_governor() {
 
 set_boost() {
     if [ -n "$CanBoost" ]; then
-        currentBoost=$(head -n 1 "$BoostPath")
-        if [ "$currentBoost" != "$1" ]; then
-            write_to_file "$1" "$BoostPath"
-            msg="${BoostPath} setting: ${1}"
-            msg_log "debug" "$msg"
-        else
-            msg="${BoostPath} already: ${1}"
-            msg_log "debug" "$msg"
-        fi
+        case "$1" in
+            on)
+                write_to_file 1 "$BoostPath"
+                ;;
+            off)
+                write_to_file 0 "$BoostPath"
+                ;;
+        esac
+        msg="${BoostPath} setting: ${1}"
+        msg_log "debug" "$msg"
     fi
 }
 
@@ -682,10 +683,10 @@ tick() {
     fi
 
     if [ "$cpupercentage" -lt "$BoostActive" ]; then
-        boostsetting="0"
+        boostsetting="off"
     fi
     if [ "$cpupercentage" -ge "$BoostActive" ]; then
-        boostsetting="1"
+        boostsetting="on"
     fi
 
     if [ "$cpupercentage" -lt "$OptimActive" ]; then
@@ -701,7 +702,7 @@ tick() {
             msg="perfmod running, setting performance governor"
             msg_log "debug" "$msg"
             governor="performance"
-            boostsetting="1"
+            boostsetting="on"
             optimsetting="on"
         else
             msg="neither gamemode nor perfmod"
