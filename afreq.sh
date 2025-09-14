@@ -36,7 +36,9 @@ if [ -z "$PIDFILE" ]; then
     PIDFILE=/var/run/acpufreq.pid
 fi
 
-BoostPath="/sys/devices/system/cpu/cpufreq/boost"
+BoostPath=""
+# /sys/devices/system/cpu/cpufreq/boost
+CpuFreqBoost="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
 ac_adapter_path="/sys/class/power_supply"
 
@@ -165,8 +167,11 @@ cpupercentage=""
 
 acstate=""
 
-CanBoost=""
-[ -f "$BoostPath" ] && CanBoost=1
+BoostDriver=""
+if [ -f "$CpuFreqBoost" ]; then
+    BoostDriver="cpufreq"
+    BoostPath="$CpuFreqBoost"
+fi
 
 #############
 # conf vars #
@@ -471,19 +476,46 @@ set_governor() {
     done
 }
 
+set_cpufreqboost() {
+    case "$1" in
+        on)
+            write_to_file 1 "$CpuFreqBoost"
+            ;;
+        off)
+            write_to_file 0 "$CpuFreqBoost"
+            ;;
+    esac
+}
+
 set_boost() {
-    if [ -n "$CanBoost" ]; then
-        case "$1" in
-            on)
-                write_to_file 1 "$BoostPath"
-                ;;
-            off)
-                write_to_file 0 "$BoostPath"
-                ;;
-        esac
+    if [ -n "$BoostPath" ]; then
         msg="${BoostPath} setting: ${1}"
         msg_log "debug" "$msg"
+        case "$BoostDriver" in
+            cpufreq)
+                set_cpufreqboost "$1"
+                ;;
+        esac
     fi
+}
+
+get_cpufreqboost() {
+    case $(head "$CpuFreqBoost") in
+        1)
+            printf '%s\n' "on"
+            ;;
+        0)
+            printf '%s\n' "off"
+            ;;
+    esac
+}
+
+get_boost() {
+    case "$BoostDriver" in
+        cpufreq)
+            get_cpufreqboost
+            ;;
+    esac
 }
 
 get_cpu_usage() {
@@ -551,17 +583,8 @@ print_status () {
     date +"[%Y-%m-%d %H:%M:%S]"
     printf '%s %s: %s\n' "$myname" "pid" "$mypid"
     printf '%s: %s\n\n'  "Version" "$version"
-    if [ -n "$CanBoost" ]; then
-        boost_state=$(head "$BoostPath")
-        boost_status=""
-        case "$boost_state" in
-            0)
-                boost_status="off"
-                ;;
-            1)
-                boost_status="on"
-                ;;
-        esac
+    if [ -n "$BoostPath" ]; then
+        boost_status=$(get_boost)
 
         printf '%8s: %s\n' "Boost" "$boost_status"
     fi
