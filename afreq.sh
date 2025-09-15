@@ -20,7 +20,7 @@ export PATH
 
 # unset variables
 unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 ONBATBOOST \
-        ONACGOV_ST2 ONACGOV_ST3 ONACBOOST CanBoost DBGOUT DRYRUN DESKTOP ONESHOT
+        ONACGOV_ST2 ONACGOV_ST3 ONACBOOST DBGOUT DRYRUN DESKTOP ONESHOT
 
 
 #############
@@ -37,6 +37,8 @@ if [ -z "$PIDFILE" ]; then
 fi
 
 BoostPath=""
+# /sys/devices/system/cpu/intel_pstate/no_turbo
+IntelNoTurbo="/sys/devices/system/cpu/intel_pstate/no_turbo"
 # /sys/devices/system/cpu/cpufreq/boost
 CpuFreqBoost="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
@@ -171,6 +173,10 @@ BoostDriver=""
 if [ -f "$CpuFreqBoost" ]; then
     BoostDriver="cpufreq"
     BoostPath="$CpuFreqBoost"
+fi
+if [ -f "$IntelNoTurbo" ]; then
+    BoostDriver="intelturbo"
+    BoostPath="$IntelNoTurbo"
 fi
 
 #############
@@ -476,6 +482,17 @@ set_governor() {
     done
 }
 
+set_intelnoturbo() {
+    case "$1" in
+        on)
+            write_to_file 0 "$IntelNoTurbo"
+            ;;
+        off)
+            write_to_file 1 "$IntelNoTurbo"
+            ;;
+    esac
+}
+
 set_cpufreqboost() {
     case "$1" in
         on)
@@ -495,8 +512,22 @@ set_boost() {
             cpufreq)
                 set_cpufreqboost "$1"
                 ;;
+            intelturbo)
+                set_intelnoturbo "$1"
+                ;;
         esac
     fi
+}
+
+get_intelnoturbo() {
+    case $(head "$IntelNoTurbo") in
+        0)
+            printf '%s\n' "on"
+            ;;
+        1)
+            printf '%s\n' "off"
+            ;;
+    esac
 }
 
 get_cpufreqboost() {
@@ -514,6 +545,9 @@ get_boost() {
     case "$BoostDriver" in
         cpufreq)
             get_cpufreqboost
+            ;;
+        intelturbo)
+            get_intelnoturbo
             ;;
     esac
 }
