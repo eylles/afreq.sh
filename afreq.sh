@@ -1054,6 +1054,7 @@ if [ -d "$ac_adapter_path" ]; then
 fi
 
 get_vm_vals
+get_cpu_usage
 
 # do we run as a one shot?
 if [ -n "$ONESHOT" ]; then
@@ -1073,6 +1074,7 @@ else
         fi
     fi
     write_pidfile
+    write_stats
     while [ -z "$AFREQ_NO_CONTINUE" ]; do
         if [ -n "$AFREQ_NO_CONTINUE" ]; then
             exit 0
