@@ -616,19 +616,17 @@ print_status () {
     cpu_f_path="/sys/devices/system/cpu/cpu0/cpufreq"
 
     date +"[%Y-%m-%d %H:%M:%S]"
-    printf '%s %s: %s\n' "$myname" "pid" "$mypid"
-    printf '%s: %s\n\n'  "Version" "$version"
+    printf '%8s: %s\n' "$myname" "$mypid"
+    printf '%8s: %s\n'  "Version" "$version"
+    printf '%8s: %s\n\n' "Driver" "$CPUfreqDriver"
+
     if [ -n "$BoostPath" ]; then
         boost_status=$(get_boost)
-
         printf '%8s: %s\n' "Boost" "$boost_status"
     fi
 
     govnor=$(head "${cpu_f_path}/scaling_governor")
-
-    printf '%8s: %s\n' "Governor" "$govnor"
-
-    printf '\n'
+    printf '%8s: %s\n\n' "Governor" "$govnor"
 
     min=$(head "${cpu_f_path}/scaling_min_freq")
     printf '%s %s\n' "CPU min freq" "$min Hz"
