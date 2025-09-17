@@ -39,6 +39,7 @@ fi
 BoostPath=""
 # /sys/devices/system/cpu/intel_pstate/no_turbo
 IntelNoTurbo="/sys/devices/system/cpu/intel_pstate/no_turbo"
+IntelPstatus="/sys/devices/system/cpu/intel_pstate/status"
 # /sys/devices/system/cpu/cpufreq/boost
 CpuFreqBoost="/sys/devices/system/cpu/cpufreq/boost"
 cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
@@ -169,13 +170,13 @@ cpupercentage=""
 
 acstate=""
 
-BoostDriver=""
+CPUfreqDriver=""
 if [ -f "$CpuFreqBoost" ]; then
-    BoostDriver="cpufreq"
+    CPUfreqDriver="cpufreq"
     BoostPath="$CpuFreqBoost"
 fi
 if [ -f "$IntelNoTurbo" ]; then
-    BoostDriver="intelturbo"
+    CPUfreqDriver="intelturbo"
     BoostPath="$IntelNoTurbo"
 fi
 
@@ -508,7 +509,7 @@ set_boost() {
     if [ -n "$BoostPath" ]; then
         msg="${BoostPath} setting: ${1}"
         msg_log "debug" "$msg"
-        case "$BoostDriver" in
+        case "$CPUfreqDriver" in
             cpufreq)
                 set_cpufreqboost "$1"
                 ;;
@@ -542,7 +543,7 @@ get_cpufreqboost() {
 }
 
 get_boost() {
-    case "$BoostDriver" in
+    case "$CPUfreqDriver" in
         cpufreq)
             get_cpufreqboost
             ;;
@@ -1052,6 +1053,14 @@ if [ -d "$ac_adapter_path" ]; then
         get_ac_state
     fi
 fi
+
+case "$CPUfreqDriver" in
+    intelturbo)
+        # make the intel p_state driver set P-states as requested by the generic frequency scaling
+        # governors.
+        write_to_file "passive" "$IntelPstatus"
+        ;;
+esac
 
 get_vm_vals
 get_cpu_usage
