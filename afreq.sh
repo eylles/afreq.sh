@@ -213,19 +213,19 @@ CONF_gov_bat_stage_3=""
 #############
 
 # usage: is_int "number"
-is_int() {
+is_int () {
     printf %d "$1" >/dev/null 2>&1
 }
 
 # Usage: lstrip "string" "pattern"
-lstrip() {
+lstrip () {
     # we want these to match as patterns
     # shellcheck disable=SC2295
     printf '%s\n' "${1##$2}"
 }
 
 # Usage: rstrip "string" "pattern"
-rstrip() {
+rstrip () {
     # we want these to match as patterns
     # shellcheck disable=SC2295
     printf '%s\n' "${1%%$2}"
@@ -267,13 +267,13 @@ msg_log () {
 # return the work cycle
 # calculated as:
 #   DutyCycle * CyclesPerSecond
-calc_workcycle() {
+calc_workcycle () {
     #WorkCycle
     result=$(( DutyCycle * CyclesPerSecond ))
     printf '%d\n' $result
 }
 
-keyval_parse() {
+keyval_parse () {
     old_IFS="$IFS"
     # Setting 'IFS' tells 'read' where to split the string.
     while IFS='=' read -r key val; do
@@ -471,7 +471,7 @@ write_to_file () {
 
 }
 
-set_governor() {
+set_governor () {
     for i in $cpu_paths; do
         currentSetting=$(head -n 1 "$i")
         msg="${i} current governor: ${currentSetting}"
@@ -487,7 +487,7 @@ set_governor() {
     done
 }
 
-set_intelnoturbo() {
+set_intelnoturbo () {
     case "$1" in
         on)
             write_to_file 0 "$IntelNoTurbo"
@@ -498,7 +498,7 @@ set_intelnoturbo() {
     esac
 }
 
-set_cpufreqboost() {
+set_cpufreqboost () {
     case "$1" in
         on)
             write_to_file 1 "$CpuFreqBoost"
@@ -509,7 +509,7 @@ set_cpufreqboost() {
     esac
 }
 
-set_boost() {
+set_boost () {
     if [ -n "$BoostPath" ]; then
         msg="${BoostPath} setting: ${1}"
         msg_log "debug" "$msg"
@@ -524,7 +524,7 @@ set_boost() {
     fi
 }
 
-get_intelnoturbo() {
+get_intelnoturbo () {
     case $(head "$IntelNoTurbo") in
         0)
             printf '%s\n' "on"
@@ -535,7 +535,7 @@ get_intelnoturbo() {
     esac
 }
 
-get_cpufreqboost() {
+get_cpufreqboost () {
     case $(head "$CpuFreqBoost") in
         1)
             printf '%s\n' "on"
@@ -546,7 +546,7 @@ get_cpufreqboost() {
     esac
 }
 
-get_boost() {
+get_boost () {
     case "$CPUfreqDriver" in
         cpufreq)
             get_cpufreqboost
@@ -557,11 +557,11 @@ get_boost() {
     esac
 }
 
-get_cpu_usage() {
+get_cpu_usage () {
     cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
 }
 
-get_ac_state() {
+get_ac_state () {
     if on_ac_power; then
         acstate=1
     else
@@ -587,7 +587,7 @@ get_vm_vals () {
     fi
 }
 
-bat_optim() {
+bat_optim () {
     if [ "$acstate" -eq 0 ]; then
         write_to_file 0                   "$k_watchdog"
         write_to_file 1500                "$k_writeback"
@@ -599,7 +599,7 @@ bat_optim() {
     fi
 }
 
-perf_optim() {
+perf_optim () {
     case "$1" in
         on)
             write_to_file 0                      "$k_compaction"
@@ -684,7 +684,7 @@ write_stats () {
 
 }
 
-tick() {
+tick () {
     msg="setting optimization"
     msg_log "info" "$msg"
     # immediate ac state
@@ -840,7 +840,7 @@ max_cap () {
     printf '%d\n' "$result"
 }
 
-loadConf() {
+loadConf () {
     # parse config file if it exists
     if [ -f "$DEFCFG" ] || [ -f "$CONFIG" ]; then
         # parse the default config if it exists
