@@ -213,18 +213,23 @@ CONF_gov_bat_stage_3=""
 #############
 
 # usage: is_int "number"
+# return type: bool
 is_int () {
     printf %d "$1" >/dev/null 2>&1
 }
 
-# Usage: lstrip "string" "pattern"
+# usage: lstrip "string" "pattern"
+# description: remove patter from start of string
+# return type: string
 lstrip () {
     # we want these to match as patterns
     # shellcheck disable=SC2295
     printf '%s\n' "${1##$2}"
 }
 
-# Usage: rstrip "string" "pattern"
+# usage: rstrip "string" "pattern"
+# description: remove patter from end of string
+# return type: string
 rstrip () {
     # we want these to match as patterns
     # shellcheck disable=SC2295
@@ -232,10 +237,12 @@ rstrip () {
 }
 
 # usage: msg_log "level" "message"
+# description: log passed message according to LOG_LEVEL variable
 # log level can be:
 #     info
 #     err
 #     debug
+# return type: void
 msg_log () {
     loglevel="$1"
     shift
@@ -264,15 +271,20 @@ msg_log () {
     fi
 }
 
+# usage: calc_workcycle
 # return the work cycle
 # calculated as:
 #   DutyCycle * CyclesPerSecond
+# return type: int
 calc_workcycle () {
     #WorkCycle
     result=$(( DutyCycle * CyclesPerSecond ))
     printf '%d\n' $result
 }
 
+# usage: keyval_parse CONF_FILE
+# description: parse passed conf file and assign values of CONF_ prefix vars
+# return type: void
 keyval_parse () {
     old_IFS="$IFS"
     # Setting 'IFS' tells 'read' where to split the string.
@@ -432,8 +444,10 @@ keyval_parse () {
 }
 
 # usage: write_to_file "value" "file"
+# description: write value to file only if it is different from file's current value
 #     if the passed value is "--" then read value from stdin
 #     only write_stats is ever going to use this so we can do special handling
+# return type: void
 write_to_file () {
     stdin_val=""
     file="$2"
@@ -471,6 +485,9 @@ write_to_file () {
 
 }
 
+# usage: set_governor "governor"
+# description: sets cpu governor to all available cpus
+# return type: void
 set_governor () {
     for i in $cpu_paths; do
         currentSetting=$(head -n 1 "$i")
@@ -487,6 +504,10 @@ set_governor () {
     done
 }
 
+# usage: set_intelnoturbo "setting"
+# setting: on | off
+# description: set the value of the intel_pstate driver turbo boost switch
+# return type: void
 set_intelnoturbo () {
     case "$1" in
         on)
@@ -498,6 +519,10 @@ set_intelnoturbo () {
     esac
 }
 
+# usage: set_cpufreqboost "setting"
+# setting: on | off
+# description: set the value of the cpufreq driver turbo boost switch
+# return type: void
 set_cpufreqboost () {
     case "$1" in
         on)
@@ -509,6 +534,10 @@ set_cpufreqboost () {
     esac
 }
 
+# usage: set_boost "setting"
+# setting: on | off
+# description: set the value of turbo boost if the cpu frequency scaling driver supports turbo boost
+# return type: void
 set_boost () {
     if [ -n "$BoostPath" ]; then
         msg="${BoostPath} setting: ${1}"
@@ -524,6 +553,10 @@ set_boost () {
     fi
 }
 
+# usage: get_intelnoturbo
+# description: set the value of the intel_pstate driver turbo boost switch
+# return type: string
+# return values: on | off
 get_intelnoturbo () {
     case $(head "$IntelNoTurbo") in
         0)
@@ -535,6 +568,10 @@ get_intelnoturbo () {
     esac
 }
 
+# usage: get_cpufreqboost
+# description: get the turbo boost value from the cpufreq driver
+# return type: string
+# return values: on | off
 get_cpufreqboost () {
     case $(head "$CpuFreqBoost") in
         1)
@@ -546,6 +583,10 @@ get_cpufreqboost () {
     esac
 }
 
+# usage: get_boost
+# description: get the value of turbo boost from the supported cpu frequency scaling driver
+# return type: string
+# return values: on | off
 get_boost () {
     case "$CPUfreqDriver" in
         cpufreq)
@@ -557,10 +598,16 @@ get_boost () {
     esac
 }
 
+# usage: get_cpu_usage
+# description: calculate a snapshot of the current cpu usage and store it to cpupercentage
+# return type: void
 get_cpu_usage () {
     cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
 }
 
+# usage: get_ac_state
+# description: get the current ac state and store it to acstate
+# return type: void
 get_ac_state () {
     if on_ac_power; then
         acstate=1
@@ -569,6 +616,9 @@ get_ac_state () {
     fi
 }
 
+# usage: get_vm_vals
+# description: fetch values of interfaces in /proc/sys/vm and /proc/sys/kernel
+# return type: void
 get_vm_vals () {
     # system's huge pages setup
     huge_pages=$(head "$k_hugepages")
@@ -587,6 +637,9 @@ get_vm_vals () {
     fi
 }
 
+# usage: bat_optim
+# description: set optimizations for lower power consumption when running on battery
+# return type: void
 bat_optim () {
     if [ "$acstate" -eq 0 ]; then
         write_to_file 0                   "$k_watchdog"
@@ -599,6 +652,10 @@ bat_optim () {
     fi
 }
 
+# usage: perf_optim setting
+# setting: on | off
+# description: set kernel dials and switches to squeeze some extra performance
+# return type: void
 perf_optim () {
     case "$1" in
         on)
@@ -614,6 +671,9 @@ perf_optim () {
     esac
 }
 
+# usage: print_status
+# description: output a summary of the daemon's status
+# return type: string
 print_status () {
     cpu_d_paths="/sys/devices/system/cpu/cpu*"
 
@@ -670,6 +730,9 @@ print_status () {
     fi
 }
 
+# usage: write_stats
+# description: wrapper function to write the status_file
+# return type: void
 write_stats () {
     if [ -z "$DRYRUN" ]; then
         msg="writing status to '${status_file}'"
@@ -684,6 +747,10 @@ write_stats () {
 
 }
 
+# usage: tick
+# description: perform fetches of current status, calculate governor stage and setting of, boost,
+#     optimizations and call write_stats
+# return type: void
 tick () {
     msg="setting optimization"
     msg_log "info" "$msg"
@@ -793,6 +860,9 @@ tick () {
     write_stats
 }
 
+# usage: outHandler
+# description: restore default kernel tunable values and remove status_file and PIDFILE
+# return type: void
 outHandler () {
     msg="exiting on signal: $1"
     msg_log "debug" "$msg"
@@ -814,10 +884,10 @@ outHandler () {
     fi
 }
 
-# return type: int
 # usage: min_cap value minimum_value
 # description: prevents the value from
 #     being lower than the minimum_value.
+# return type: int
 min_cap () {
     if [ "$1" -lt "$2" ]; then
         result="$2"
@@ -827,10 +897,10 @@ min_cap () {
     printf '%d\n' "$result"
 }
 
-# return type: int
 # usage: max_cap value maximum_value
 # description: prevents the value from
 #     being higher than the maximum_value.
+# return type: int
 max_cap () {
     if [ "$1" -gt "$2" ]; then
         result="$2"
@@ -840,6 +910,10 @@ max_cap () {
     printf '%d\n' "$result"
 }
 
+# usage: loadConf
+# description: call keyval_parse on the defined config files, merge CONF and default values,
+#     constrain governor stage values within ranges
+# return type: void
 loadConf () {
     # parse config file if it exists
     if [ -f "$DEFCFG" ] || [ -f "$CONFIG" ]; then
@@ -984,6 +1058,9 @@ loadConf () {
     ONACPERFOPTIM=$(max_cap "$ONACPERFOPTIM" "$ac_bst_max")
 }
 
+# usage: write_pidfile
+# description: wrapper function to write PIDFILE
+# return type: void
 write_pidfile () {
     if [ ! -r "$PIDFILE" ]; then
         msg="pidfile not present, creating it."
@@ -993,6 +1070,7 @@ write_pidfile () {
 }
 
 # usage: is_instance "pid"
+# description: check if passed pid is an afreq instance
 # return type: bool
 is_instance () {
     ps ax -o'pid=,cmd=' \
@@ -1007,6 +1085,9 @@ is_instance () {
             '
 }
 
+# usage: msleep int
+# description: wrapper function to sleep for the passed amount of milliseconds
+# return type: void
 msleep () {
     milisecs="$1"
     if [ -n "$has_usleep" ]; then
