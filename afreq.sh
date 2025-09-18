@@ -180,6 +180,9 @@ if [ -f "$IntelNoTurbo" ]; then
     BoostPath="$IntelNoTurbo"
 fi
 
+has_usleep=""
+has_usleep=$(command -v usleep)
+
 #############
 # conf vars #
 #############
@@ -1003,6 +1006,17 @@ is_instance () {
             '
 }
 
+msleep () {
+    milisecs="$1"
+    if [ -n "$has_usleep" ]; then
+        microsecs="${milisecs}000"
+        usleep "$microsecs"
+    else
+        secs="0.${milisecs}"
+        sleep "$secs"
+    fi
+}
+
 # handle unexpected exits and termination
 trap 'outHandler INT' INT
 trap 'outHandler TERM' TERM
@@ -1094,7 +1108,7 @@ else
         else
             count=$(( count + 1 ))
         fi
-        sleep 0.5
+        msleep 500
         if [ -z "$DESKTOP" ]; then
             old_acstate="$acstate"
             get_ac_state
