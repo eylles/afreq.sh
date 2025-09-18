@@ -182,6 +182,7 @@ fi
 
 has_usleep=""
 has_usleep=$(command -v usleep)
+[ -z "$has_usleep" ] && has_usleep=$(command -v busybox)
 
 #############
 # conf vars #
@@ -1010,7 +1011,14 @@ msleep () {
     milisecs="$1"
     if [ -n "$has_usleep" ]; then
         microsecs="${milisecs}000"
-        usleep "$microsecs"
+        case "$has_usleep" in
+            */usleep)
+                usleep "$microsecs"
+                ;;
+            */busybox)
+                busybox usleep "$microsecs"
+                ;;
+        esac
     else
         secs="0.${milisecs}"
         sleep "$secs"
