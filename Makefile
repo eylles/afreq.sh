@@ -34,7 +34,7 @@ install: afreq
 
 install-on_ac_power:
 	mkdir -p $(PREFIX)/bin
-	cp on_ac_power $(PREFIX)/bin/perfmod
+	cp on_ac_power $(PREFIX)/bin/on_ac_power
 	chmod 755 $(PREFIX)/bin/on_ac_power
 	echo on_ac_power installed in $(PREFIX)/bin
 
