@@ -7,16 +7,16 @@ PATH=/usr/sbin:/usr/bin:/sbin:/bin
 export PATH
 
 # naming schemes:
-# functions: all function names are lowercase and use dashes "_" to separate words
+# functions: all function names are lowercase and use underscores "_" to separate words.
 # RUNVARS: these are variables that directly affect the running of the program and are rarely
-# modified after being set, they are all in UPPERCASE and if separated it is done with dashes "_"
+# modified after being set, they are constants by all means except not being prefixed by readonly
+# they are all in UPPERCASE and if separated it is done with underscores "_"
 # FuncVars: these variables are set and modified by various methods through the program ticks, they
 # are composed of at least 2 words and each composing word starts with a capital letter.
 # CONF_vars: variables to be set by the config file if this exist, these will have an UPPERCASE
-# prefix followed by a dash, and then the rest of the name has a uppercase letter followed by
-# lowercase letters, the prefixes can be "DEF_" for default values set inside the program, "CONF_"
-# for values obtained from the config file, and finally "USE_" for the value that will be actually
-# used by the program
+# prefix followed by undrescore, and then the rest of the name is lowercase, the prefixes can be
+# "DEF_" for default values set inside the program, "CONF_" for values obtained from the config file
+# and finally "USE_" for the value that will be actually used by the program
 
 # unset variables
 unset BoostPath AFREQ_NO_CONTINUE DutyCycle WorkCycle ONBATGOV_ST2 ONBATGOV_ST3 ONBATBOOST \
