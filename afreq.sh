@@ -42,7 +42,9 @@ IntelNoTurbo="/sys/devices/system/cpu/intel_pstate/no_turbo"
 IntelPstatus="/sys/devices/system/cpu/intel_pstate/status"
 # /sys/devices/system/cpu/cpufreq/boost
 CpuFreqBoost="/sys/devices/system/cpu/cpufreq/boost"
-cpu_paths="/sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"
+CPU_BASE_PATH="/sys/devices/system/cpu"
+CPU_DEVS="${CPU_BASE_PATH}/cpu*/cpufreq"
+cpu_f_path="${CPU_BASE_PATH}/cpu0/cpufreq"
 ac_adapter_path="/sys/class/power_supply"
 
 status_path="/var/run/afreq"
@@ -489,16 +491,18 @@ write_to_file () {
 # description: sets cpu governor to all available cpus
 # return type: void
 set_governor () {
-    for i in $cpu_paths; do
-        currentSetting=$(head -n 1 "$i")
-        msg="${i} current governor: ${currentSetting}"
+    for i in ${CPU_DEVS}; do
+        dev="${i}/scaling_governor"
+        # msg_log "debug" "opening: $dev"
+        currentSetting=$(head -n 1 "$dev")
+        msg="'${dev}' current governor: ${currentSetting}"
         msg_log "debug" "$msg"
         if [ "$currentSetting" != "$1" ]; then
-            write_to_file "$1" "$i"
-            msg="${i} setting governor: ${1}"
+            write_to_file "$1" "$dev"
+            msg="${dev} setting governor: ${1}"
             msg_log "debug" "$msg"
         else
-            msg="${i} governor already: ${1}"
+            msg="${dev} governor already: ${1}"
             msg_log "debug" "$msg"
         fi
     done
@@ -675,10 +679,6 @@ perf_optim () {
 # description: output a summary of the daemon's status
 # return type: string
 print_status () {
-    cpu_d_paths="/sys/devices/system/cpu/cpu*"
-
-    cpu_f_path="/sys/devices/system/cpu/cpu0/cpufreq"
-
     date +"[%Y-%m-%d %H:%M:%S]"
     printf '%8s: %s\n' "$myname" "$mypid"
     printf '%8s: %s\n'  "Version" "$version"
@@ -701,8 +701,8 @@ print_status () {
     printf '\n'
 
     printf '%8s: %12s\n' "CPU" "Frequecy"
-    for cpu in $cpu_d_paths; do
-        frqpath="${cpu}/cpufreq/scaling_cur_freq"
+    for cpu in $CPU_DEVS; do
+        frqpath="${cpu}/scaling_cur_freq"
         if [ -r "$frqpath" ]; then
             freq=$(head "$frqpath")
             indx=${cpu##*/}
