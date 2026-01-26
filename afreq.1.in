@@ -1,0 +1,320 @@
+.TH AUTO-CPU-FREQUENCY 1 afreq\-@VERSION
+.SH NAME
+afreq \- an auto cpu frequency daemon
+.SH SYNOPSIS
+.B afreq
+.SH DESCRIPTION
+afreq is a daemon that will automatically adjust CPU frequency according to cpu load by changing the
+cpu frequency governor across the set ones.
+.P
+afreq was made as a smaller and simpler alternative to auto-cpufreq that requires nothing more than
+coreutils, procps and a posix compatible shell interpreter.
+.SH CONFIGURATION
+.P
+afreq lacks on command line options as it's operation is intended to be
+dictated by configuration, for this purpose 2 configuration files are defined:
+.TP
+.B VENDOR_CONFIG
+/etc/default/afreqconfig
+.TP
+.B ADMIN_CONFIG
+/etc/afreqconfig
+.P
+The manner in which these configurations are treated is simple,
+.B ADMIN_CONFIG
+takes precedence over
+.B VENDOR_CONFIG
+if neither is present the script will run with the default values, the intention
+to provide 2 configs is so that distributors can ship their own config to
+provide the afreq settings they find reasonable for their goals, while the
+machine's administrator can still deploy a different config without having to
+edit the distribution's config.
+.P
+It is important to note that afreq does some validation of type and range for
+configuration values so that if any option is out of ranges or not present at
+all the default value will be used.
+.P
+The expected configuration file format is a simple KEY=value plain text file.
+.P
+The following options are available:
+
+
+.TP
+.B LOG_LEVEL
+.P
+Daemon's log level, numeric values or strings can be used, internally strings are matched case
+insensitive and converted to their corresponding int values.
+.TP
+Possible values:
+.B 0
+.B none
+.B 1
+.B info
+.B 2
+.B err
+.B 3
+.B debug
+
+.TP
+.T
+    DEFAULT: none
+
+
+.TP
+.B INTERVAL
+.P
+The interval in seconds for checking system load and adjusting frequency. The values must be INTEGER
+numbers.
+.TP
+Range of values:
+.T
+        Max INT MAX
+.T
+        Min 1
+.TP
+
+.T
+    DEFAULT: 5
+
+
+.TP
+.B AC_THRESH_ST2
+.P
+Threshold for switching to AC Governor Stage 2, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 40
+.T
+        Min 10
+.TP
+
+.T
+    DEFAULT: 10
+
+
+.TP
+.B AC_THRESH_ST3
+.P
+Threshold for switching to AC Governor Stage 3, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 90
+.T
+        Min 60
+.TP
+
+.T
+    DEFAULT: 60
+
+
+.TP
+.B AC_THRESH_BOOST
+.P
+Threshold for engaging Turbo Boost in AC if supported by cpu driver, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 90
+.T
+        Min 10
+.TP
+
+.T
+    DEFAULT: 25
+
+
+.TP
+.B AC_THRESH_OPTIM
+.P
+Threshold for engaging performance optimizations in AC, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 90
+.T
+        Min 10
+.TP
+
+.T
+    DEFAULT: 25
+
+
+.TP
+.B BAT_THRESH_ST2
+.P
+Threshold for switching to BAT Governor Stage 2, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 40
+.T
+        Min 10
+.TP
+
+.T
+    DEFAULT: 40
+
+
+.TP
+.B BAT_THRESH_ST3
+.P
+Threshold for switching to BAT Governor Stage 3, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 90
+.T
+        Min 60
+.TP
+
+.T
+    DEFAULT: 70
+
+
+.TP
+.B BAT_THRESH_BOOST
+.P
+Threshold for engaging Turbo Boost in BAT if supported by cpu driver, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 90
+.T
+        Min 10
+.TP
+
+.T
+    DEFAULT: 35
+
+
+.TP
+.B BAT_THRESH_OPTIM
+.P
+Threshold for engaging performance optimizations in BAT, INTEGER values.
+.TP
+Range of values:
+.T
+        Max 90
+.T
+        Min 10
+.TP
+
+.T
+    DEFAULT: 35
+
+
+.TP
+.B GOV_AC_ST1
+.P
+The CPU Frequency Governor for AC Stage 1.
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B schedutil
+.B ondemand
+.B performance
+
+.TP
+.T
+    DEFAULT: schedutil
+
+
+.TP
+.B GOV_AC_ST2
+.P
+The CPU Frequency Governor for AC Stage 1.
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B schedutil
+.B ondemand
+.B performance
+
+.TP
+.T
+    DEFAULT: ondemand
+
+
+.TP
+.B GOV_AC_ST3
+.P
+The CPU Frequency Governor for AC Stage 1.
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B schedutil
+.B ondemand
+.B performance
+
+.TP
+.T
+    DEFAULT: performance
+
+
+.TP
+.B GOV_BAT_ST1
+.P
+The CPU Frequency Governor for BAT Stage 1.
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B schedutil
+.B ondemand
+.B performance
+
+.TP
+.T
+    DEFAULT: powersave
+
+
+.TP
+.B GOV_BAT_ST2
+.P
+The CPU Frequency Governor for BAT Stage 1.
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B schedutil
+.B ondemand
+.B performance
+
+.TP
+.T
+    DEFAULT: conservative
+
+
+.TP
+.B GOV_BAT_ST3
+.P
+The CPU Frequency Governor for BAT Stage 1.
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B schedutil
+.B ondemand
+.B performance
+
+.TP
+.T
+    DEFAULT: performance
+
+
+.TP
+.SH AUTHOR
+.EX
+eylles                 <ed.ylles1997 at gmail.com>
+.EE
+.SH HOMEPAGE
+.TP
+Source code:
+.EE
+https://github.com/eylles/afreq.sh
+.EX
