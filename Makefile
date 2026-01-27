@@ -7,14 +7,18 @@ INIT_LSB = acpufreq.init
 SYSV_SCRIPT = $(RAW_SYSV)
 
 PREFIX = /usr/local
+MANPREFIX = $(PREFIX)/share/man
 
 include version.mk config.mk
 
 all: afreq sysvserv sysdserv
 
-afreq:
+afreq: manpage
 	sed "s|@VERSION@|$(VERSION)|" afreq.sh > afreq
 	chmod 755 afreq
+
+manpage:
+	sed "s|@VERSION|$(VERSION)|;" afreq.1.in > afreq.1
 
 sysvserv:
 	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" $(SYSV_SCRIPT) > $(NAME)
@@ -27,6 +31,8 @@ install: afreq
 	cp afreq $(PREFIX)/sbin/afreq
 	chmod 755 $(PREFIX)/sbin/afreq
 	echo afreq installed in $(PREFIX)/sbin
+	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
+	cp -f afreq.1   $(DESTDIR)$(MANPREFIX)/man1/afreq.1
 	mkdir -p $(PREFIX)/bin
 	cp perfmod.sh $(PREFIX)/bin/perfmod
 	chmod 755 $(PREFIX)/bin/perfmod
@@ -53,6 +59,7 @@ install-all: install install-sysv install-sysd
 
 uninstall:
 	rm $(PREFIX)/sbin/afreq
+	rm $(MANPREFIX)/man1/afreq.1
 	echo afreq uninstalled from $(PREFIX)sbin
 	rm $(PREFIX)/bin/perfmod
 	echo perfmod uninstalled from $(PREFIX)/bin
@@ -66,7 +73,7 @@ uninstall-on_ac_power:
 	echo on_ac_power uninstalled from $(PREFIX)/bin
 
 clean:
-	rm -f $(NAME) $(NAME).service afreq
+	rm -f $(NAME) $(NAME).service afreq afreq.1
 
 
 .PHONY: install uninstall clean all
