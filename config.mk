@@ -1,6 +1,3 @@
-# version
-VERSION = 0.2.0
-
 # PREFIX for install
 PREFIX = /usr/local
 

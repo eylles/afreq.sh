@@ -8,7 +8,7 @@ SYSV_SCRIPT = $(RAW_SYSV)
 
 PREFIX = /usr/local
 
-include config.mk
+include version.mk config.mk
 
 all: afreq sysvserv sysdserv
 
