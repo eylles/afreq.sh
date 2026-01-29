@@ -1,5 +1,7 @@
 # PREFIX for install
 PREFIX = /usr/local
+MANPREFIX = $(PREFIX)/share/man
+EGPREFIX = $(PREFIX)/share/doc/afreq
 
 # sysvinit scripts available
 RAW_SYSV = acpufreq.is
