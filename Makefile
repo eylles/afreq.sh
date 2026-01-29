@@ -8,6 +8,7 @@ SYSV_SCRIPT = $(RAW_SYSV)
 
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
+EGPREFIX = $(PREFIX)/share/doc/afreq
 
 include version.mk config.mk
 
@@ -33,6 +34,8 @@ install: afreq
 	echo afreq installed in $(PREFIX)/sbin
 	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
 	cp -f afreq.1   $(DESTDIR)$(MANPREFIX)/man1/afreq.1
+	mkdir -p $(DESTDIR)$(EGPREFIX)
+	cp -f afreqconfig $(DESTDIR)$(EGPREFIX)/afreqconfig
 	mkdir -p $(PREFIX)/bin
 	cp perfmod.sh $(PREFIX)/bin/perfmod
 	chmod 755 $(PREFIX)/bin/perfmod
@@ -60,6 +63,8 @@ install-all: install install-sysv install-sysd
 uninstall:
 	rm $(PREFIX)/sbin/afreq
 	rm $(MANPREFIX)/man1/afreq.1
+	rm -rf $(EGPREFIX)
+	rm $(EGPREFIX)/afreqconfig
 	echo afreq uninstalled from $(PREFIX)sbin
 	rm $(PREFIX)/bin/perfmod
 	echo perfmod uninstalled from $(PREFIX)/bin
