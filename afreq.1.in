@@ -9,6 +9,29 @@ cpu frequency governor across the set ones.
 .P
 afreq was made as a smaller and simpler alternative to auto-cpufreq that requires nothing more than
 coreutils, procps and a posix compatible shell interpreter.
+.SH HOW IT WORKS
+The afreq daemon internally defines 2 states
+.B AC
+and
+.B BAT
+these states are decided werether the system is runnin on battery which is determined through the
+.B on_ac_power
+program.
+These states then switch between 3 stages of system load, the switch occurs at the set stage
+engaging threshold, each stage sets a configured CPU Governor to dictate the frequency scaling,
+along some performance optimizations are set and IF the current CPU driver has support for a Turbo
+Boost method then the Turbo Boost will be engaged on the set threshold, at the time the Intel Turbo
+driver and the generic CPUFreq Turbo Boost are supported by this daemon.
+Additionally, when in BAT state the daemon will engage some battery saving optimizations.
+.P
+If a battery type power supply cannot be found then afreq enters "DESKTOP" mode, in this mode only
+the settings for AC state are used and checks for AC status through
+.B on_ac_power
+are never performed.
+.P
+To view status information about the running afreq daemon such as the current engaged governor,
+boost status, daemon pid, etc... just cat the status file:
+.B /var/run/afreq/status
 .SH CONFIGURATION
 .P
 afreq lacks on command line options as it's operation is intended to be
