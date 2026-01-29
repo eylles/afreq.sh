@@ -29,6 +29,8 @@ As of now afreq depends only on:
   |component|default location|description|
   |----|----|----|
   |afreq|`/usr/local/sbin/afreq`|the actual daemon doing the work|
+  |afreq.1|`/usr/local/man/man1/afreq.1`|the documentation manual for the daemon|
+  |afreqconfig|`/usr/local/share/doc/afreq/afreqconfig`|example configuration file|
   |perfmod|`/usr/local/sbin/perfmod`|thin wrapper to force performance governor when a program runs|
   |acpufreq|`/etc/init.d/acpufreq`|sysvinit initscript|
   |acpufreq.service|`/etc/systemd/system/acpufreq.service`|systemd unit|
@@ -66,4 +68,8 @@ As of now afreq depends only on:
 
   Initiate the service with `sudo systemctl start acpufreq`
 
+## configuration
 
+Altho the default settings used internally by the daemon ought to work for most setups you can do
+tweak them to your liking or usecase, the installation provides an example config file and the
+manpage contains information about the available settings and their possible values.
