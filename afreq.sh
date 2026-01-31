@@ -1101,7 +1101,10 @@ msleep () {
                 ;;
         esac
     else
-        secs="0.${milisecs}"
+        sec_whole=$(( milisecs / 1000 ))
+        sec_decim=$(( milisecs % 1000 ))
+        sec_decim=$( printf '%03d' $sec_decim)
+        secs="${sec_whole}.${sec_decim}"
         sleep "$secs"
     fi
 }
