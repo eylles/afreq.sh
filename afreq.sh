@@ -665,6 +665,8 @@ get_vm_vals () {
         msg="nmi watchdog: $kernel_watchdog"
         msg_log "debug" "$msg"
     fi
+    governor_old=$(get_governor)
+    boost_old=$(get_boost)
 }
 
 # usage: bat_optim
