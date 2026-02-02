@@ -771,10 +771,10 @@ tick () {
         if pgrep -f gamemoderun >/dev/null; then
             gamemodeactive=1
         else
-            gamemodeactive=""
+            gamemodeactive=0
         fi
     else
-        gamemodeactive=""
+        gamemodeactive=0
     fi
 
     if [ -z "$DESKTOP" ]; then
@@ -826,7 +826,7 @@ tick () {
     fi
 
     # set governor if gamemoded is not active
-    if [ -z "$gamemodeactive" ]; then
+    if [ 0 -eq "$gamemodeactive" ]; then
         if pgrep -a perfmod >/dev/null; then
             msg="perfmod running, setting performance governor"
             msg_log "debug" "$msg"
