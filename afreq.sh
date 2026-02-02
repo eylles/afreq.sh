@@ -144,8 +144,7 @@ PollMs=500
 
 StableCount=0
 
-
-gamemode_old=""
+gamemode_old=0
 governor_old=""
 boost_old=""
 
