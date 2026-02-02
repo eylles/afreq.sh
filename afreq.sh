@@ -920,10 +920,12 @@ tick () {
         PollMs=$(( PollMs + PollMsStep ))
         PollMs=$(max_cap "$PollMs" "$PollMsMax")
         msg_log "debug" "PollMs increased to '$PollMs'"
-    else
+    elif [ "$StableCount" -eq 0 ]; then
         PollMs=$(( PollMs - PollMsStep ))
         PollMs=$(min_cap "$PollMs" "$PollMsMin")
         msg_log "debug" "PollMs reduced to '$PollMs'"
+    else
+        msg_log "debug" "PollMs unchanged at '$PollMs' (StableCount=$StableCount)"
     fi
 }
 
