@@ -575,6 +575,14 @@ set_boost () {
     fi
 }
 
+# usage: get_governor
+# description: get the value of the current cpu scaling governor
+# return type: string
+# caveats: this only gets the value for the cpu0, cpu cores are expected to have the same value
+get_governor () {
+    head -n 1 "${cpu_f_path}/scaling_governor"
+}
+
 # usage: get_intelnoturbo
 # description: set the value of the intel_pstate driver turbo boost switch
 # return type: string
