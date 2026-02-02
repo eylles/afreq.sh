@@ -92,6 +92,8 @@ StableThreshold=5
 
 PollMsStep=100
 
+DEF_cpustat_backend="vmstat"
+
 # defaults
 DEF_ONBATGOV_ST2=40
 DEF_ONBATGOV_ST3=70
@@ -141,6 +143,9 @@ ONESHOT=""
 DRYRUN=""
 
 PollMs=500
+# can be vmstat or proc
+# defaults: vmstat
+cpustat_backend=""
 
 StableCount=0
 
@@ -219,6 +224,7 @@ CONF_bat_thresh_boost=""
 CONF_bat_thresh_optim=""
 CONF_interval=""
 CONF_log_level=""
+CONF_cpustat_backend=""
 
 CONF_gov_ac_stage_1=""
 CONF_gov_ac_stage_2=""
@@ -454,6 +460,16 @@ keyval_parse () {
                         ;;
                 esac
                 ;;
+            "CPUSTAT_BACKEND")
+                case "${val}" in
+                    [Pp][Rr][Oo][Cc])
+                        CONF_cpustat_backend="proc"
+                        ;;
+                    [Vv][Mm][Ss][Tt][Aa][Tt])
+                        CONF_cpustat_backend="vmstat"
+                        ;;
+                esac
+                ;;
             *)
                 msg="invalid option ${key}"
                 msg_log "debug" "$msg"
@@ -628,11 +644,38 @@ get_boost () {
     esac
 }
 
+get_cpu_usage_proc () {
+    read -r _ user1 nice1 system1 idle1 iowait1 irq1 softirq1 steal1 rest1 < /proc/stat
+    total1=$(( user1 + nice1 + system1 + idle1 + iowait1 + irq1 + softirq1 + steal1 ))
+    msleep "$PollMs"
+    read -r _ user2 nice2 system2 idle2 iowait2 irq2 softirq2 steal2 rest2 < /proc/stat
+    total2=$(( user2 + nice2 + system2 + idle2 + iowait2 + irq2 + softirq2 + steal2 ))
+    idle_delta=$(( idle2 - idle1 ))
+    total_delta=$(( total2 - total1 ))
+    if [ "$total_delta" -gt 0 ]; then
+        cpupercentage=$(( (100 * (total_delta - idle_delta)) / total_delta ))
+    else
+        cpupercentage=0
+    fi
+}
+
+get_cpu_usage_vmstat () {
+    cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
+}
+
 # usage: get_cpu_usage
 # description: calculate a snapshot of the current cpu usage and store it to cpupercentage
 # return type: void
 get_cpu_usage () {
-    cpupercentage=$((100-$(vmstat 1 2 | tail -n 1 | awk '{printf "%d\n", $15}')))
+    case "$cpustat_backend" in
+        vmstat)
+            get_cpu_usage_vmstat
+            ;;
+        proc)
+            get_cpu_usage_proc
+            ;;
+    esac
+
 }
 
 # usage: get_ac_state
@@ -1079,6 +1122,13 @@ loadConf () {
         LOG_LEVEL="$def_log_level"
     else
         LOG_LEVEL="$CONF_log_level"
+    fi
+
+    # cpustat backend
+    if [ -z "$CONF_cpustat_backend" ]; then
+        cpustat_backend="$DEF_cpustat_backend"
+    else
+        cpustat_backend="$CONF_cpustat_backend"
     fi
 
     # work cycle
