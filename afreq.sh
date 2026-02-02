@@ -84,6 +84,14 @@ CyclesPerSecond=2
 
 interval_max=600
 
+PollMsMin=100
+PollMsMax=5000
+
+# how many ticks to consider the settings stable and increase PollMs
+StableThreshold=5
+
+PollMsStep=100
+
 # defaults
 DEF_ONBATGOV_ST2=40
 DEF_ONBATGOV_ST3=70
@@ -131,6 +139,15 @@ DESKTOP=""
 DBGOUT=""
 ONESHOT=""
 DRYRUN=""
+
+PollMs=500
+
+StableCount=0
+
+
+gamemode_old=""
+governor_old=""
+boost_old=""
 
 DutyCycle=""
 # cycles to tick
@@ -880,12 +897,35 @@ tick () {
         set_governor "$governor"
         set_boost "$boostsetting"
         perf_optim "$optimsetting"
+        if [ "$governor" = "$governor_old" ] && [ "$boostsetting" = "$boost_old" ]; then
+            StableCount=$(( StableCount + 1 ))
+        else
+            StableCount=0
+            governor_old="$governor"
+            boost_old="$boostsetting"
+        fi
+        msg_log "debug" "Stable Count '$StableCount'"
     else
         msg="gamemode active, nothing to do here"
         msg_log "debug" "$msg"
         perf_optim "on"
+        if [ "$gamemodeactive" -eq "$gamemode_old" ]; then
+            StableCount=$(( StableCount + 1 ))
+        else
+            StableCount=0
+            gamemode_old="$gamemodeactive"
+        fi
     fi
     write_stats
+    if [ "$StableCount" -ge "$StableThreshold" ]; then
+        PollMs=$(( PollMs + PollMsStep ))
+        PollMs=$(max_cap "$PollMs" "$PollMsMax")
+        msg_log "debug" "PollMs increased to '$PollMs'"
+    else
+        PollMs=$(( PollMs - PollMsStep ))
+        PollMs=$(min_cap "$PollMs" "$PollMsMin")
+        msg_log "debug" "PollMs reduced to '$PollMs'"
+    fi
 }
 
 # usage: outHandler
@@ -1202,7 +1242,7 @@ else
         else
             count=$(( count + 1 ))
         fi
-        msleep 500
+        msleep "$PollMs"
         if [ -z "$DESKTOP" ]; then
             old_acstate="$acstate"
             get_ac_state
