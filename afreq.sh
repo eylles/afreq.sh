@@ -82,6 +82,8 @@ CONFIG=/etc/afreqconfig
 DEF_DutyCycle=5
 CyclesPerSecond=2
 
+interval_max=600
+
 # defaults
 DEF_ONBATGOV_ST2=40
 DEF_ONBATGOV_ST3=70
@@ -1032,7 +1034,7 @@ loadConf () {
     if [ -z "$CONF_interval" ]; then
         DutyCycle=$DEF_DutyCycle
     else
-        DutyCycle=$CONF_interval
+        DutyCycle=$(max_cap "$CONF_interval" "$interval_max")
     fi
     WorkCycle=$(calc_workcycle)
     msg="work cycle $WorkCycle"
