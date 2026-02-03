@@ -547,7 +547,7 @@ set_governor () {
 
 # usage: set_intelnoturbo "setting"
 # setting: on | off
-# description: set the value of the intel_pstate driver turbo boost switch
+# description: get the value of the intel_pstate driver turbo boost switch
 # return type: void
 set_intelnoturbo () {
     case "$1" in
