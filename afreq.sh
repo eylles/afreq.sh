@@ -647,6 +647,30 @@ get_boost () {
     esac
 }
 
+# usage: msleep int
+# description: wrapper function to sleep for the passed amount of milliseconds
+# return type: void
+msleep () {
+    milisecs="$1"
+    if [ -n "$has_usleep" ]; then
+        microsecs="${milisecs}000"
+        case "$has_usleep" in
+            */usleep)
+                usleep "$microsecs"
+                ;;
+            */busybox)
+                busybox usleep "$microsecs"
+                ;;
+        esac
+    else
+        sec_whole=$(( milisecs / 1000 ))
+        sec_decim=$(( milisecs % 1000 ))
+        sec_decim=$( printf '%03d' $sec_decim)
+        secs="${sec_whole}.${sec_decim}"
+        sleep "$secs"
+    fi
+}
+
 get_cpu_usage_proc () {
     read -r _ user1 nice1 system1 idle1 iowait1 irq1 softirq1 steal1 rest1 < /proc/stat
     total1=$(( user1 + nice1 + system1 + idle1 + iowait1 + irq1 + softirq1 + steal1 ))
@@ -1189,30 +1213,6 @@ is_instance () {
                 $1 == pid && $0 ~ name { found = 1 }
                 END { if (!found) exit 1 }
             '
-}
-
-# usage: msleep int
-# description: wrapper function to sleep for the passed amount of milliseconds
-# return type: void
-msleep () {
-    milisecs="$1"
-    if [ -n "$has_usleep" ]; then
-        microsecs="${milisecs}000"
-        case "$has_usleep" in
-            */usleep)
-                usleep "$microsecs"
-                ;;
-            */busybox)
-                busybox usleep "$microsecs"
-                ;;
-        esac
-    else
-        sec_whole=$(( milisecs / 1000 ))
-        sec_decim=$(( milisecs % 1000 ))
-        sec_decim=$( printf '%03d' $sec_decim)
-        secs="${sec_whole}.${sec_decim}"
-        sleep "$secs"
-    fi
 }
 
 # handle unexpected exits and termination
