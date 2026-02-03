@@ -21,6 +21,12 @@
 # and adjust frequency. SECONDS INTEGER
 #INTERVAL=5
 
+# backend for calulating cpu usage
+# possible options:
+# proc - reads directly from /proc/stat, useful when vmstat is not available
+# vmstat - the default backend
+# CPUSTAT_BACKEND=vmstat
+
 # setting activation thresholds on AC
 # PERCENTAGE INTEGER
 #AC_THRESH_ST2=10
