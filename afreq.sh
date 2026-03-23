@@ -871,6 +871,32 @@ max_cap () {
     printf '%d\n' "$result"
 }
 
+# usage: pollms_increase <current ms>
+# return type: int
+pollms_increase () {
+    CurrentMS="$1"
+    shift
+    RetMs=""
+    RetMs=$(( CurrentMS + PollMsStep ))
+    CurrentMS=""
+    RetMs=$(max_cap "$RetMs" "$PollMsMax")
+    printf '%d\n' "$RetMs"
+    RetMs=""
+}
+
+# usage: pollms_decrease <current ms>
+# return type: int
+pollms_decrease () {
+    CurrentMS="$1"
+    shift
+    RetMs=""
+    RetMs=$(( CurrentMS - PollMsStep ))
+    CurrentMS=""
+    RetMs=$(min_cap "$RetMs" "$PollMsMin")
+    printf '%d\n' "$RetMs"
+    RetMs=""
+}
+
 # usage: tick
 # description: perform fetches of current status, calculate governor stage and setting of, boost,
 #     optimizations and call write_stats
@@ -997,12 +1023,10 @@ tick () {
     fi
     write_stats
     if [ "$StableCount" -ge "$StableThreshold" ]; then
-        PollMs=$(( PollMs + PollMsStep ))
-        PollMs=$(max_cap "$PollMs" "$PollMsMax")
+        PollMs=$(pollms_increase "$PollMs")
         msg_log "debug" "PollMs increased to '$PollMs'"
     elif [ "$StableCount" -eq 0 ]; then
-        PollMs=$(( PollMs - PollMsStep ))
-        PollMs=$(min_cap "$PollMs" "$PollMsMin")
+        PollMs=$(pollms_decrease "$PollMs")
         msg_log "debug" "PollMs reduced to '$PollMs'"
     else
         msg_log "debug" "PollMs unchanged at '$PollMs' (StableCount=$StableCount)"
