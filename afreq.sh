@@ -93,6 +93,7 @@ StableThreshold=5
 PollMsStep=100
 
 DEF_cpustat_backend="vmstat"
+DEF_scaling_algo="linear"
 
 # defaults
 DEF_ONBATGOV_ST2=40
@@ -146,6 +147,7 @@ PollMs=500
 # can be vmstat or proc
 # defaults: vmstat
 cpustat_backend=""
+scaling_algo=""
 
 StableCount=0
 
@@ -228,6 +230,7 @@ CONF_bat_thresh_optim=""
 CONF_interval=""
 CONF_log_level=""
 CONF_cpustat_backend=""
+CONF_scaling_algo=""
 
 CONF_gov_ac_stage_1=""
 CONF_gov_ac_stage_2=""
@@ -470,6 +473,16 @@ keyval_parse () {
                         ;;
                     [Vv][Mm][Ss][Tt][Aa][Tt])
                         CONF_cpustat_backend="vmstat"
+                        ;;
+                esac
+                ;;
+            "SCALING_ALGO")
+                case "${val}" in
+                    [Ll][Ii][Nn][Ee][Aa][Rr])
+                        CONF_scaling_algo="linear"
+                        ;;
+                    [Ee][Xx][Pp][Oo][Nn][Ee][Nn][Tt][Ii][Aa][Ll])
+                        CONF_scaling_algo="exponential"
                         ;;
                 esac
                 ;;
@@ -877,7 +890,14 @@ pollms_increase () {
     CurrentMS="$1"
     shift
     RetMs=""
-    RetMs=$(( CurrentMS + PollMsStep ))
+    case "$scaling_algo" in
+        "linear")
+            RetMs=$(( CurrentMS + PollMsStep ))
+            ;;
+        "exponential")
+            RetMs=$(( CurrentMS * 2 ))
+            ;;
+    esac
     CurrentMS=""
     RetMs=$(max_cap "$RetMs" "$PollMsMax")
     printf '%d\n' "$RetMs"
@@ -890,7 +910,14 @@ pollms_decrease () {
     CurrentMS="$1"
     shift
     RetMs=""
-    RetMs=$(( CurrentMS - PollMsStep ))
+    case "$scaling_algo" in
+        "linear")
+            RetMs=$(( CurrentMS - PollMsStep ))
+            ;;
+        "exponential")
+            RetMs=$(( CurrentMS / 2 ))
+            ;;
+    esac
     CurrentMS=""
     RetMs=$(min_cap "$RetMs" "$PollMsMin")
     printf '%d\n' "$RetMs"
@@ -1182,6 +1209,11 @@ loadConf () {
         cpustat_backend="$CONF_cpustat_backend"
     fi
 
+    if [ -z "$CONF_scaling_algo" ]; then
+        scaling_algo="$DEF_scaling_algo"
+    else
+        scaling_algo="$CONF_scaling_algo"
+    fi
     # work cycle
     if [ -z "$CONF_interval" ]; then
         DutyCycle=$DEF_DutyCycle

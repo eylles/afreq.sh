@@ -27,6 +27,12 @@
 # vmstat - the default backend
 # CPUSTAT_BACKEND=vmstat
 
+# algorithm for calculating the scalation of the dynamic polling
+# possible options:
+# linear - simply increases or decreases the polling rate by 100ms
+# exponential - doubles or halves the polling rate, useful for some setups
+# SCALING_ALGO=linear
+
 # setting activation thresholds on AC
 # PERCENTAGE INTEGER
 #AC_THRESH_ST2=10
