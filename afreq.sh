@@ -484,6 +484,9 @@ keyval_parse () {
                     [Ee][Xx][Pp][Oo][Nn][Ee][Nn][Tt][Ii][Aa][Ll])
                         CONF_scaling_algo="exponential"
                         ;;
+                    [Nn][Oo][Nn][Ee])
+                        CONF_scaling_algo="none"
+                        ;;
                 esac
                 ;;
             *)

@@ -29,6 +29,7 @@
 
 # algorithm for calculating the scalation of the dynamic polling
 # possible options:
+# none - disable dynamic polling, polling will continue to run at the starting rate of 500ms
 # linear - simply increases or decreases the polling rate by 100ms
 # exponential - doubles or halves the polling rate, useful for some setups
 # SCALING_ALGO=linear
