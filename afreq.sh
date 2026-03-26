@@ -90,6 +90,8 @@ PollMsMax=5000
 # how many ticks to consider the settings stable and increase PollMs
 StableThreshold=5
 
+DEF_StableThreshold=5
+
 PollMsStep=100
 
 DEF_cpustat_backend="vmstat"
@@ -231,6 +233,7 @@ CONF_interval=""
 CONF_log_level=""
 CONF_cpustat_backend=""
 CONF_scaling_algo=""
+CONF_StableThreshold=""
 
 CONF_gov_ac_stage_1=""
 CONF_gov_ac_stage_2=""
@@ -447,6 +450,14 @@ keyval_parse () {
                 if is_int "$val" && [ "$val" -ge 1 ]; then
                     CONF_interval="$val"
                     msg="conf interval $CONF_interval"
+                    msg_log "debug" "$msg"
+                fi
+                ;;
+            "STABLE_CYCLE_COUNT")
+                # check integer type
+                if is_int "$val" && [ "$val" -ge 1 ]; then
+                    CONF_StableThreshold="$val"
+                    msg="conf stable threshold $CONF_StableThreshold"
                     msg_log "debug" "$msg"
                 fi
                 ;;
@@ -1219,6 +1230,12 @@ loadConf () {
         cpustat_backend="$DEF_cpustat_backend"
     else
         cpustat_backend="$CONF_cpustat_backend"
+    fi
+
+    if [ -z "$CONF_StableThreshold" ]; then
+        StableThreshold="$DEF_StableThreshold"
+    else
+        StableThreshold="$CONF_StableThreshold"
     fi
 
     if [ -z "$CONF_scaling_algo" ]; then

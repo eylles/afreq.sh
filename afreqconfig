@@ -35,6 +35,10 @@
 # threehalves - like the exponential but using 1.5 instead of 2
 # SCALING_ALGO=linear
 
+# the number of stable cycles before the dynamic scaling increases the time between polling cycles
+# a cycle is considered stable if the cpu governor setting did no change that cycle.
+# STABLE_CYCLE_COUNT=5
+
 # setting activation thresholds on AC
 # PERCENTAGE INTEGER
 #AC_THRESH_ST2=10
