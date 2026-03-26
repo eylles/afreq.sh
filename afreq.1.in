@@ -100,6 +100,63 @@ Range of values:
     DEFAULT: 5
 
 
+
+.TP
+.B CPUSTAT_BACKEND
+.P
+backend for calulating cpu usage
+.TP
+possible options:
+.P
+.B proc
+- reads directly from /proc/stat, useful when vmstat is not available
+.P
+.B vmstat
+- the default backend
+.TP
+
+.T
+    DEFAULT: vmstat
+
+.TP
+.B SCALING_ALGO
+.P
+algorithm for calculating the scalation of the dynamic polling
+.TP
+possible options:
+.P
+.B none
+- disable dynamic polling, polling will continue to run at the starting rate of 500ms
+.P
+.B linear
+- simply increases or decreases the polling rate by 100ms
+.P
+.B exponential
+- doubles or halves the polling rate, useful for some setups
+.P
+.B threehalves
+- like the exponential but using 1.5 instead of 2
+.TP
+
+.T
+    DEFAULT: linear
+
+.TP
+.B STABLE_CYCLE_COUNT
+.P
+the number of stable cycles before the dynamic scaling increases the time between polling cycles
+a cycle is considered stable if the cpu governor setting did no change that cycle.
+.TP
+Range of values:
+.T
+        Max INT MAX
+.T
+        Min 1
+.TP
+
+.T
+    DEFAULT: 5
+
 .TP
 .B AC_THRESH_ST2
 .P
