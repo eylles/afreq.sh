@@ -484,6 +484,9 @@ keyval_parse () {
                     [Ee][Xx][Pp][Oo][Nn][Ee][Nn][Tt][Ii][Aa][Ll])
                         CONF_scaling_algo="exponential"
                         ;;
+                    [Tt][Hh][Rr][Ee][Ee][Hh][Aa][Ll][Vv][Ee][Ss])
+                        CONF_scaling_algo="threehalves"
+                        ;;
                     [Nn][Oo][Nn][Ee])
                         CONF_scaling_algo="none"
                         ;;
@@ -900,6 +903,9 @@ pollms_increase () {
         "exponential")
             RetMs=$(( CurrentMS * 2 ))
             ;;
+        "threehalves")
+            RetMs=$(( (CurrentMS * 3) / 2 ))
+            ;;
     esac
     CurrentMS=""
     RetMs=$(max_cap "$RetMs" "$PollMsMax")
@@ -919,6 +925,9 @@ pollms_decrease () {
             ;;
         "exponential")
             RetMs=$(( CurrentMS / 2 ))
+            ;;
+        "threehalves")
+            RetMs=$(( (CurrentMS * 2) / 3 ))
             ;;
     esac
     CurrentMS=""

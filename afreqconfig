@@ -32,6 +32,7 @@
 # none - disable dynamic polling, polling will continue to run at the starting rate of 500ms
 # linear - simply increases or decreases the polling rate by 100ms
 # exponential - doubles or halves the polling rate, useful for some setups
+# threehalves - like the exponential but using 1.5 instead of 2
 # SCALING_ALGO=linear
 
 # setting activation thresholds on AC
