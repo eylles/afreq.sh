@@ -32,6 +32,15 @@ mypid="$$"
 
 version="@VERSION@"
 
+# unix command line compatible booleans
+
+# Type: int
+# value: 0
+_true=0
+# Type: int
+# value: 1
+_false=1
+
 if [ -z "$PIDFILE" ]; then
     PIDFILE=/var/run/acpufreq.pid
 fi
