@@ -212,7 +212,7 @@ fi
 has_usleep=""
 has_usleep=$(command -v usleep)
 [ -z "$has_usleep" ] && has_usleep=$(command -v busybox)
-if sleep 0.1 2>/dev/null; then
+if sleep 0.01 2>/dev/null; then
     has_usleep=""
 fi
 
