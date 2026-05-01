@@ -887,7 +887,8 @@ print_status () {
     date +"[%Y-%m-%d %H:%M:%S]"
     printf '%8s: %s\n' "$myname" "$mypid"
     printf '%8s: %s\n'  "Version" "$version"
-    printf '%8s: %s\n\n' "Driver" "$CPUfreqDriver"
+    printf '%8s: %s\n' "Driver" "$CPUfreqDriver"
+    printf '%8s: %s\n\n' "Scaling" "$scaling_algo"
 
     if [ -n "$BoostPath" ]; then
         boost_status=$(get_boost)
