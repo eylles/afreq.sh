@@ -85,6 +85,9 @@ k_lock=/proc/sys/vm/page_lock_unfairness
 DEFCFG=/etc/default/afreqconfig
 CONFIG=/etc/afreqconfig
 
+Hooks_AC=/etc/afreq.d/AC
+Hooks_BAT=/etc/afreq.d/BAT
+
 ############
 # defaults #
 ############
@@ -1169,6 +1172,14 @@ tick () {
     else
         msg_log "debug" "PollMs unchanged at '$PollMs' (StableCount=$StableCount)"
     fi
+    case "$acstate" in
+        0)
+            run_hooks_from_dir "$Hooks_BAT"
+            ;;
+        1)
+            run_hooks_from_dir "$Hooks_AC"
+            ;;
+    esac
 }
 
 # usage: outHandler
