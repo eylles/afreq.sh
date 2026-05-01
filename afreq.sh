@@ -1039,6 +1039,20 @@ run_hooks_from_dir () {
     fi
 }
 
+# usage: run_hooks
+# description: runs the hooks for the current acstate
+# return type: void
+run_hooks () {
+    case "$acstate" in
+        0)
+            run_hooks_from_dir "$Hooks_BAT"
+            ;;
+        1)
+            run_hooks_from_dir "$Hooks_AC"
+            ;;
+    esac
+}
+
 # usage: tick
 # description: perform fetches of current status, calculate governor stage and setting of, boost,
 #     optimizations and call write_stats
@@ -1173,14 +1187,7 @@ tick () {
     else
         msg_log "debug" "PollMs unchanged at '$PollMs' (StableCount=$StableCount)"
     fi
-    case "$acstate" in
-        0)
-            run_hooks_from_dir "$Hooks_BAT"
-            ;;
-        1)
-            run_hooks_from_dir "$Hooks_AC"
-            ;;
-    esac
+    run_hooks
 }
 
 # usage: outHandler
