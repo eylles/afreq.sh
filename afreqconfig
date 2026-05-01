@@ -67,3 +67,7 @@
 #GOV_BAT_ST1=powersave
 #GOV_BAT_ST2=conservative
 #GOV_BAT_ST3=performance
+
+# werether to run the ac and bat state hooks, accepted values are ints [0, 1], the case insensitive
+# strigns [yes, true, no, false], any other string including empty is considered false.
+#RUN_HOOKS=no

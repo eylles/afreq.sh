@@ -122,6 +122,8 @@ DEF_ONACBOOST=25
 
 def_log_level="0"
 
+DEF_run_hooks="$_false"
+
 # threshold caps
 # battery mode
 
@@ -230,6 +232,8 @@ if sleep 0.01 2>/dev/null; then
     has_usleep=""
 fi
 
+RUNHOOKS="$DEF_run_hooks"
+
 #############
 # conf vars #
 #############
@@ -256,6 +260,8 @@ CONF_gov_ac_stage_3=""
 CONF_gov_bat_stage_1=""
 CONF_gov_bat_stage_2=""
 CONF_gov_bat_stage_3=""
+
+CONF_run_hooks=""
 
 #############
 # functions #
@@ -392,6 +398,22 @@ calc_workcycle () {
     #WorkCycle
     result=$(( DutyCycle * CyclesPerSecond ))
     printf '%d\n' $result
+}
+
+# usage: get_bool_val "value"
+# description: recieves some truthy or falsey string and echoes a unix style shell boolean, the
+#              strings checked case insensitive are: yes, true, 1, no, false, 0, anything else is
+#              considered false.
+# return type: string
+get_bool_val () {
+    case "$1" in
+        [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|1)
+            printf '%s\n' "$_true"
+            ;;
+        [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|0|*)
+            printf '%s\n' "$_false"
+            ;;
+    esac
 }
 
 # usage: keyval_parse CONF_FILE
@@ -579,6 +601,9 @@ keyval_parse () {
                         CONF_scaling_algo="none"
                         ;;
                 esac
+                ;;
+            "RUN_HOOKS")
+                CONF_run_hooks=$(get_bool_val "${val}")
                 ;;
             *)
                 msg="invalid option ${key}"
@@ -1187,7 +1212,9 @@ tick () {
     else
         msg_log "debug" "PollMs unchanged at '$PollMs' (StableCount=$StableCount)"
     fi
-    run_hooks
+    if [ "$_true" -eq "$RUNHOOKS" ]; then
+        run_hooks
+    fi
 }
 
 # usage: outHandler
@@ -1359,6 +1386,13 @@ loadConf () {
     WorkCycle=$(calc_workcycle)
     msg="work cycle $WorkCycle"
     msg_log "debug" "$msg"
+
+    # run hooks
+    if [ -z "$CONF_run_hooks" ]; then
+        RUNHOOKS="$DEF_run_hooks"
+    else
+        RUNHOOKS="$CONF_run_hooks"
+    fi
 
     # ensure no stupid values
     ONBATGOV_ST2=$(min_cap "$ONBATGOV_ST2" "$bt_st2_min")
