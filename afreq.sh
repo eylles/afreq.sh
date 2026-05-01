@@ -32,6 +32,8 @@ mypid="$$"
 
 version="@VERSION@"
 
+RootUserID=0
+
 # unix command line compatible booleans
 
 # Type: int
@@ -1017,6 +1019,20 @@ pollms_decrease () {
     RetMs=$(min_cap "$RetMs" "$PollMsMin")
     printf '%d\n' "$RetMs"
     RetMs=""
+}
+
+# usage: run_hooks_from_dir <HookDir>
+# description: runs hook executables from the given HookDir
+# return type: void
+run_hooks_from_dir () {
+    if ! is_dir_empty "$1"; then
+        for hook in "$1"/*; do
+            if are_exec_perms_correct "$hook" "$RootUserID"; then
+                msg_log "debug" "running hook '$hook'"
+                $hook
+            fi
+        done
+    fi
 }
 
 # usage: tick
