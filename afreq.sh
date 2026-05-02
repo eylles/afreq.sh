@@ -1081,7 +1081,8 @@ pollms_decrease () {
 run_hooks_from_dir () {
     if ! is_dir_empty "$1"; then
         for hook in "$1"/*; do
-            if are_exec_perms_correct "$hook" "$RootUserID"; then
+            real_hook_path=$(realpath "$hook")
+            if are_exec_perms_correct "$real_hook_path" "$RootUserID"; then
                 msg_log "debug" "running hook '$hook'"
                 $hook
             fi
