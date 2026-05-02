@@ -298,24 +298,24 @@ rstrip () {
     printf '%s\n' "${1%%$2}"
 }
 
-# Return type: int
+# return type: int
 #       Usage: get_perms <file>
 # --------------------------------------------------
 # will return the octal permissions of the file ie: 755
 get_perms() {
-  stat -c '%a'  "$1"
+    stat -c '%a'  "$1"
 }
 
-# Return type: int
+# return type: int
 #       Usage: get_ownerid <file>
 # --------------------------------------------------
 # will return the UID of the file owner, say for a normal
 # user 1000 but for the root user 0
 get_ownerid() {
-  stat -c '%u' "$1"
+    stat -c '%u' "$1"
 }
 
-# Return type: int bool
+# return type: int bool
 #       Usage: are_exec_perms_correct <e_path> <uid>
 #      e_path: executable file path
 #         uid: expected owner user id
@@ -325,40 +325,40 @@ get_ownerid() {
 #   - the actual owner id is the expected owner id
 #   - the file is writeable only by the owner
 are_exec_perms_correct() {
-  executable_path="$1"
-  shift
-  expected_owner_uid="$1"
-  shift
-  execut_realpath="$(realpath "$executable_path")"
-  [ ! -x "$execut_realpath" ] && return "$_false"
-  owner_id="$(get_ownerid "$execut_realpath")"
-  [ "$expected_owner_uid" -ne "$owner_id" ] && return "$_false"
-  exec_perms="$(get_perms "$execut_realpath")"
-  others_bit=$((exec_perms % 10))
-  [ $((others_bit & 2)) -ne 0 ] && return "$_false"
-  return "$_true"
+    executable_path="$1"
+    shift
+    expected_owner_uid="$1"
+    shift
+    execut_realpath="$(realpath "$executable_path")"
+    [ ! -x "$execut_realpath" ] && return "$_false"
+    owner_id="$(get_ownerid "$execut_realpath")"
+    [ "$expected_owner_uid" -ne "$owner_id" ] && return "$_false"
+    exec_perms="$(get_perms "$execut_realpath")"
+    others_bit=$((exec_perms % 10))
+    [ $((others_bit & 2)) -ne 0 ] && return "$_false"
+    return "$_true"
 }
 
-# Return type: int bool
+# return type: int bool
 # Usage: is_dir_empty directory
 # --------------------------------------------------
 # Check if directory is empty (no files matching any glob)
-# Returns $_true if empty or doesn't exist, $_false if has files
+# returns $_true if empty or doesn't exist, $_false if has files
 is_dir_empty() {
-  dir="$1"
-  # Check if directory exists and has files
-  if [ -d "$dir" ]; then
-    # Use a simple glob test - if the glob doesn't expand, it returns the pattern
-    for _ in "$dir"/* ; do
-      # If we get here, at least one file exists
-      return "$_false"
-    done
-    # No files found
-    return "$_true"
-  else
-    # Directory doesn't exist
-    return "$_true"
-  fi
+dir="$1"
+    # Check if directory exists and has files
+    if [ -d "$dir" ]; then
+        # Use a simple glob test - if the glob doesn't expand, it returns the pattern
+        for _ in "$dir"/* ; do
+            # If we get here, at least one file exists
+            return "$_false"
+        done
+        # No files found
+        return "$_true"
+    else
+        # Directory doesn't exist
+        return "$_true"
+    fi
 }
 
 # usage: msg_log "level" "message"
