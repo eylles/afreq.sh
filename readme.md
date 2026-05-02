@@ -14,8 +14,10 @@ to be extensible, lean and have the least amount of dependencies possible.
 
 As of now afreq depends only on:
 
-- core utils (grep, sleep, tail, awk, head) however a sleep command that supports float values is needed
+- core utils (grep, sleep, tail, awk, head, realpath, cat) however a sleep command that supports
+  float values is needed
 - built ins (printf, command)
+- posix shell interpreter (dash, bash, busybox ash)
 - procps (vmstat, pgrep)
 
 
