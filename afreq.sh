@@ -85,7 +85,9 @@ k_lock=/proc/sys/vm/page_lock_unfairness
 DEFCFG=/etc/default/afreqconfig
 CONFIG=/etc/afreqconfig
 
+# /etc/afreq.d/AC
 Hooks_AC=/etc/afreq.d/AC
+# /etc/afreq.d/BAT
 Hooks_BAT=/etc/afreq.d/BAT
 
 ############
@@ -213,6 +215,9 @@ kernel_watchdog=""
 
 cpupercentage=""
 
+# type: int
+# on ac 1
+# on bat 0
 acstate=""
 
 CPUfreqDriver=""
@@ -232,6 +237,8 @@ if sleep 0.01 2>/dev/null; then
     has_usleep=""
 fi
 
+# type: int bool
+# werether the hooks shall be ran
 RUNHOOKS="$DEF_run_hooks"
 
 #############
