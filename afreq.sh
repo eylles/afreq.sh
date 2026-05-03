@@ -1078,18 +1078,37 @@ pollms_decrease () {
     RetMs=""
 }
 
+# Return type: int bool
+#       Usage: is_str_valid <string>
+# --------------------------------------------------
+# valid strings are those that only contain
+# 'alphanums', dots '.' and dashes '_-'
+is_str_valid() {
+    case "$1" in
+        # the class of strings we consider false, this should mean:
+        # 'empty' OR those which contain strings that are NOT 'alphanums', '._-'
+        ""|*.bak|*.swp|*.old|*~|*[!A-Za-z0-9._-]*)
+            return "$_false"
+            ;;
+        *)
+            return "$_true"
+            ;;
+    esac
+}
+
 # usage: run_hooks_from_dir <HookDir>
 # description: runs hook executables from the given HookDir
 # return type: void
 run_hooks_from_dir () {
     if ! is_dir_empty "$1"; then
         for hook in "$1"/*; do
-            real_hook_path=$(realpath "$hook")
-            if are_exec_perms_correct "$real_hook_path" "$RootUserID"; then
+            bnhook="${hook##*/}"
+            if is_str_valid "$bnhook" && are_exec_perms_correct "$hook" "$RootUserID"; then
                 msg_log "debug" "running hook '$hook'"
                 $hook
             fi
         done
+        unset rpath
     fi
 }
 
