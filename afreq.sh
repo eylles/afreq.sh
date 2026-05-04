@@ -189,9 +189,24 @@ scaling_algo=""
 
 StableCount=0
 
+gamemodeactive=""
 gamemode_old=0
+# current cpu frequency governor, possible values are:
+# powersave
+# conservative
+# ondemand
+# schedutil
+# performance
+governor=""
 governor_old=""
 boost_old=""
+# current cpu stage, possible values are:
+# stage 1
+# stage 2
+# stage 3
+# gamemode
+# perfmode
+stage=""
 
 DutyCycle=""
 # cycles to tick
@@ -1105,7 +1120,7 @@ run_hooks_from_dir () {
             bnhook="${hook##*/}"
             if is_str_valid "$bnhook" && are_exec_perms_correct "$hook" "$RootUserID"; then
                 msg_log "debug" "running hook '$hook'"
-                $hook
+                $hook "$acstate" "$stage" "$governor"
             fi
         done
         unset rpath
@@ -1147,6 +1162,8 @@ tick () {
     if command -v gamemoded >/dev/null; then
         if pgrep -f gamemoderun >/dev/null; then
             gamemodeactive=1
+            governor=$(get_governor)
+            stage="gamemode"
         else
             gamemodeactive=0
         fi
@@ -1208,6 +1225,7 @@ tick () {
             msg="perfmod running, setting performance governor"
             msg_log "debug" "$msg"
             governor="performance"
+            stage="perfmode"
             boostsetting="on"
             optimsetting="on"
         else
@@ -1215,15 +1233,18 @@ tick () {
             msg_log "debug" "$msg"
             if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
                 governor="$govnorst1"
+                stage="stage 1"
             fi
             if
                 [ "$cpupercentage" -ge "$GovnorST2Thresh" ] &&
                 [ "$cpupercentage" -lt "$GovnorST3Thresh" ]
                 then
                 governor="$govnorst2"
+                stage="stage 2"
             fi
             if [ "$cpupercentage" -ge "$GovnorST3Thresh" ]; then
                 governor="$govnorst3"
+                stage="stage 3"
             fi
         fi
         msg="governor: $governor"
