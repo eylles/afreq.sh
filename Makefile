@@ -1,6 +1,6 @@
 NAME = acpufreq
-SERVICE_LOCATION_SYSV = /etc/init.d
-SERVICE_LOCATION_SYSD = /etc/systemd/system
+SYSV_LOC = /etc/init.d
+SYSD_LOC = /etc/systemd/system
 RAW_SYSV = acpufreq.is
 INIT_LSB = acpufreq.init
 
@@ -9,6 +9,10 @@ SYSV_SCRIPT = $(RAW_SYSV)
 PREFIX = /usr/local
 MANPREFIX = $(PREFIX)/share/man
 EGPREFIX = $(PREFIX)/share/doc/afreq
+BIN_LOC = $(DESTDIR)$(PREFIX)/bin
+SBIN_LOC = $(DESTDIR)$(PREFIX)/sbin
+MAN_LOC = $(DESTDIR)$(MANPREFIX)/man1
+EXAMP_LOC = $(DESTDIR)$(EGPREFIX)
 
 include version.mk config.mk
 
@@ -28,54 +32,54 @@ sysdserv:
 	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" acpufreq.sysd > $(NAME).service
 
 install: afreq
-	mkdir -p $(PREFIX)/sbin
-	cp afreq $(PREFIX)/sbin/afreq
-	chmod 755 $(PREFIX)/sbin/afreq
-	echo afreq installed in $(PREFIX)/sbin
-	mkdir -p $(DESTDIR)$(MANPREFIX)/man1
-	cp -f afreq.1   $(DESTDIR)$(MANPREFIX)/man1/afreq.1
-	mkdir -p $(DESTDIR)$(EGPREFIX)
-	cp -f afreqconfig $(DESTDIR)$(EGPREFIX)/afreqconfig
-	mkdir -p $(PREFIX)/bin
-	cp perfmod.sh $(PREFIX)/bin/perfmod
-	chmod 755 $(PREFIX)/bin/perfmod
-	echo perfmod installed in $(PREFIX)/bin
+	mkdir -p $(SBIN_LOC)
+	cp afreq $(SBIN_LOC)/afreq
+	chmod 755 $(SBIN_LOC)/afreq
+	echo afreq installed in $(SBIN_LOC)
+	mkdir -p $(MAN_LOC)
+	cp -f afreq.1   $(MAN_LOC)/afreq.1
+	mkdir -p $(EXAMP_LOC)
+	cp -f afreqconfig $(EXAMP_LOC)/afreqconfig
+	mkdir -p $(BIN_LOC)
+	cp perfmod.sh $(BIN_LOC)/perfmod
+	chmod 755 $(BIN_LOC)/perfmod
+	echo perfmod installed in $(BIN_LOC)
 
 install-on_ac_power:
-	mkdir -p $(PREFIX)/bin
-	cp on_ac_power $(PREFIX)/bin/on_ac_power
-	chmod 755 $(PREFIX)/bin/on_ac_power
-	echo on_ac_power installed in $(PREFIX)/bin
+	mkdir -p $(BIN_LOC)
+	cp on_ac_power $(BIN_LOC)/on_ac_power
+	chmod 755 $(BIN_LOC)/on_ac_power
+	echo on_ac_power installed in $(BIN_LOC)
 
 install-sysv: sysvserv
-	mkdir -p $(SERVICE_LOCATION_SYSV)
-	cp $(NAME) $(SERVICE_LOCATION_SYSV)/
-	chmod 755 $(SERVICE_LOCATION_SYSV)/$(NAME)
-	echo sysvinit service: $(NAME) installed in $(SERVICE_LOCATION_SYSV)
+	mkdir -p $(SYSV_LOC)
+	cp $(NAME) $(SYSV_LOC)/
+	chmod 755 $(SYSV_LOC)/$(NAME)
+	echo sysvinit service: $(NAME) installed in $(SYSV_LOC)
 
 install-sysd: sysdserv
-	mkdir -p $(SERVICE_LOCATION_SYSD)
-	cp $(NAME).service $(SERVICE_LOCATION_SYSD)/
-	echo systemd unit $(NAME).service installed in $(SERVICE_LOCATION_SYSD)
+	mkdir -p $(SYSD_LOC)
+	cp $(NAME).service $(SYSD_LOC)/
+	echo systemd unit $(NAME).service installed in $(SYSD_LOC)
 
 install-all: install install-sysv install-sysd
 
 uninstall:
-	rm $(PREFIX)/sbin/afreq
-	rm $(MANPREFIX)/man1/afreq.1
-	rm -rf $(EGPREFIX)
-	rm $(EGPREFIX)/afreqconfig
-	echo afreq uninstalled from $(PREFIX)sbin
-	rm $(PREFIX)/bin/perfmod
-	echo perfmod uninstalled from $(PREFIX)/bin
-	rm -v $(SERVICE_LOCATION_SYSV)/$(NAME)
-	echo $(NAME) uninstalled from $(SERVICE_LOCATION_SYSV)
-	rm -v $(SERVICE_LOCATION_SYSD)/$(NAME).service
-	echo $(NAME).service uninstalled from $(SERVICE_LOCATION_SYSD)
+	rm $(SBIN_LOC)/afreq
+	rm $(MAN_LOC)/afreq.1
+	rm -f $(EXAMP_LOC)/afreqconfig
+	rm -rf $(EXAMP_LOC)
+	echo afreq uninstalled from $(SBIN_LOC)
+	rm $(BIN_LOC)/perfmod
+	echo perfmod uninstalled from $(BIN_LOC)
+	rm -v $(SYSV_LOC)/$(NAME)
+	echo $(NAME) uninstalled from $(SYSV_LOC)
+	rm -v $(SYSD_LOC)/$(NAME).service
+	echo $(NAME).service uninstalled from $(SYSD_LOC)
 
 uninstall-on_ac_power:
-	rm $(PREFIX)/bin/on_ac_power
-	echo on_ac_power uninstalled from $(PREFIX)/bin
+	rm $(BIN_LOC)/on_ac_power
+	echo on_ac_power uninstalled from $(BIN_LOC)
 
 clean:
 	rm -f $(NAME) $(NAME).service afreq afreq.1
