@@ -40,6 +40,9 @@ install: afreq
 	cp -f afreq.1   $(MAN_LOC)/afreq.1
 	mkdir -p $(EXAMP_LOC)
 	cp -f afreqconfig $(EXAMP_LOC)/afreqconfig
+	cp -f examples/wireless-power-management.sh $(EXAMP_LOC)/wireless-power-management.sh
+	cp -f examples/wireless-power-management-ac.sh $(EXAMP_LOC)/wireless-power-management-ac.sh
+	cp -f examples/wireless-power-management-bat.sh $(EXAMP_LOC)/wireless-power-management-bat.sh
 	mkdir -p $(BIN_LOC)
 	cp perfmod.sh $(BIN_LOC)/perfmod
 	chmod 755 $(BIN_LOC)/perfmod
