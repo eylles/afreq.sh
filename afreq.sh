@@ -1120,7 +1120,7 @@ run_hooks_from_dir () {
             bnhook="${hook##*/}"
             if is_str_valid "$bnhook" && are_exec_perms_correct "$hook" "$RootUserID"; then
                 msg_log "debug" "running hook '$hook'"
-                $hook "$acstate" "$stage" "$governor"
+                $hook "$acstate" "$stage" "$governor" &
             fi
         done
         unset rpath
