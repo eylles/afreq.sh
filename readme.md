@@ -3,6 +3,12 @@
 A simple daemon for setting cpu frequency governor
 
 <p align="center">
+<a href="https://github.com/eylles/afreq.sh" alt="GitHub"><img src="https://img.shields.io/badge/Github-2B3137?style=for-the-badge&logo=Github&logoColor=FFFFFF"></a>
+<a href="https://gitlab.com/eylles/afreq.sh" alt="GitLab"><img src="https://img.shields.io/badge/Gitlab-380D75?style=for-the-badge&logo=Gitlab"></a>
+<a href="https://codeberg.org/eylles/afreq.sh" alt="CodeBerg"><img src="https://img.shields.io/badge/Codeberg-2185D0?style=for-the-badge&logo=codeberg&logoColor=F2F8FC"></a>
+<a href="https://git.devuan.org/eylles/afreq.sh" alt="Devuan"><img src="https://img.shields.io/badge/Devuan-6A6578?style=for-the-badge&logo=devuan&logoColor=F2F2F2"></a>
+<br>
+<br>
 <a href="./LICENSE"><img src="https://img.shields.io/badge/license-GPL--2.0--or--later-green.svg"></a>
 <a href="https://liberapay.com/eylles/donate"><img alt="Donate using Liberapay" src="https://img.shields.io/liberapay/receives/eylles.svg?logo=liberapay"></a>
 <a href="https://liberapay.com/eylles/donate"><img alt="Donate using Liberapay" src="https://img.shields.io/liberapay/patrons/eylles.svg?logo=liberapay"></a>
@@ -33,6 +39,7 @@ As of now afreq depends only on:
   |afreq|`/usr/local/sbin/afreq`|the actual daemon doing the work|
   |afreq.1|`/usr/local/man/man1/afreq.1`|the documentation manual for the daemon|
   |afreqconfig|`/usr/local/share/doc/afreq/afreqconfig`|example configuration file|
+  |examples/wireless-power-management.sh|`/usr/local/share/doc/afreq/wireless-power-management.sh`|example run hook|
   |perfmod|`/usr/local/sbin/perfmod`|thin wrapper to force performance governor when a program runs|
   |acpufreq|`/etc/init.d/acpufreq`|sysvinit initscript|
   |acpufreq.service|`/etc/systemd/system/acpufreq.service`|systemd unit|
