@@ -388,6 +388,84 @@ Possible values:
 
 
 .TP
+.B RUN_HOOKS
+.P
+Werether to run the ac and bat state hooks, accepted string values are case insensitive, any other
+string including empty is evaluated as false.
+.TP
+Possible values:
+.B 0
+.B 1
+.B yes
+.B true
+.B no
+.B false
+
+.TP
+.T
+    DEFAULT: no
+
+
+.SH HOOKS
+.P
+afreq has the capacity to run hooks every tick, the hooks will be ran from one of 2 locations
+depending on the current ac state, if ac is on then hooks are ran from
+.B /etc/afreq.d/AC
+when on battery power the hooks will be ran from
+.B /etc/afreq.d/BAT
+
+the hooks are just executables, there is not much required from or expected from them, in regards to
+their execution and state there is no expectation for state, rather it is expected that the hooks be
+idempotent, so that running them multiple times over has no additional effect.
+
+when it comes to security the security model used by afreq is the Discretionary Access Control (DAC)
+standar, since afreq has to be ran with root permissions the hook executables are required to be
+owned by root as well as being non world writeable, the 755 permissions as well as root (uid 0)
+ownership suffice, symlinks to executables which sustain these requirements are accepted as the
+paths of the hooks are resolved using realpath(1) so only the permissions and ownership of the
+executable the symlink points to matter.
+
+for convenience the following arguments are passed onto the hooks in order:
+
+.TP
+.B acstate
+.P
+int representing the current ac state, 1 ac power, 0 battery power.
+.TP
+Possible values:
+.B 0
+.B 1
+
+.TP
+.B stage
+.P
+str representing the current cpu stage, this encompasses the 3 load based stages as well as the 2
+special stages gamemode and perfmode
+.TP
+Possible values:
+.B stage_1
+.B stage_2
+.B stage_3
+.B gamemode
+.B perfmode
+
+.TP
+.B governor
+.P
+str representing the current active cpu governor
+.TP
+Possible values:
+.B powersave
+.B conservative
+.B ondemand
+.B schedutil
+.B performance
+
+.P
+example hooks are included in the installation within the
+.B @EXAMP_LOC
+dir
+
 .SH AUTHOR
 .EX
 eylles                 <ed.ylles1997 at gmail.com>

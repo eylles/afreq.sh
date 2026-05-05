@@ -201,9 +201,9 @@ governor=""
 governor_old=""
 boost_old=""
 # current cpu stage, possible values are:
-# stage 1
-# stage 2
-# stage 3
+# stage_1
+# stage_2
+# stage_3
 # gamemode
 # perfmode
 stage=""
@@ -1233,18 +1233,18 @@ tick () {
             msg_log "debug" "$msg"
             if [ "$cpupercentage" -lt "$GovnorST2Thresh" ]; then
                 governor="$govnorst1"
-                stage="stage 1"
+                stage="stage_1"
             fi
             if
                 [ "$cpupercentage" -ge "$GovnorST2Thresh" ] &&
                 [ "$cpupercentage" -lt "$GovnorST3Thresh" ]
                 then
                 governor="$govnorst2"
-                stage="stage 2"
+                stage="stage_2"
             fi
             if [ "$cpupercentage" -ge "$GovnorST3Thresh" ]; then
                 governor="$govnorst3"
-                stage="stage 3"
+                stage="stage_3"
             fi
         fi
         msg="governor: $governor"

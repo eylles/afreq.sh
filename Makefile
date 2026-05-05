@@ -23,7 +23,7 @@ afreq: manpage
 	chmod 755 afreq
 
 manpage:
-	sed "s|@VERSION|$(VERSION)|;" afreq.1.in > afreq.1
+	sed "s|@VERSION|$(VERSION)|;s|@EXAMP_LOC|$(EXAMP_LOC)|" afreq.1.in > afreq.1
 
 sysvserv:
 	sed "s|acpufreq|$(NAME)|; s|placeholder|$(PREFIX)|" $(SYSV_SCRIPT) > $(NAME)
