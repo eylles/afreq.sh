@@ -1535,6 +1535,16 @@ while [ "$#" -gt 0 ]; do
     shift
 done
 
+if command -v ulimit > /dev/null 2>&1; then
+    num=8
+    kilobytes=1024
+    [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}: trying to limit memory usage to $num MB"
+    megabytesmem=$((num * kilobytes))
+    ulimit -v "$megabytesmem"
+    ulimit -m "$megabytesmem"
+    ulimit -s "$megabytesmem"
+fi
+
 loadConf
 
 [ "$DBGOUT" = 1 ] && printf '%s\n' "${myname}"
