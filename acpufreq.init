@@ -17,14 +17,13 @@ fi
 DESC="acpufreq"
 DAEMON=placeholder/sbin/afreq
 PIDFILE=/var/run/acpufreq.pid
-START_ARGS="--pidfile ${PIDFILE} --background"
-STOP_ARGS="--pidfile ${PIDFILE}"
+START_ARGS="--background"
 RELOAD_SIGNAL="USR1"
 
 do_stop_cmd_override() {
 	start-stop-daemon --stop --quiet \
 	    --retry=CONT/0/TERM/30/KILL/5 \
-	    ${PIDFILE:+--pidfile "$PIDFILE"} \
+	    --pidfile "$PIDFILE" \
 	    ${COMMAND_NAME:+--name "$COMMAND_NAME"} $STOP_ARGS
 	RETVAL="$?"
 	return $RETVAL
@@ -32,7 +31,7 @@ do_stop_cmd_override() {
 
 do_reload_cmd() {
 	start-stop-daemon --stop --signal $RELOAD_SIGNAL --quiet \
-	    ${PIDFILE:+--pidfile "$PIDFILE"} \
+	    --pidfile "$PIDFILE" \
 	    ${COMMAND_NAME:+--name "$COMMAND_NAME"} $RELOAD_ARGS
 	RETVAL="$?"
 	return $RETVAL
