@@ -840,7 +840,11 @@ msleep () {
     else
         sec_whole=$(( milisecs / 1000 ))
         sec_decim=$(( milisecs % 1000 ))
-        sec_decim=$( printf '%03d' $sec_decim)
+        if [ "$sec_decim" -lt 10 ]; then
+            sec_decim="00${sec_decim}"
+        elif [ "$sec_decim" -lt 100 ]; then
+            sec_decim="0${sec_decim}"
+        fi
         secs="${sec_whole}.${sec_decim}"
         sleep "$secs"
     fi
