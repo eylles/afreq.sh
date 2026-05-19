@@ -705,18 +705,7 @@ write_to_file () {
 set_governor () {
     for i in ${CPU_DEVS}; do
         dev="${i}/scaling_governor"
-        # msg_log "debug" "opening: $dev"
-        currentSetting=$(head -n 1 "$dev")
-        msg="'${dev}' current governor: ${currentSetting}"
-        msg_log "debug" "$msg"
-        if [ "$currentSetting" != "$1" ]; then
-            write_to_file "$1" "$dev"
-            msg="${dev} setting governor: ${1}"
-            msg_log "debug" "$msg"
-        else
-            msg="${dev} governor already: ${1}"
-            msg_log "debug" "$msg"
-        fi
+        write_to_file "$1" "$dev"
     done
 }
 
