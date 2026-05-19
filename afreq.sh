@@ -675,7 +675,7 @@ write_to_file () {
     fi
     if [ -e "$file" ] && [ -w "$file" ]; then
         if [ -z "$stdin_val" ]; then
-            currcontent=$(head -n 1 "$file" 2>/dev/null)
+            read -r currcontent < "$file"
             if [ "$currcontent" != "$value" ]; then
                 can_w=1
             fi
@@ -763,7 +763,9 @@ set_boost () {
 # return type: string
 # caveats: this only gets the value for the cpu0, cpu cores are expected to have the same value
 get_governor () {
-    head -n 1 "${cpu_f_path}/scaling_governor"
+    read -r CurrGovernor < "${cpu_f_path}/scaling_governor"
+    echo "$CurrGovernor"
+    unset CurrGovernor
 }
 
 # usage: get_intelnoturbo
@@ -771,7 +773,8 @@ get_governor () {
 # return type: string
 # return values: on | off
 get_intelnoturbo () {
-    case $(head "$IntelNoTurbo") in
+    read -r CurrNoTurbo < "$IntelNoTurbo"
+    case "$CurrNoTurbo" in
         0)
             printf '%s\n' "on"
             ;;
@@ -779,6 +782,7 @@ get_intelnoturbo () {
             printf '%s\n' "off"
             ;;
     esac
+    unset CurrNoTurbo
 }
 
 # usage: get_cpufreqboost
@@ -786,7 +790,8 @@ get_intelnoturbo () {
 # return type: string
 # return values: on | off
 get_cpufreqboost () {
-    case $(head "$CpuFreqBoost") in
+    read -r CurrFreqBoost < "$CpuFreqBoost"
+    case "$CurrFreqBoost" in
         1)
             printf '%s\n' "on"
             ;;
@@ -794,6 +799,7 @@ get_cpufreqboost () {
             printf '%s\n' "off"
             ;;
     esac
+    unset CurrFreqBoost
 }
 
 # usage: get_boost
@@ -956,13 +962,16 @@ print_status () {
         printf '%8s: %s\n' "Boost" "$boost_status"
     fi
 
-    govnor=$(head "${cpu_f_path}/scaling_governor")
+    # govnor=$(cat "${cpu_f_path}/scaling_governor")
+    read -r govnor < "${cpu_f_path}/scaling_governor"
     printf '%8s: %s\n\n' "Governor" "$govnor"
 
-    min=$(head "${cpu_f_path}/scaling_min_freq")
+    # min=$(cat "${cpu_f_path}/scaling_min_freq")
+    read -r min < "${cpu_f_path}/scaling_min_freq"
     printf '%s %s\n' "CPU min freq" "$min Hz"
 
-    max=$(head "${cpu_f_path}/scaling_max_freq")
+    # max=$(cat "${cpu_f_path}/scaling_max_freq")
+    read -r max < "${cpu_f_path}/scaling_max_freq"
     printf '%s %s\n' "CPU max freq" "$max Hz"
 
     printf '\n'
@@ -971,7 +980,8 @@ print_status () {
     for cpu in $CPU_DEVS; do
         frqpath="${cpu}/scaling_cur_freq"
         if [ -r "$frqpath" ]; then
-            freq=$(head "$frqpath")
+            # freq=$(cat "$frqpath")
+            read -r freq < "$frqpath"
             indx=${cpu##*/}
             printf '%8s: %12s\n' "$indx" "${freq} Hz"
         fi
@@ -1547,7 +1557,7 @@ acstate=1
 if [ -d "$ac_adapter_path" ]; then
     for supply in "$ac_adapter_path"/B* ; do
         if [ -d "$supply" ] && [ -r "${supply}/type" ]; then
-            type=$(head -n 1 "${supply}/type")
+            read -r type < "${supply}/type"
             case "$type" in
                 Battery)
                     DESKTOP=""
@@ -1557,6 +1567,7 @@ if [ -d "$ac_adapter_path" ]; then
             continue
         fi
     done
+    unset supply type
     if [ -z "$DESKTOP" ]; then
         get_ac_state
     fi
@@ -1584,7 +1595,7 @@ else
         [ -z "$DRYRUN" ] && mkdir -p "$pidfile_dir"
     fi
     if [ -z "$DRYRUN" ] && [ -r "$PIDFILE" ]; then
-        pidfilepid=$(head "$PIDFILE")
+        read -r pidfilepid < "$PIDFILE"
         if [ "$mypid" -ne "$pidfilepid" ] && is_instance "$pidfilepid" ;then
             printf '%s\n' "${myname}: an instance is already running with pid $pidfilepid"
             exit 1
