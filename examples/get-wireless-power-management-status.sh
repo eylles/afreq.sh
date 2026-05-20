@@ -22,13 +22,5 @@ get_power_status() {
     fi
 }
 
-set_power_management() {
-    if [ "$1" != "$(get_power_status "$interface")" ];  then
-        iwconfig "$interface" power "$1" 2>/dev/null
-    fi
-}
-
-case "$1" in
-    0) set_power_management "on"  ;; # bat
-    1) set_power_management "off" ;; # ac
-esac
+echo "interface: $interface"
+echo "power management: $(get_power_status "$interface")"

@@ -1,30 +1,27 @@
 #!/bin/sh
 
-get_int_iw() {
-    iw dev | awk '$1=="Interface" {print $2}'
-}
+interface=""
+# Find the first wireless interface via sysfs (Zero forks)
+# Most laptops only have one, e.g., wlan0
+for dev in /sys/class/net/*; do
+    if [ -d "$dev/wireless" ] || [ -d "$dev/phy80211" ]; then
+        interface="${dev##*/}"
+        break
+    fi
+    unset dev
+done
 
-get_int_wireless_tools() {
-    iwgetid | awk '{print $1}'
-}
+# If no interface found, exit silently
+[ -z "$interface" ] && exit 0
 
-is_command() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-get_interface() {
-    if is_command "iw"; then
-        get_int_iw
-    elif is_command "iwgetid"; then
-        get_int_wireless_tools
+get_power_status() {
+    if iwconfig "$1" 2>/dev/null | grep -q "Power Management:on"; then
+        echo "on"
+    else
+        echo "off"
     fi
 }
 
-get_power_status() {
-    iwconfig "$1" | awk -F':' '/Power Management/ { print $2 }'
-}
-
-interface="$(get_interface)"
 case "$(get_power_status "$interface")" in
     off)
         iwconfig "$interface" power on
