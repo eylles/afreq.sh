@@ -79,26 +79,6 @@ ac_adapter_path="/sys/class/power_supply"
 status_path="/var/run/afreq"
 status_file="${status_path}/status"
 
-# battery mode kernel paths
-
-# /proc/sys/kernel/nmi_watchdog
-k_watchdog=/proc/sys/kernel/nmi_watchdog
-# /proc/sys/vm/dirty_writeback_centisecs
-k_writeback=/proc/sys/vm/dirty_writeback_centisecs
-# /proc/sys/vm/laptop_mode
-k_laptopmode=/proc/sys/vm/laptop_mode
-
-# performance optimization kernel paths
-
-# /proc/sys/vm/nr_hugepages
-k_hugepages=/proc/sys/vm/nr_hugepages
-# /proc/sys/vm/compaction_proactiveness
-k_compaction=/proc/sys/vm/compaction_proactiveness
-# /sys/kernel/mm/transparent_hugepage/khugepaged/defrag
-k_pagedefrag=/sys/kernel/mm/transparent_hugepage/khugepaged/defrag
-# /proc/sys/vm/page_lock_unfairness
-k_lock=/proc/sys/vm/page_lock_unfairness
-
 # by default: /etc/default/afreqconfig
 DEFCFG=/etc/default/afreqconfig
 CONFIG=/etc/afreqconfig
@@ -238,13 +218,6 @@ gov_ac_st3=""
 gov_bat_st1=""
 gov_bat_st2=""
 gov_bat_st3=""
-
-huge_pages=""
-compaction=""
-huge_page_defrag=""
-lock_unfairness=""
-dirty_writeback=""
-kernel_watchdog=""
 
 cpupercentage=""
 
@@ -895,57 +868,8 @@ get_ac_state () {
 # description: fetch values of interfaces in /proc/sys/vm and /proc/sys/kernel
 # return type: void
 get_vm_vals () {
-    # system's huge pages setup
-    huge_pages=$(head "$k_hugepages")
-    # set huge pages to 1024
-    write_to_file 1024 "$k_hugepages"
-    compaction=$(head "$k_compaction")
-    huge_page_defrag=$(head "$k_pagedefrag")
-    lock_unfairness=$(head "$k_lock")
-    if [ -z "$DESKTOP" ]; then
-        dirty_writeback=$(head "$k_writeback")
-        msg="dirty writeback: $dirty_writeback"
-        msg_log "debug" "$msg"
-        kernel_watchdog=$(head "$k_watchdog")
-        msg="nmi watchdog: $kernel_watchdog"
-        msg_log "debug" "$msg"
-    fi
     governor_old=$(get_governor)
     boost_old=$(get_boost)
-}
-
-# usage: bat_optim
-# description: set optimizations for lower power consumption when running on battery
-# return type: void
-bat_optim () {
-    if [ "$acstate" -eq 0 ]; then
-        write_to_file 0                   "$k_watchdog"
-        write_to_file 1500                "$k_writeback"
-        write_to_file 5                   "$k_laptopmode"
-    else
-        write_to_file "$kernel_watchdog"  "$k_watchdog"
-        write_to_file "$dirty_writeback"  "$k_writeback"
-        write_to_file 0                   "$k_laptopmode"
-    fi
-}
-
-# usage: perf_optim setting
-# setting: on | off
-# description: set kernel dials and switches to squeeze some extra performance
-# return type: void
-perf_optim () {
-    case "$1" in
-        on)
-            write_to_file 0                      "$k_compaction"
-            write_to_file 0                      "$k_pagedefrag"
-            write_to_file 1                      "$k_lock"
-            ;;
-        off)
-            write_to_file "$compaction"          "$k_compaction"
-            write_to_file "$huge_page_defrag"    "$k_pagedefrag"
-            write_to_file "$lock_unfairness"     "$k_lock"
-            ;;
-    esac
 }
 
 # usage: print_status
@@ -1182,7 +1106,6 @@ tick () {
             msg="using immediate ac state"
             msg_log "debug" "$msg"
         fi
-        bat_optim
     else
         acstate=1
     fi
@@ -1216,13 +1139,6 @@ tick () {
         boostsetting="on"
     fi
 
-    if [ "$cpupercentage" -lt "$OptimActive" ]; then
-        optimsetting="off"
-    fi
-    if [ "$cpupercentage" -ge "$OptimActive" ]; then
-        optimsetting="on"
-    fi
-
     # set governor if gamemoded is not active
     if [ 0 -eq "$gamemodeactive" ]; then
         if pgrep -a perfmod >/dev/null; then
@@ -1231,7 +1147,6 @@ tick () {
             governor="performance"
             stage="perfmode"
             boostsetting="on"
-            optimsetting="on"
         else
             msg="neither gamemode nor perfmod"
             msg_log "debug" "$msg"
@@ -1255,7 +1170,6 @@ tick () {
         msg_log "debug" "$msg"
         set_governor "$governor"
         set_boost "$boostsetting"
-        perf_optim "$optimsetting"
         if [ "$governor" = "$governor_old" ] && [ "$boostsetting" = "$boost_old" ]; then
             StableCount=$(( StableCount + 1 ))
         else
@@ -1267,7 +1181,6 @@ tick () {
     else
         msg="gamemode active, nothing to do here"
         msg_log "debug" "$msg"
-        perf_optim "on"
         if [ "$gamemodeactive" -eq "$gamemode_old" ]; then
             StableCount=$(( StableCount + 1 ))
         else
@@ -1298,14 +1211,6 @@ outHandler () {
     msg_log "debug" "$msg"
     AFREQ_NO_CONTINUE=1
     # restore defaults on exit
-    write_to_file "$huge_pages"          "$k_hugepages"
-    write_to_file "$compaction"          "$k_compaction"
-    write_to_file "$huge_page_defrag"    "$k_pagedefrag"
-    write_to_file "$lock_unfairness"     "$k_lock"
-    if [ -z "$DESKTOP" ]; then
-        write_to_file "$dirty_writeback"  "$k_writeback"
-        write_to_file "$kernel_watchdog"  "$k_watchdog"
-    fi
     if [ -z "$DRYRUN" ] && [ -d "$status_path" ]; then
         rm -rf "$status_path" 2>/dev/null
     fi

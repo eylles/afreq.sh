@@ -19,10 +19,8 @@ these states are decided werether the system is runnin on battery which is deter
 program.
 These states then switch between 3 stages of system load, the switch occurs at the set stage
 engaging threshold, each stage sets a configured CPU Governor to dictate the frequency scaling,
-along some performance optimizations are set and IF the current CPU driver has support for a Turbo
-Boost method then the Turbo Boost will be engaged on the set threshold, at the time the Intel Turbo
-driver and the generic CPUFreq Turbo Boost are supported by this daemon.
-Additionally, when in BAT state the daemon will engage some battery saving optimizations.
+IF the current CPU driver has support for a Turbo Boost method then the Turbo Boost will be engaged
+on the set threshold, at the time the Intel Turbo driver and the generic CPUFreq Turbo Boost are supported by this daemon.
 .P
 If a battery type power supply cannot be found then afreq enters "DESKTOP" mode, in this mode only
 the settings for AC state are used and checks for AC status through
@@ -206,22 +204,6 @@ Range of values:
 
 
 .TP
-.B AC_THRESH_OPTIM
-.P
-Threshold for engaging performance optimizations in AC, INTEGER values.
-.TP
-Range of values:
-.T
-        Max 90
-.T
-        Min 10
-.TP
-
-.T
-    DEFAULT: 25
-
-
-.TP
 .B BAT_THRESH_ST2
 .P
 Threshold for switching to BAT Governor Stage 2, INTEGER values.
@@ -257,22 +239,6 @@ Range of values:
 .B BAT_THRESH_BOOST
 .P
 Threshold for engaging Turbo Boost in BAT if supported by cpu driver, INTEGER values.
-.TP
-Range of values:
-.T
-        Max 90
-.T
-        Min 10
-.TP
-
-.T
-    DEFAULT: 35
-
-
-.TP
-.B BAT_THRESH_OPTIM
-.P
-Threshold for engaging performance optimizations in BAT, INTEGER values.
 .TP
 Range of values:
 .T
