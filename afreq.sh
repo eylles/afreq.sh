@@ -655,6 +655,7 @@ keyval_parse () {
         esac
     done < "$1"
     IFS="$old_IFS"
+    unset key val
 }
 
 # usage: write_to_file "value" "file"
@@ -1126,7 +1127,7 @@ run_hooks_from_dir () {
                 $hook "$acstate" "$stage" "$governor" &
             fi
         done
-        unset rpath
+        unset hook
     fi
 }
 
