@@ -8,18 +8,19 @@ for dev in /sys/class/net/*; do
         interface="${dev##*/}"
         break
     fi
-    unset dev
 done
+unset dev
 
 # If no interface found, exit silently
 [ -z "$interface" ] && exit 0
 
 get_power_status() {
-    if iwconfig "$1" 2>/dev/null | grep -q "Power Management:on"; then
-        echo "on"
-    else
-        echo "off"
-    fi
+    status=$(iwconfig "$1" 2>/dev/null)
+
+    case "$status" in
+        *"Power Management:on"*)  echo "on" ;;
+        *"Power Management:off"*) echo "off" ;;
+    esac
 }
 
 echo "interface: $interface"
