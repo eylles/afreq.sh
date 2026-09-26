@@ -43,6 +43,9 @@ install: afreq
 	cp -f examples/wireless-power-management.sh $(EXAMP_LOC)/wireless-power-management.sh
 	cp -f examples/wireless-power-management-ac.sh $(EXAMP_LOC)/wireless-power-management-ac.sh
 	cp -f examples/wireless-power-management-bat.sh $(EXAMP_LOC)/wireless-power-management-bat.sh
+	chmod 755 $(EXAMP_LOC)/wireless-power-management.sh
+	chmod 755 $(EXAMP_LOC)/wireless-power-management-ac.sh
+	chmod 755 $(EXAMP_LOC)/wireless-power-management-bat.sh
 	mkdir -p $(BIN_LOC)
 	cp perfmod.sh $(BIN_LOC)/perfmod
 	chmod 755 $(BIN_LOC)/perfmod
